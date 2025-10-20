@@ -33,8 +33,7 @@ zstyle ':completion:*' menu select
 # Add kubectl autocompletion
 # source <(kubectl completion zsh)
 
-if type brew &>/dev/null
-then
+if type brew &>/dev/null; then
   FPATH="$(brew --prefix)/share/zsh/site-functions:${FPATH}"
 
   autoload -Uz compinit
@@ -50,7 +49,6 @@ fi
 export Z="$HOME/.zshrc"
 
 export N="$HOME/.config/nvim"
-
 
 # AWS config file path
 export A="$HOME/.aws/config"
@@ -150,8 +148,6 @@ alias f="flutter"
 
 alias t="terraform"
 
-
-
 # Easy recursive search in history fiiltering by current input text
 # https://unix.stackexchange.com/a/97844
 autoload -U history-search-end
@@ -160,23 +156,21 @@ zle -N history-beginning-search-forward-end history-search-end
 bindkey "^[[A" history-beginning-search-backward-end
 bindkey "^[[B" history-beginning-search-forward-end
 
-
 # Do not share history accross tabs
 unsetopt share_history
 
 ################################### FUNCTIONS ##################################
 
 # Custom mkdir + cd command
-mkcdir (){
-	mkdir -p -- "$1" &&
-	cd -P -- "$1"
+mkcdir() {
+  mkdir -p -- "$1" &&
+    cd -P -- "$1"
 }
 
 # Custom variable with current date
-precmd () {
-	cdate=$(date +'%d-%m-%Y')
+precmd() {
+  cdate=$(date +'%d-%m-%Y')
 }
-
 
 gclone_cd() {
   git clone "$1" && cd "$(basename "$1" .git)"
@@ -185,12 +179,10 @@ gclone_cd() {
 # Find and set branch name var if in git repository.
 # TODO: prevent this from executing on non-git directories
 git_branch_name() {
-  branch=$(git symbolic-ref HEAD --quiet 2>/dev/null | awk 'BEGIN{FS="heads/"} {print $NF}');
-  if [[ $branch == "" ]];
-  then
+  branch=$(git symbolic-ref HEAD --quiet 2>/dev/null | awk 'BEGIN{FS="heads/"} {print $NF}')
+  if [[ $branch == "" ]]; then
     head=$(git rev-parse --short HEAD 2>/dev/null)
-    if [[ $head == "" ]];
-    then
+    if [[ $head == "" ]]; then
     else
       echo '(detached '$head')'
     fi
@@ -199,32 +191,25 @@ git_branch_name() {
   fi
 }
 
-
 git_tag() {
-  tag=$(git tag --points-at 2> /dev/null) 
-  if [[ $tag == "" ]];
-  then
+  tag=$(git tag --points-at 2>/dev/null)
+  if [[ $tag == "" ]]; then
     :
   else
     echo '#('$tag')'
   fi
 }
 
-
 function cd_up() {
-  cd $(printf "%0.s../" $(seq 1 $1 ));
+  cd $(printf "%0.s../" $(seq 1 $1))
 }
 
-
-
-
 alias raspberri="ssh -i /Users/berenar/.ssh/raspberri.pem berenar@raspberrypizero2w.local"
-
 
 # VPN utilities
 
 function vpn-connect {
-/usr/bin/env osascript <<-EOF
+  /usr/bin/env osascript <<-EOF
 tell application "System Events"
         tell current location of network preferences
                 set VPN to service "MVST VPN" -- your VPN name here
@@ -238,7 +223,7 @@ EOF
 }
 
 function vpn-disconnect {
-/usr/bin/env osascript <<-EOF
+  /usr/bin/env osascript <<-EOF
 tell application "System Events"
         tell current location of network preferences
                 set VPN to service "MVST VPN" -- your VPN name here
@@ -249,30 +234,22 @@ return
 EOF
 }
 
-
-
-
 export PATH="$PATH:/Applications/Visual Studio Code.app/Contents/Resources/app/bin"
-
 
 export PATH=/usr/local/bin:$PATH
 export PATH="$PATH:/Users/berenar/development/flutter/bin"
 
 # source /Users/berenar/.docker/init-zsh.sh || true # Added by Docker Desktop
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion" # This loads nvm bash_completion
 
 export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
 # bun completions
 [ -s "/Users/berenar/.bun/_bun" ] && source "/Users/berenar/.bun/_bun"
 
-
-
 eval "$(zoxide init zsh)"
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-
 
 # place this after nvm initialization!
 autoload -U add-zsh-hook
