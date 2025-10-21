@@ -14,34 +14,6 @@
   "tui": {
     "scroll_speed": 5
   },
-  "permission": {
-    "edit": "ask",
-    "webfetch": "allow",
-    "bash": {
-      "find *": "allow",
-      "cat *": "allow",
-      "ls *": "allow",
-      "cd *": "allow",
-      "pwd *": "allow",
-      "grep *": "allow",
-      "curl *": "allow",
-      "rm": "ask",
-      "mv": "ask",
-      "cp": "ask",
-      "git commit": "ask",
-      "git status": "allow",
-      "git pull": "allow",
-      "git push": "ask",
-      "git diff": "allow",
-      "git checkout": "allow",
-      "gh pr diff": "allow",
-      "gh pr list": "allow",
-      "gh pr status": "allow",
-      "gh pr view": "allow",
-      "make": "allow",
-      "pnpm": "allow"
-    }
-  },
   "mcp": {
     "github": {
       "type": "local",
