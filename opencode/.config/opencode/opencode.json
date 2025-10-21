@@ -1,6 +1,6 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "github-copilot/claude-sonnet-4.5",
+  "model": "github-copilot/gpt-4.1",
   "theme": "github",
   "autoupdate": true,
   "username": "Bernat",
