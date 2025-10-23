@@ -12,6 +12,77 @@
     "GEMINI.md",
     "WINDSURF.md"
   ],
+  "agent": {
+    "plan": {
+      "permission": {
+        "edit": "deny",
+        "webfetch": "allow",
+        "bash": {
+          "awk *": "allow",
+          "cat *": "allow",
+          "cut *": "allow",
+          "diff *": "allow",
+          "echo *": "allow",
+          "env *": "allow",
+          "file *": "allow",
+          "find *": "allow",
+          "git diff *": "allow",
+          "git log *": "allow",
+          "git show *": "allow",
+          "git status *": "allow",
+          "grep *": "allow",
+          "head *": "allow",
+          "less *": "allow",
+          "ls *": "allow",
+          "pwd *": "allow",
+          "rg *": "allow",
+          "sort *": "allow",
+          "tail *": "allow",
+          "tree *": "allow",
+          "wc *": "allow",
+          "whereis *": "allow",
+          "which *": "allow",
+          "git *": "deny",
+          "rm *": "deny",
+          "*": "ask"
+        }
+      }
+    },
+    "build": {
+      "permission": {
+        "edit": "allow",
+        "webfetch": "allow",
+        "bash": {
+          "awk *": "allow",
+          "cat *": "allow",
+          "cut *": "allow",
+          "diff *": "allow",
+          "echo *": "allow",
+          "env *": "allow",
+          "file *": "allow",
+          "find *": "allow",
+          "git diff *": "allow",
+          "git log *": "allow",
+          "git show *": "allow",
+          "git status *": "allow",
+          "grep *": "allow",
+          "head *": "allow",
+          "less *": "allow",
+          "ls *": "allow",
+          "pwd *": "allow",
+          "rg *": "allow",
+          "sort *": "allow",
+          "tail *": "allow",
+          "tree *": "allow",
+          "wc *": "allow",
+          "whereis *": "allow",
+          "which *": "allow",
+          "git *": "ask",
+          "*": "ask"
+        }
+      }
+    }
+  },
   "tui": {
     "scroll_speed": 5
   },
