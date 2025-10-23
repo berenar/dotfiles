@@ -42,7 +42,6 @@
           "wc *": "allow",
           "whereis *": "allow",
           "which *": "allow",
-          "git *": "deny",
           "rm *": "deny",
           "*": "ask"
         }
@@ -77,7 +76,6 @@
           "wc *": "allow",
           "whereis *": "allow",
           "which *": "allow",
-          "git *": "ask",
           "*": "ask"
         }
       }
