@@ -1,6 +1,13 @@
 ---
 description: commit pending changes
-agent: build
+agent: plan
+model: github-copilot/gpt-4.1
+tools:
+  write: false
+  edit: false
+  bash:
+    git: ask
+  webfetch: false
 ---
 
 Use instructions from: ../instructions/commits.md
