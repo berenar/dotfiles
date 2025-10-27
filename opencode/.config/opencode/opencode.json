@@ -15,6 +15,9 @@
   "tui": {
     "scroll_speed": 5
   },
+  "permission": {
+    "bash": { "make *": "allow" }
+  },
   "mcp": {
     "github": {
       "enabled": true,
