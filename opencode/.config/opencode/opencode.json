@@ -1,7 +1,6 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "github-copilot/gpt-4.1",
-  "small_model": "github-copilot/gpt-5-mini",
+  "model": "github-copilot/gpt-5-mini",
   "theme": "github",
   "autoupdate": true,
   "username": "Bernat",
