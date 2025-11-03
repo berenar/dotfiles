@@ -10,6 +10,7 @@ Do this in Plan mode/agent, and only when I confirm this detailed plan, I'll cha
 Assume $ARGUMENTS is the Linear issue ID, if I didn't provide it, ask for it. If I provided it, don't ask me to confirm it.
 Get the issue from Linear using the linear MCP: "linear - get_issue"
 Set the issue status in Linear to "In Progress"
+If the issue contents contains a reference to another issue anywhere, fetch that one as well.
 Ask any relevant questions not mentioned in the issue description
 Read the codebase to pull relevant files into the context
 
