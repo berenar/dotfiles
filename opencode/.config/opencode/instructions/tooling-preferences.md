@@ -13,3 +13,8 @@ When your answer contains a single code snippet that's likely to be run by the u
 ## File Deletion
 
 Except for `node_modules` and any other project dependencies, prefer using `trash` instead of `rm`. It's safer and it allows to restore from the trash if you need to recover anything.
+
+## Docker
+
+If you ever get an error like `Cannot connect to the Docker daemon at ... run/docker.sock. Is the docker daemon running?`,
+you can run `open -a OrbStack` to start the Docker daemon (I'm using OrbStack on macOS).
