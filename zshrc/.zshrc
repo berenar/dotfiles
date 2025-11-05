@@ -76,7 +76,7 @@ bindkey "^[[B" history-beginning-search-forward-end
 
 # General
 alias 'cd..'='cd_up'
-alias a="opencode -c"
+alias a="opencode --continue"
 alias tm="tmux"
 
 # Vim
