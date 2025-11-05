@@ -4,7 +4,7 @@
 vim.keymap.set("n", "<leader>K", ":Telescope keymaps<CR>", { desc = "telescope Keymaps" })
 vim.keymap.set("n", "<leader><tab>n", ":tabNext<CR>", { desc = "Next Tab" })
 
--- vim.keymap.del("n", "<leader>gg")
+vim.keymap.del("n", "<leader>gg")
 
 vim.keymap.set("n", "<leader>tt", ":vsplit<CR>:terminal<CR>i", { desc = "Vertical Split" })
 
