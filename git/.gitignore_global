@@ -1,0 +1,15 @@
+# Windsurf configuration
+.windsurf/
+
+# Claude configuration
+.claude/
+
+# Bitbucket logs
+bitbucket.log
+
+.phpactor.json
+
+CLAUDE.md
+AGENTS.md
+
+.DS_Store
