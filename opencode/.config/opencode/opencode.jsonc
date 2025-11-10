@@ -9,13 +9,13 @@
     "CLAUDE.md",
     ".cursor/rules/*.md",
     "GEMINI.md",
-    "WINDSURF.md"
+    "WINDSURF.md",
   ],
   "tui": {
-    "scroll_speed": 5
+    "scroll_speed": 5,
   },
   "permission": {
-    "bash": { "make *": "allow" }
+    "bash": { "make *": "allow" },
   },
   "mcp": {
     "github": {
@@ -23,13 +23,13 @@
       "type": "local",
       "command": ["npx", "-y", "@modelcontextprotocol/server-github"],
       "environment": {
-        "GITHUB_PERSONAL_ACCESS_TOKEN": "{env:GITHUB_PERSONAL_ACCESS_TOKEN}"
-      }
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "{env:GITHUB_PERSONAL_ACCESS_TOKEN}",
+      },
     },
     "linear": {
       "enabled": true,
       "type": "local",
-      "command": ["npx", "-y", "mcp-remote", "https://mcp.linear.app/sse"]
+      "command": ["npx", "-y", "mcp-remote", "https://mcp.linear.app/sse"],
     },
     "context7": {
       "enabled": true,
@@ -39,23 +39,23 @@
         "-y",
         "@upstash/context7-mcp",
         "--api-key",
-        "{env:CONTEXT7_API_KEY}"
-      ]
+        "{env:CONTEXT7_API_KEY}",
+      ],
     },
     "sentry": {
       "enabled": false,
       "type": "remote",
-      "url": "https://mcp.sentry.dev/mcp"
+      "url": "https://mcp.sentry.dev/mcp",
     },
     "chrome-devtools": {
       "enabled": false,
       "type": "local",
-      "command": ["npx", "chrome-devtools-mcp@latest"]
+      "command": ["npx", "chrome-devtools-mcp@latest"],
     },
     "mcp-mermaid": {
       "enabled": false,
       "type": "local",
-      "command": ["npx", "-y", "mcp-mermaid"]
-    }
-  }
+      "command": ["npx", "-y", "mcp-mermaid"],
+    },
+  },
 }
