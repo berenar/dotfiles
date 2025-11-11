@@ -1,0 +1,31 @@
+[credential]
+	helper = osxkeychain
+[user]
+	name = Bernat Pericàs
+	email = bernatpericasserra97@gmail.com
+  signingkey = /Users/berenar/.ssh/github.pub
+[push]
+	autoSetupRemote = true
+[gpg]
+	format = ssh
+[gpg "ssh"]
+	program = ssh-keygen
+	allowedSignersFile = /Users/berenar/.ssh/allowed_signers
+[commit]
+	gpgsign = true
+[init]
+  defaultBranch = main
+[difftool]
+    prompt = true
+[diff]
+    tool = nvimdiff
+[difftool "nvimdiff"]
+    cmd = "nvim -d \"$LOCAL\" \"$REMOTE\""
+[core]
+	autocrlf = false
+	excludesfile = /Users/berenar/.gitignore_global
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true
