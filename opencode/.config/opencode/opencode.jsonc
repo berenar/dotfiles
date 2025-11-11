@@ -31,6 +31,11 @@
       "type": "local",
       "command": ["npx", "-y", "mcp-remote", "https://mcp.linear.app/sse"],
     },
+    "playwright": {
+      "enabled": true,
+      "type": "local",
+      "command": ["npx", "@playwright/mcp@latest"],
+    },
     "context7": {
       "enabled": true,
       "type": "local",
