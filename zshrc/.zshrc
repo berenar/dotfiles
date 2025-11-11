@@ -77,7 +77,7 @@ bindkey "^[[B" history-beginning-search-forward-end
 # General
 alias 'cd..'='cd_up'
 alias a="opencode --continue"
-alias tm="tmux"
+alias t="tmux a"
 
 # Vim
 alias v="nvim"
@@ -115,8 +115,8 @@ alias gpr=git_open_pr
 # Development tools
 alias y="yarn"
 alias b="bun"
+alias p="pnpm"
 alias f="flutter"
-alias t="terraform"
 
 # SSH
 alias raspberri="ssh -i /Users/berenar/.ssh/raspberri.pem berenar@raspberrypizero2w.local"
