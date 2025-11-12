@@ -3,7 +3,7 @@
 [user]
 	name = Bernat Pericàs
 	email = bernatpericasserra97@gmail.com
-  signingkey = /Users/berenar/.ssh/github.pub
+  signingkey = /Users/berenar/.ssh/github
 [push]
 	autoSetupRemote = true
 [gpg]
