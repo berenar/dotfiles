@@ -1,0 +1,6 @@
+# Encrypt sensitive files in the secrets directory
+secrets/.ssh/** filter=git-crypt diff=git-crypt
+secrets/.aws/** filter=git-crypt diff=git-crypt
+
+# Don't encrypt README files in secrets directory
+secrets/**/README.md !filter !diff
