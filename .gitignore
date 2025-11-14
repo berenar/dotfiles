@@ -1,3 +1,4 @@
 .DS_Store
 **/.env
 .zsh_secrets
+/lazygit/Library/Application Support/lazygit/state.yml
