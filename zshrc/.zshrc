@@ -43,26 +43,12 @@ PROMPT='%F{140}$(print -P %~)%F{blue} $(git_branch_name)%F{yellow} $(git_tag)%F{
 
 ################################### COMPLETION #####################################
 
-# Completion configuration
-zstyle ':completion:*' menu select
-
-# Homebrew completion
-if type brew &>/dev/null; then
-  FPATH="$(brew --prefix)/share/zsh/site-functions:${FPATH}"
-  autoload -Uz compinit
-  compinit
-fi
-
-# Docker completions
-fpath=(/Users/berenar/.docker/completions $fpath)
 autoload -Uz compinit
 compinit
 
-# Bun completions
-[ -s "/Users/berenar/.bun/_bun" ] && source "/Users/berenar/.bun/_bun"
-
-# NVM bash completion
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+export CARAPACE_BRIDGES='zsh,fish,bash,inshellisense' # optional
+zstyle ':completion:*' format $'\e[2;37mCompleting %d\e[m'
+source <(carapace _carapace)
 
 ################################### KEY BINDINGS ###################################
 
