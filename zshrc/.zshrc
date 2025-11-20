@@ -69,6 +69,9 @@ alias t="tmux a"
 alias v="nvim"
 alias vi="nvim"
 
+# Lazygit
+alias l="lazygit"
+
 # Git
 alias g="git"
 alias gcl=gclone_cd
