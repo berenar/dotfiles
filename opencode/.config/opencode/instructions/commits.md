@@ -1,6 +1,6 @@
 # Git Commit Workflow
 
-Important: Unless the user asks to commit something, NEVER COMMIT any code.
+Important! On Build mode, never ever commit anything, unless I explicitly ask for it.
 
 - Don't add description of your changes to the commit
 - The commit message should say why this change was done, if not obvious.
