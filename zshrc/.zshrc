@@ -4,8 +4,8 @@
 export LANG=en_US.UTF-8
 
 # Editors
-export VISUAL="code --wait"
 export EDITOR="nvim"
+export VISUAL="nvim"
 
 # Homebrew
 export HOMEBREW_NO_AUTO_UPDATE="1"
@@ -51,6 +51,10 @@ zstyle ':completion:*' format $'\e[2;37mCompleting %d\e[m'
 source <(carapace _carapace)
 
 ################################### KEY BINDINGS ###################################
+
+autoload -Uz edit-command-line
+zle -N edit-command-line
+bindkey '^X^E' edit-command-line
 
 autoload -U history-search-end
 zle -N history-beginning-search-backward-end history-search-end
@@ -217,3 +221,4 @@ load-nvmrc
 ################################### ZOXIDE #########################################
 
 eval "$(zoxide init zsh)"
+export PATH="$HOME/.local/bin:$PATH"
