@@ -29,3 +29,10 @@
 	smudge = git-lfs smudge -- %f
 	process = git-lfs filter-process
 	required = true
+
+; Order matters: last matching rule wins, so general paths first, specific paths last
+[includeIf "gitdir:~/mvst/*/"]
+  path = ~/mvst/.gitconfig
+
+[includeIf "gitdir:~/mvst/repos/clbrt/*/"]
+  path = ~/mvst/repos/clbrt/.gitconfig
