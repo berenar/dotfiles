@@ -222,3 +222,6 @@ load-nvmrc
 
 eval "$(zoxide init zsh)"
 export PATH="$HOME/.local/bin:$PATH"
+
+# bun completions
+[ -s "/Users/berenar/.bun/_bun" ] && source "/Users/berenar/.bun/_bun"
