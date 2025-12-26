@@ -15,7 +15,12 @@
     "scroll_speed": 5,
   },
   "permission": {
-    "bash": { "make *": "allow" },
+    "bash": {
+      "make *": "allow",
+      "echo *": "allow",
+      "grep *": "allow",
+      "cat *": "allow",
+    },
   },
   "mcp": {
     "github": {
