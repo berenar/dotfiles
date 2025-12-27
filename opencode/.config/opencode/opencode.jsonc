@@ -12,7 +12,7 @@
     "WINDSURF.md",
   ],
   "tui": {
-    "scroll_speed": 5,
+    "scroll_speed": 1,
   },
   "permission": {
     "bash": {
