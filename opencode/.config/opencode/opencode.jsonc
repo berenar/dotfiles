@@ -22,6 +22,16 @@
       "cat *": "allow",
     },
   },
+  "agent": {
+    "general": {
+      "mode": "subagent",
+      "model": "github-copilot/gpt-4o",
+    },
+    "explore": {
+      "mode": "subagent",
+      "model": "github-copilot/gpt-4o",
+    },
+  },
   "mcp": {
     "github": {
       "enabled": false,
