@@ -35,7 +35,7 @@ return {
 			autoformat = false,
 			inlay_hints = { enabled = false },
 			servers = {
-				copilot = {},
+
 			},
 		},
 		cmds = {
