@@ -29,27 +29,27 @@ end
 vim.api.nvim_create_user_command("RenameFile", rename_file, {})
 
 return {
-	{
-		"neovim/nvim-lspconfig",
-		opts = {
-			autoformat = false,
-			inlay_hints = { enabled = false },
-			servers = {
+  {
+    "neovim/nvim-lspconfig",
+    opts = {
+      autoformat = false,
+      inlay_hints = { enabled = false },
+      servers = {
 
-			},
-		},
-		cmds = {
-			RenameFile = {
-				rename_file,
-				description = "Rename File",
-			},
-		},
-	},
-	
-	{
-		"mason-org/mason-lspconfig.nvim",
-		opts = {
-			automatic_installation = true,
-		},
-	},
+      },
+    },
+    cmds = {
+      RenameFile = {
+        rename_file,
+        description = "Rename File",
+      },
+    },
+  },
+  
+  {
+    "mason-org/mason-lspconfig.nvim",
+    opts = {
+      automatic_installation = true,
+    },
+  },
 }
