@@ -7,8 +7,8 @@ return {
 			vim.keymap.set("n", "<leader>gd", ":Gitsigns preview_hunk<CR>", {})
 			vim.keymap.set("n", "<leader>gb", ":Gitsigns blame_line<CR>", {})
 			-- FIXME: They don't work as they would need to overwrite existing keymaps?
-			-- vim.keymap.set("n", "[c", ":Gitsigns nav_hunk('prev')<CR>", {})
-			-- vim.keymap.set("n", "]c", ":Gitsigns nav_hunk('next')<CR>", {})
+vim.keymap.set("n", "[c", function() require("gitsigns").nav_hunk("prev") end, { desc = "Prev git hunk" })
+vim.keymap.set("n", "]c", function() require("gitsigns").nav_hunk("next") end, { desc = "Next git hunk" })
 		end,
 	},
 }
