@@ -22,6 +22,9 @@
       "cat *": "allow",
     },
   },
+  "keybinds": {
+    "model_cycle_favorite": "<leader>f",
+  },
   "agent": {
     "general": {
       "mode": "subagent",
