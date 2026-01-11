@@ -57,25 +57,42 @@ brew "hashicorp/tap/terraform"
 brew "oven-sh/bun/bun"
 cask "1password", args: { appdir: "/Applications" }
 cask "1password-cli"
+cask "arc"
 cask "battery"
+cask "chatgpt"
+cask "chatgpt-atlas"
+cask "claude"
+cask "cursor"
 cask "docker-desktop", args: { appdir: "/Applications" }
 cask "drawpen"
+cask "figma"
 cask "firefox", args: { appdir: "/Applications" }
 cask "ghostty"
+cask "gimp"
 cask "google-chrome", args: { appdir: "/Applications" }
 cask "iterm2"
 cask "keycastr"
 cask "kitty"
+cask "linear-linear"
 cask "loom"
+cask "microsoft-excel"
+cask "microsoft-word"
 cask "ngrok"
 cask "notion", args: { appdir: "/Applications" }
+cask "notion-calendar"
+cask "notion-mail"
+cask "obs"
+cask "openvpn-connect"
 cask "orbstack"
 cask "postman", args: { appdir: "/Applications" }
 cask "raycast"
 cask "slack"
+cask "sublime-text"
+cask "tableplus"
 cask "telegram", args: { appdir: "/Applications" }
 cask "visual-studio-code", args: { appdir: "/Applications" }
 cask "vlc"
+cask "windsurf"
 mas "Keynote", id: 409183694
 mas "Numbers", id: 409203825
 mas "Pages", id: 409201541
