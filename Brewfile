@@ -1,54 +1,45 @@
-# Homebrew packages for easy installation on a new computer
-# Install with: brew bundle --file=Brewfile
-
-# Taps
 tap "1password/tap"
 tap "domt4/autoupdate"
-tap "esolitos/ipa"
-tap "getsentry/tools"
 tap "hashicorp/tap"
-tap "homebrew/services"
-tap "koekeishiya/formulae"
-tap "leoafarias/fvm"
 tap "ngrok/ngrok"
-tap "nikitabobko/tap"
 tap "oven-sh/bun"
-tap "sst/tap"
-
-# Formulae
+brew "autoconf"
 brew "automake"
 brew "awscli"
 brew "carapace"
+brew "node"
 brew "cloudflare-wrangler"
+brew "libtool"
+brew "libpq"
+brew "php"
 brew "composer"
 brew "coreutils"
 brew "deno"
 brew "difftastic"
-brew "docutils"
 brew "ffmpeg"
 brew "fzf"
+brew "gemini-cli"
 brew "gh"
 brew "git"
 brew "git-delta"
 brew "git-lfs"
+brew "libksba"
 brew "gnupg"
 brew "graphviz"
-brew "hashicorp/tap/terraform"
 brew "htop"
 brew "jq"
 brew "lazydocker"
 brew "lazygit"
 brew "lefthook"
-brew "leoafarias/fvm/fvm"
+brew "libyaml"
+brew "mas"
 brew "mole"
 brew "neovim"
 brew "nvm"
-brew "openssl@1.1"
-brew "oven-sh/bun/bun"
 brew "pinentry-mac"
+brew "pkgconf"
 brew "pnpm"
 brew "pv"
-brew "pyenv"
 brew "rbenv"
 brew "redis"
 brew "ripgrep"
@@ -56,36 +47,38 @@ brew "shfmt"
 brew "sox"
 brew "stow"
 brew "stripe-cli"
-brew "tldr"
 brew "tmux"
-brew "trash"
+brew "trash", link: true
 brew "whisper-cpp"
 brew "yarn"
 brew "zlib"
 brew "zoxide"
-
-# Casks
-cask "1password"
+brew "hashicorp/tap/terraform"
+brew "oven-sh/bun/bun"
+cask "1password", args: { appdir: "/Applications" }
 cask "1password-cli"
-cask "aerospace"
-cask "alacritty"
-cask "aldente"
 cask "battery"
-cask "docker"
-cask "firefox"
+cask "docker-desktop", args: { appdir: "/Applications" }
+cask "drawpen"
+cask "firefox", args: { appdir: "/Applications" }
 cask "ghostty"
-cask "google-chrome"
+cask "google-chrome", args: { appdir: "/Applications" }
 cask "iterm2"
 cask "keycastr"
 cask "kitty"
 cask "loom"
 cask "ngrok"
-cask "notion"
-cask "notunes"
+cask "notion", args: { appdir: "/Applications" }
 cask "orbstack"
-cask "postman"
+cask "postman", args: { appdir: "/Applications" }
 cask "raycast"
 cask "slack"
-cask "telegram"
-cask "visual-studio-code"
+cask "telegram", args: { appdir: "/Applications" }
+cask "visual-studio-code", args: { appdir: "/Applications" }
 cask "vlc"
+mas "Keynote", id: 409183694
+mas "Numbers", id: 409203825
+mas "Pages", id: 409201541
+mas "TestFlight", id: 899247664
+mas "WhatsApp", id: 310633997
+mas "Xcode", id: 497799835

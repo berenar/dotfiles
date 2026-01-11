@@ -27,3 +27,9 @@ To install the packages listed in the `Brewfile`, run the following command:
 ```bash
 brew bundle --file=Brewfile
 ```
+
+To regenerate the `Brewfile` with your currently installed packages:
+
+```bash
+brew bundle dump --file=~/dotfiles/Brewfile --force --no-restart --no-vscode
+```
