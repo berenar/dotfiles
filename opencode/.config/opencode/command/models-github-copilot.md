@@ -2,11 +2,6 @@
 description: list pricing of GitHub Copilot Models
 agent: plan
 model: github-copilot/gpt-4.1
-tools:
-  write: false
-  edit: false
-  bash: false
-  webfetch: true
 ---
 
 Your task is to fetch the latest information from [GitHub Copilot Model Multipliers](https://docs.github.com/en/copilot/concepts/billing/copilot-requests#model-multipliers).

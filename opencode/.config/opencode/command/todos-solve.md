@@ -1,5 +1,5 @@
 ---
-description: fix any TODO comments introduced in this branch
+description: plan how to fix any TODO comments introduced in this branch
 agent: plan
 ---
 
