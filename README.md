@@ -32,11 +32,13 @@ brew bundle dump --force --no-restart --no-vscode
 
 ## Dotfiles
 
-- To add new dotfiles: move them into a folder matching the application name (e.g., `.config/nvim/` → `nvim/.config/nvim/`).
-- To apply existing dotfiles: run `stow <application>` to create symlinks in your home directory.
+Dotfiles are stored in the `dotfiles/` subdirectory and managed with GNU Stow.
+
+- To add new dotfiles: move them into `dotfiles/<app>/` matching the application name (e.g., `.config/nvim/` → `dotfiles/nvim/.config/nvim/`).
+- To apply existing dotfiles: run the stow command to create symlinks in your home directory.
 
 ```bash
-stow <application>
+stow -d dotfiles -t ~ <application>
 ```
 
 ## macOS Configuration

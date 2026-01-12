@@ -30,15 +30,17 @@ brew bundle dump --force --no-restart --no-vscode
 
 ### Dotfiles Management
 
+Stow packages are located in the `dotfiles/` subdirectory.
+
 ```bash
 # Apply a dotfile package (creates symlinks to home directory)
-stow <package>
+stow -d dotfiles -t ~ <package>
 
 # Remove a dotfile package
-stow -D <package>
+stow -d dotfiles -t ~ -D <package>
 
 # Preview what stow would do (dry run)
-stow -n -v <package>
+stow -d dotfiles -t ~ -n -v <package>
 ```
 
 ### macOS Configuration
@@ -52,7 +54,7 @@ bash scripts/macos-config.sh
 
 ## Stow Package Structure
 
-Each stow package is a directory at the repository root. The internal structure mirrors
+Each stow package is a directory inside `dotfiles/`. The internal structure mirrors
 the home directory layout.
 
 ### Current Packages
@@ -63,18 +65,19 @@ git, kitty, lazydocker, lazygit, nvim, opencode, ssh, tmux, zshrc
 
 To add a new config file to the repository:
 
-1. Create a directory matching the application name
+1. Create a directory inside `dotfiles/` matching the application name
 2. Inside, recreate the path from home directory
 3. Move the config file into this structure
-4. Run `stow <package>` to create the symlink
+4. Run `stow -d dotfiles -t ~ <package>` to create the symlink
 
 Example: Adding `~/.config/foo/config.yml`
 
 ```
-foo/
-  .config/
-    foo/
-      config.yml
+dotfiles/
+  foo/
+    .config/
+      foo/
+        config.yml
 ```
 
 ---
@@ -120,7 +123,7 @@ These patterns are ignored and should stay that way:
 .DS_Store
 **/.env
 .zsh_secrets
-/lazygit/Library/Application Support/lazygit/state.yml
+/dotfiles/lazygit/Library/Application Support/lazygit/state.yml
 ```
 
 ### Privacy Considerations
@@ -146,12 +149,12 @@ Shell scripts in this repository follow these conventions:
 
 ## OpenCode Plugin Development
 
-The `opencode/.config/opencode/` directory contains TypeScript plugins.
+The `dotfiles/opencode/.config/opencode/` directory contains TypeScript plugins.
 
 ### Plugin Structure
 
 ```
-opencode/.config/opencode/
+dotfiles/opencode/.config/opencode/
   plugin/           # TypeScript plugins
   command/          # Custom slash commands (markdown)
   instructions/     # System instructions (markdown)
@@ -178,13 +181,14 @@ dotfiles/
   README.md             # User documentation
   scripts/
     macos-config.sh     # macOS system preferences
-  git/                  # Stow package
-  kitty/                # Stow package
-  lazydocker/           # Stow package
-  lazygit/              # Stow package
-  nvim/                 # Stow package (LazyVim)
-  opencode/             # Stow package (AI agent config)
-  ssh/                  # Stow package
-  tmux/                 # Stow package
-  zshrc/                # Stow package
+  dotfiles/             # Stow packages directory
+    git/                # Stow package
+    kitty/              # Stow package
+    lazydocker/         # Stow package
+    lazygit/            # Stow package
+    nvim/               # Stow package (LazyVim)
+    opencode/           # Stow package (AI agent config)
+    ssh/                # Stow package
+    tmux/               # Stow package
+    zshrc/              # Stow package
 ```
