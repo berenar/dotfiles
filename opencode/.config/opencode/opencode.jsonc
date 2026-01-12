@@ -11,6 +11,7 @@
     "GEMINI.md",
     "WINDSURF.md",
   ],
+  "plugin": ["cc-safety-net"],
   "tui": {
     "scroll_speed": 1,
   },
