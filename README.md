@@ -33,3 +33,13 @@ To regenerate the `Brewfile` with your currently installed packages:
 ```bash
 brew bundle dump --file=~/dotfiles/Brewfile --force --no-restart --no-vscode
 ```
+
+## macOS Configuration
+
+This repository includes a script to apply preferred macOS system settings.
+
+To apply the settings:
+
+```bash
+bash scripts/macos-config.sh
+```
