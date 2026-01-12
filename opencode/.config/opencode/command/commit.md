@@ -1,6 +1,6 @@
 ---
 description: commit pending changes
-agent: plan
+agent: build
 ---
 
 Use instructions from: ../instructions/commits.md to commit the pending changes:
