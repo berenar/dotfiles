@@ -5,3 +5,5 @@ os:
 git:
   pagers:
     - externalDiffCommand: difft --color=always --tab-width=2 --display=side-by-side
+gui:
+  sidePanelWidth: 0.15
