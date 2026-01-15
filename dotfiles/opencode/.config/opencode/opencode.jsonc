@@ -13,7 +13,9 @@
   ],
   "plugin": ["cc-safety-net"],
   "tui": {
-    "scroll_speed": 1,
+    "scroll_acceleration": {
+      "enabled": true,
+    },
   },
   "permission": {
     "bash": {
