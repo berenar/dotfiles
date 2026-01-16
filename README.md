@@ -34,8 +34,24 @@ brew bundle dump --force --no-restart --no-vscode
 
 Dotfiles are stored in the `dotfiles/` subdirectory and managed with GNU Stow.
 
-- To add new dotfiles: move them into `dotfiles/<app>/` matching the application name (e.g., `.config/nvim/` → `dotfiles/nvim/.config/nvim/`).
-- To apply existing dotfiles: run the stow command to create symlinks in your home directory.
+## Dotfiles Packages
+
+This repository manages the following dotfiles packages:
+
+- [kitty](https://github.com/kovidgoyal/kitty) - A fast, feature-rich, and GPU-based terminal emulator.
+- [lazydocker](https://github.com/jesseduffield/lazydocker) - A simple terminal UI for Docker.
+- [lazygit](https://github.com/jesseduffield/lazygit) - A simple terminal UI for Git.
+- [nvim](https://github.com/neovim/neovim) - Hyperextensible Vim-based text editor.
+- [tmux](https://github.com/tmux/tmux) - A terminal multiplexer.
+- [opencode](https://github.com/anomalyco/opencode) - The open source AI coding agent.
+
+### Add
+
+To add new dotfiles, move them into `dotfiles/<app>/` matching the application name (e.g., `.config/nvim/` → `dotfiles/nvim/.config/nvim/`).
+
+### Apply
+
+To apply existing dotfiles: run the stow command to create symlinks in your home directory.
 
 ```bash
 stow -d dotfiles -t ~ <application>
