@@ -28,7 +28,10 @@
   "keybinds": {
     "model_cycle_favorite": "ctrl+f",
   },
+  "default_agent": "plan",
   "agent": {
+    "plan": { "color": "#39C5CF" },
+    "build": { "color": "#A855F7" },
     "general": {
       "mode": "subagent",
       "model": "github-copilot/gpt-4o",
