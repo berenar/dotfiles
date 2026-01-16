@@ -1,4 +1,5 @@
 tap "1password/tap"
+tap "anomalyco/tap"
 tap "domt4/autoupdate"
 tap "hashicorp/tap"
 tap "ngrok/ngrok"
@@ -53,6 +54,7 @@ brew "whisper-cpp"
 brew "yarn"
 brew "zlib"
 brew "zoxide"
+brew "anomalyco/tap/opencode"
 brew "hashicorp/tap/terraform"
 brew "oven-sh/bun/bun"
 cask "1password", args: { appdir: "/Applications" }
