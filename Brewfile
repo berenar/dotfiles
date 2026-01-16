@@ -65,6 +65,8 @@ cask "battery"
 cask "chatgpt"
 cask "chatgpt-atlas"
 cask "claude"
+cask "codex"
+cask "copilot-cli"
 cask "cursor"
 cask "docker-desktop", args: { appdir: "/Applications" }
 cask "drawpen"
