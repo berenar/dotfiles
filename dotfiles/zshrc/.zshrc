@@ -7,9 +7,6 @@ export LANG=en_US.UTF-8
 export EDITOR="nvim"
 export VISUAL="nvim"
 
-# Homebrew
-export HOMEBREW_NO_AUTO_UPDATE="1"
-
 # Android Studio
 export ANDROID_HOME=~/Library/Android/sdk
 export ANDROID_SDK_ROOT=$HOME/Library/Android/sdk
