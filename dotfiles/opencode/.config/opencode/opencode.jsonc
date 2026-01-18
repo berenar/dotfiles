@@ -5,7 +5,6 @@
   "autoupdate": true,
   "username": "Bernat",
   "instructions": [
-    "./instructions/*.md",
     "CLAUDE.md",
     ".cursor/rules/*.md",
     "GEMINI.md",
