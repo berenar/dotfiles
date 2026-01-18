@@ -4,6 +4,13 @@ This document consolidates all instructions and preferences for assisting users 
 
 ---
 
+## Plan Mode
+
+- Make the plan extremely concise. Sacrifice grammar for the sake of concision.
+- At the end of each plan, give me a list of unresolved questions to answer, if any.
+
+---
+
 ## General Coding Preferences
 
 If I don't specify it, assume I want a Typescript answer.
