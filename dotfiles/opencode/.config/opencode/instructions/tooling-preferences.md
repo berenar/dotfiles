@@ -7,7 +7,7 @@ Use `make help` to check the repository make commands. Use the `package.json` sc
 
 ### Code Snippet Sharing
 
-When your answer contains a single code snippet that's likely to be run by the user and not something you already changed on a file, copy it to my clipboard:
+When your answer contains a single code snippet or command that's likely to be run manually by the user and not something you already changed on a file, copy it to my clipboard:
 `echo "<the code snippet>" | pbcopy`
 
 ### File Deletion
