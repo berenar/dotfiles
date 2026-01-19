@@ -5,6 +5,16 @@
   "autoupdate": true,
   "username": "Bernat",
   "instructions": [
+    // these are relative to where opencode is run from, therefore the global ones need full paths
+    "/Users/berenar/dotfiles/dotfiles/opencode/.config/opencode/instructions/responding.md",
+    "/Users/berenar/dotfiles/dotfiles/opencode/.config/opencode/instructions/plan-mode.md",
+    "/Users/berenar/dotfiles/dotfiles/opencode/.config/opencode/instructions/build-mode.md",
+    "/Users/berenar/dotfiles/dotfiles/opencode/.config/opencode/instructions/coding-preferences.md",
+    "/Users/berenar/dotfiles/dotfiles/opencode/.config/opencode/instructions/testing.md",
+    "/Users/berenar/dotfiles/dotfiles/opencode/.config/opencode/instructions/git-commit-workflow.md",
+    "/Users/berenar/dotfiles/dotfiles/opencode/.config/opencode/instructions/identity.md",
+    "/Users/berenar/dotfiles/dotfiles/opencode/.config/opencode/instructions/external-links.md",
+    "/Users/berenar/dotfiles/dotfiles/opencode/.config/opencode/instructions/tooling-preferences.md",
     "CLAUDE.md",
     ".cursor/rules/*.md",
     "GEMINI.md",
