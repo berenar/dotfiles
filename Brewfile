@@ -75,7 +75,7 @@ cask "figma"
 cask "firefox", args: { appdir: "/Applications" }
 cask "ghostty"
 cask "gimp"
-cask "google-chrome", args: { appdir: "/Applications" }
+cask "google-chrome"
 cask "iterm2"
 cask "keycastr"
 cask "kitty"
