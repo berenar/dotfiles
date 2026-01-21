@@ -69,8 +69,6 @@ cask "claude"
 cask "codex"
 cask "copilot-cli"
 cask "cursor"
-cask "docker-desktop", args: { appdir: "/Applications" }
-cask "drawpen"
 cask "figma"
 cask "firefox", args: { appdir: "/Applications" }
 cask "ghostty"
@@ -97,7 +95,6 @@ cask "sublime-text"
 cask "tableplus"
 cask "telegram", args: { appdir: "/Applications" }
 cask "visual-studio-code", args: { appdir: "/Applications" }
-cask "vlc"
 cask "windsurf"
 mas "Keynote", id: 409183694
 mas "Numbers", id: 409203825
