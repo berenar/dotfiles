@@ -34,6 +34,13 @@ export A="$HOME/.aws/config"
 setopt prompt_subst
 unsetopt share_history
 
+################################### TMUX ###########################################
+
+# Start tmux automatically when opening a terminal
+if [[ -o interactive ]] && [[ -z "$TMUX" ]]; then
+  tmux attach || tmux new -s $(basename "$PWD")
+fi
+
 ################################### PROMPT #########################################
 
 PROMPT='%F{140}$(print -P %~)%F{blue} $(git_branch_name)%F{yellow} $(git_tag)%F{reset}'
