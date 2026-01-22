@@ -73,13 +73,12 @@ alias 'cd..'='cd_up'
 alias o="opencode"
 alias a="opencode --continue"
 alias t="tmux a"
-
-# Vim
-alias v="nvim"
-alias vi="nvim"
-
-# Lazygit
 alias l="lazygit"
+alias v="nvim"
+alias y="yarn"
+alias b="bun"
+alias p="pnpm"
+alias f="flutter"
 
 # Git
 alias g="git"
@@ -88,11 +87,8 @@ alias gr="g restore"
 alias grs="g restore --staged"
 alias gs=" g status"
 alias gb="g branch"
-alias gst="g stash"
-alias gstm="g stash -m"
 alias gd="g diff && g diff --cached"
 alias gch="g checkout"
-alias gcha="g checkout-branch -a"
 alias gp="g pull --rebase"
 alias gf="g fetch"
 alias gfp="gf --prune"
@@ -109,12 +105,6 @@ alias gm="g merge"
 alias gu="g reset --soft HEAD~1"
 alias gph="g push"
 alias gpr=git_open_pr
-
-# Development tools
-alias y="yarn"
-alias b="bun"
-alias p="pnpm"
-alias f="flutter"
 
 # SSH
 alias raspberri="ssh -i /Users/berenar/.ssh/raspberri.pem berenar@raspberrypizero2w.local"
