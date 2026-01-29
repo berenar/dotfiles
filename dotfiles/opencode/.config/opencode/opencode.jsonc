@@ -49,6 +49,7 @@
       "mode": "subagent",
       "model": "github-copilot/gpt-4o",
     },
+    "compaction": { "model": "github-copilot/gpt-4o" },
   },
   "mcp": {
     "github": {
