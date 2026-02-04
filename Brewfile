@@ -56,7 +56,6 @@ brew "whisper-cpp"
 brew "yarn"
 brew "zlib"
 brew "zoxide"
-brew "anomalyco/tap/opencode"
 brew "hashicorp/tap/terraform"
 brew "oven-sh/bun/bun"
 cask "1password", args: { appdir: "/Applications" }
