@@ -39,8 +39,8 @@
   },
   "default_agent": "plan",
   "agent": {
-    "plan": { "model": "openai/gpt-5.2", "color": "#39C5CF" },
-    "build": { "model": "openai/gpt-5.2-codex", "color": "#A855F7" },
+    "plan": { "color": "#39C5CF" },
+    "build": { "color": "#A855F7" },
     "general": {
       "mode": "subagent",
       "model": "github-copilot/gpt-4o",
