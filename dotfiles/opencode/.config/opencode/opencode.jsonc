@@ -1,6 +1,6 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "github-copilot/gpt-4o", // default model when agent is not build nor plan
+  "model": "github-copilot/gpt-5-mini",
   "theme": "github",
   "autoupdate": true,
   "username": "Bernat",
