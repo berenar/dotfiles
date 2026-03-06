@@ -82,6 +82,11 @@
       "type": "remote",
       "url": "https://mcp.notion.com/mcp",
     },
+    "figma": {
+      "type": "remote",
+      "url": "https://mcp.figma.com/mcp",
+      "enabled": true,
+    },
     "chrome-devtools": {
       "enabled": false,
       "type": "local",
