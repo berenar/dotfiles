@@ -19,9 +19,7 @@
     "GEMINI.md",
     "WINDSURF.md",
   ],
-  "plugin": [
-    "cc-safety-net"
-  ],
+  "plugin": ["cc-safety-net"],
   "permission": {
     "bash": {
       "make *": "allow",
