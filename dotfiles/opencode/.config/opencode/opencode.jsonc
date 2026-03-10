@@ -32,14 +32,6 @@
   "agent": {
     "plan": { "color": "#39C5CF" },
     "build": { "color": "#A855F7" },
-    "general": {
-      "mode": "subagent",
-      "model": "github-copilot/gpt-4o",
-    },
-    "explore": {
-      "mode": "subagent",
-      "model": "github-copilot/gpt-4o",
-    },
     "compaction": { "model": "github-copilot/gpt-4o" },
   },
   "mcp": {
