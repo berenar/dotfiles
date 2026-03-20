@@ -46,7 +46,7 @@
     "linear": {
       "enabled": false,
       "type": "local",
-      "command": ["npx", "-y", "mcp-remote", "https://mcp.linear.app/sse"],
+      "command": ["npx", "-y", "mcp-remote", "https://mcp.linear.app/mcp"],
     },
     "playwright": {
       "enabled": false,
