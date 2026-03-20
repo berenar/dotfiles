@@ -82,7 +82,7 @@
     "chrome-devtools": {
       "enabled": false,
       "type": "local",
-      "command": ["npx", "chrome-devtools-mcp@latest"],
+      "command": ["npx", "-y", "chrome-devtools-mcp@latest"],
     },
     "mcp-mermaid": {
       "enabled": false,
