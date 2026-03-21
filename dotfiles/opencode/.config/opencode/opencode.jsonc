@@ -75,9 +75,9 @@
       "url": "https://mcp.notion.com/mcp",
     },
     "figma": {
+      "enabled": false,
       "type": "remote",
       "url": "https://mcp.figma.com/mcp",
-      "enabled": true,
     },
     "chrome-devtools": {
       "enabled": false,
