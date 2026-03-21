@@ -53,17 +53,6 @@
       "type": "local",
       "command": ["npx", "@playwright/mcp@latest"],
     },
-    "context7": {
-      "enabled": false,
-      "type": "local",
-      "command": [
-        "npx",
-        "-y",
-        "@upstash/context7-mcp",
-        "--api-key",
-        "{env:CONTEXT7_API_KEY}",
-      ],
-    },
     "sentry": {
       "enabled": false,
       "type": "remote",
