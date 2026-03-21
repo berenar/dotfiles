@@ -35,33 +35,16 @@
     "compaction": { "model": "github-copilot/gpt-4o" },
   },
   "mcp": {
-    "github": {
-      "enabled": false,
-      "type": "local",
-      "command": ["npx", "-y", "@modelcontextprotocol/server-github"],
-      "environment": {
-        "GITHUB_PERSONAL_ACCESS_TOKEN": "{env:GITHUB_PERSONAL_ACCESS_TOKEN}",
-      },
-    },
+    // Quite useful
     "linear": {
       "enabled": false,
       "type": "local",
       "command": ["npx", "-y", "mcp-remote", "https://mcp.linear.app/mcp"],
     },
-    "playwright": {
-      "enabled": false,
-      "type": "local",
-      "command": ["npx", "@playwright/mcp@latest"],
-    },
     "sentry": {
       "enabled": false,
       "type": "remote",
       "url": "https://mcp.sentry.dev/mcp",
-    },
-    "notion": {
-      "enabled": false,
-      "type": "remote",
-      "url": "https://mcp.notion.com/mcp",
     },
     "figma": {
       "enabled": false,
@@ -72,6 +55,25 @@
       "enabled": false,
       "type": "local",
       "command": ["npx", "-y", "chrome-devtools-mcp@latest"],
+    },
+    // Barely useful
+    "github": {
+      "enabled": false, // using gh cli instead
+      "type": "local",
+      "command": ["npx", "-y", "@modelcontextprotocol/server-github"],
+      "environment": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "{env:GITHUB_PERSONAL_ACCESS_TOKEN}",
+      },
+    },
+    "playwright": {
+      "enabled": false, // using chrome-devtools-mcp instead
+      "type": "local",
+      "command": ["npx", "@playwright/mcp@latest"],
+    },
+    "notion": {
+      "enabled": false,
+      "type": "remote",
+      "url": "https://mcp.notion.com/mcp",
     },
     "mcp-mermaid": {
       "enabled": false,
