@@ -3,8 +3,6 @@ description: commit pending changes
 agent: build
 ---
 
-Use instructions from: ../instructions/commits.md to commit the pending changes:
-
 Match the format of past commits:
 !`git log --oneline -20`
 
