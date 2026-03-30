@@ -28,6 +28,32 @@
       "cat *": "allow",
     },
   },
+  "provider": {
+    "openai": {
+      "models": {
+        "gpt-5.4": {
+          "variants": {
+            "none": { "disabled": true },
+            "minimal": { "disabled": true },
+            "low": { "disabled": true },
+            "medium": { "disabled": true },
+          },
+        },
+      },
+    },
+    "github-copilot": {
+      "models": {
+        "gpt-5-mini": {
+          "variants": {
+            "none": { "disabled": true },
+            "minimal": { "disabled": true },
+            "low": { "disabled": true },
+            "medium": { "disabled": true },
+          },
+        },
+      },
+    },
+  },
   "default_agent": "plan",
   "agent": {
     "plan": { "color": "#39C5CF" },
