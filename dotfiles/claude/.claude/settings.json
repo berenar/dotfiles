@@ -1,9 +1,15 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "effortLevel": "xhigh",
+  "model": "claude-opus-4-7",
+  "autoMemoryEnabled": true,
+  "autoUpdatesChannel": "stable",
+  "cleanupPeriodDays": 30,
+  "outputStyle": "default",
   "permissions": {
     "defaultMode": "auto"
   },
-  "effortLevel": "medium",
-  "tui": "fullscreen",
-  "skipAutoPermissionPrompt": true
+  "skipAutoPermissionPrompt": true,
+  "spinnerTipsEnabled": true,
+  "tui": "fullscreen"
 }
