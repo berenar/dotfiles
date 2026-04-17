@@ -44,6 +44,7 @@ This repository manages the following dotfiles packages:
 - [nvim](https://github.com/neovim/neovim) - Hyperextensible Vim-based text editor.
 - [tmux](https://github.com/tmux/tmux) - A terminal multiplexer.
 - [opencode](https://github.com/anomalyco/opencode) - The open source AI coding agent.
+- [claude](https://claude.com/claude-code) - Claude Code CLI configuration.
 
 ### Add
 

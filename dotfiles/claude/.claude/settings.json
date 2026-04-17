@@ -1,0 +1,9 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "defaultMode": "auto"
+  },
+  "effortLevel": "medium",
+  "tui": "fullscreen",
+  "skipAutoPermissionPrompt": true
+}
