@@ -72,6 +72,7 @@ bindkey "^[[B" history-beginning-search-forward-end
 alias 'cd..'='cd_up'
 alias o="opencode"
 alias a="opencode --continue"
+alias c="claude"
 alias t="tmux a"
 alias l="lazygit"
 alias v="nvim"
