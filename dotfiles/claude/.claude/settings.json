@@ -4,21 +4,46 @@
   "permissions": {
     "defaultMode": "auto"
   },
+  "model": "haiku",
+  "statusLine": {
+    "type": "command",
+    "command": "npx -y ccstatusline@latest",
+    "padding": 0
+  },
+  "enabledPlugins": {
+    "code-review@claude-plugins-official": true,
+    "code-simplifier@claude-plugins-official": true,
+    "commit-commands@claude-plugins-official": true,
+    "slack@claude-plugins-official": true,
+    "typescript-lsp@claude-plugins-official": true
+  },
+  "extraKnownMarketplaces": {
+    "claude-plugins-official": {
+      "source": {
+        "source": "github",
+        "repo": "anthropics/claude-plugins-official"
+      }
+    }
+  },
   "outputStyle": "default",
   "spinnerTipsEnabled": true,
   "effortLevel": "xhigh",
   "autoUpdatesChannel": "latest",
   "tui": "fullscreen",
-  "autoMemoryEnabled": true,
-  "skipAutoPermissionPrompt": true,
-  "voiceEnabled": true,
   "voice": {
     "enabled": true,
     "mode": "hold"
   },
-  "statusLine": {
-    "type": "command",
-    "command": "npx -y ccstatusline@latest",
-    "padding": 0
-  }
+  "autoMemoryEnabled": true,
+  "theme": "auto",
+  "editorMode": "normal",
+  "verbose": false,
+  "preferredNotifChannel": "kitty",
+  "showTurnDuration": true,
+  "terminalProgressBarEnabled": true,
+  "remoteControlAtStartup": true,
+  "agentPushNotifEnabled": false,
+  "skipAutoPermissionPrompt": true,
+  "useAutoModeDuringPlan": true,
+  "voiceEnabled": true
 }
