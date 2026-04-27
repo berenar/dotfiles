@@ -46,4 +46,17 @@
   "skipAutoPermissionPrompt": true,
   "useAutoModeDuringPlan": true,
   "voiceEnabled": true
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/rename-tmux-window.sh",
+            "async": true
+          }
+        ]
+      }
+    ]
+  }
 }
