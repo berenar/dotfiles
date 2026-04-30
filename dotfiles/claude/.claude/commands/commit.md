@@ -1,5 +1,5 @@
 ---
-description: commit pending changes
+description: commit pending changes — invoke automatically when the user asks to commit, stage changes, or save work to git
 ---
 
 Match the format of past commits:
