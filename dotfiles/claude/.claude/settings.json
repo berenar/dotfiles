@@ -4,6 +4,7 @@
   "permissions": {
     "defaultMode": "auto"
   },
+  "model": "sonnet",
   "hooks": {
     "SessionStart": [
       {
@@ -67,7 +68,7 @@
   },
   "outputStyle": "default",
   "spinnerTipsEnabled": true,
-  "effortLevel": "xhigh",
+  "effortLevel": "high",
   "autoUpdatesChannel": "latest",
   "tui": "fullscreen",
   "voice": {
