@@ -6,3 +6,5 @@
 @~/.claude/instructions/git-commit-workflow.md
 @~/.claude/instructions/external-links.md
 @~/.claude/instructions/tooling-preferences.md
+
+@RTK.md
