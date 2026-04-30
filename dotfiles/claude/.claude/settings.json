@@ -56,17 +56,13 @@
     "padding": 0
   },
   "enabledPlugins": {
-    "code-review@claude-plugins-official": true,
-    "code-simplifier@claude-plugins-official": true,
-    "commit-commands@claude-plugins-official": true,
-    "slack@claude-plugins-official": true,
-    "typescript-lsp@claude-plugins-official": true
+    "celebrate-agentic-tools@celebrate-engineering": true
   },
   "extraKnownMarketplaces": {
-    "claude-plugins-official": {
+    "celebrate-engineering": {
       "source": {
         "source": "github",
-        "repo": "anthropics/claude-plugins-official"
+        "repo": "kartenmacherei/agent-builder-v2"
       }
     }
   },
