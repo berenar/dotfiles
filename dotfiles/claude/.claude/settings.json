@@ -76,6 +76,7 @@
     "mode": "hold"
   },
   "autoMemoryEnabled": true,
+  "editorMode": "vim",
   "verbose": true,
   "skipAutoPermissionPrompt": true,
   "voiceEnabled": true
