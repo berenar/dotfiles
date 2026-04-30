@@ -49,7 +49,6 @@
       }
     ]
   },
-  "model": "haiku",
   "statusLine": {
     "type": "command",
     "command": "npx -y ccstatusline@latest",
@@ -76,15 +75,7 @@
     "mode": "hold"
   },
   "autoMemoryEnabled": true,
-  "theme": "auto",
-  "editorMode": "normal",
-  "verbose": false,
-  "preferredNotifChannel": "kitty",
-  "showTurnDuration": true,
-  "terminalProgressBarEnabled": true,
-  "remoteControlAtStartup": true,
-  "agentPushNotifEnabled": false,
+  "verbose": true,
   "skipAutoPermissionPrompt": true,
-  "useAutoModeDuringPlan": true,
   "voiceEnabled": true
 }
