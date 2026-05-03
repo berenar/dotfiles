@@ -1,6 +1,6 @@
 {
   "$schema": "https://opencode.ai/config.json", // See docs: https://opencode.ai/docs/config/
-  "model": "github-copilot/claude-haiku-4.5",
+  "model": "opencode/kimi-k2.6",
   "autoupdate": true,
   "username": "Bernat",
   "instructions": [
