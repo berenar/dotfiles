@@ -38,16 +38,6 @@
           }
         ]
       }
-    ],
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "$HOME/.claude/hooks/play-sound-if-unfocused.sh /System/Library/Sounds/Blow.aiff"
-          }
-        ]
-      }
     ]
   },
   "statusLine": {
