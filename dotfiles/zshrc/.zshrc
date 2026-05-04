@@ -72,7 +72,10 @@ bindkey "^[[B" history-beginning-search-forward-end
 alias 'cd..'='cd_up'
 alias o="opencode"
 alias a="opencode --continue"
-alias c="claude"
+alias c='echo "Oops! Use claude-mvst or claude-celebrate"'
+alias claude='echo "Oops! Use claude-mvst or claude-celebrate"'
+alias claude-mvst="CLAUDE_CONFIG_DIR=~/.claude-mvst /Users/berenar/.local/bin/claude"
+alias claude-celebrate="CLAUDE_CONFIG_DIR=~/.claude-celebrate /Users/berenar/.local/bin/claude"
 alias t="tmux a"
 alias l="lazygit"
 alias v="nvim"
