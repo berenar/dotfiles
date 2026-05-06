@@ -5,18 +5,9 @@
     {
       "context": "Chat",
       "bindings": {
-        "shift+tab": null,
-        "tab": "chat:cycleMode",
         "meta+t": null,
         "ctrl+t": "chat:thinkingToggle",
         "ctrl+f": "chat:modelPicker"
-      }
-    },
-    {
-      "context": "Confirmation",
-      "bindings": {
-        "shift+tab": null,
-        "tab": "confirm:cycleMode"
       }
     }
   ]
