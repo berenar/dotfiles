@@ -4,7 +4,6 @@
   "permissions": {
     "defaultMode": "auto"
   },
-  "model": "sonnet",
   "hooks": {
     "SessionStart": [
       {
@@ -66,8 +65,9 @@
     "mode": "hold"
   },
   "autoMemoryEnabled": true,
-  "editorMode": "vim",
   "verbose": true,
+  "remoteControlAtStartup": true,
+  "agentPushNotifEnabled": true,
   "skipAutoPermissionPrompt": true,
   "voiceEnabled": true
 }
