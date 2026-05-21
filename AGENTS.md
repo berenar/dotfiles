@@ -147,6 +147,25 @@ Shell scripts in this repository follow these conventions:
 
 ---
 
+## Agent Skills
+
+Skills live in `dotfiles/agents/.agents/skills/<name>/` and are agent-agnostic
+(opencode, claude code, etc).
+
+For Claude Code to discover a skill, it must be symlinked into `~/.claude/skills/`:
+
+```bash
+ln -s ../../../agents/.agents/skills/<name> ~/.claude/skills/<name>
+```
+
+The relative target `../../../agents/.agents/skills/<name>` resolves correctly
+because `~/.claude` is itself a stow-managed symlink into this repo. After
+creating the symlink, restart Claude Code — skills are loaded at session start.
+
+When adding a new skill, always create the symlink in the same step.
+
+---
+
 ## OpenCode Plugin Development
 
 The `dotfiles/opencode/.config/opencode/` directory contains TypeScript plugins.
