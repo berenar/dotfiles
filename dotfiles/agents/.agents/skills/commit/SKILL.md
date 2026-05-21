@@ -20,6 +20,7 @@ Staged changes:
 
 ## Task
 
+0. Be ware that maybe there are other WIP changes unrelated to the tasks you have been doing, plan to commit only your code, leave other work uncommited.
 1. Come up with a list of commits, each with a short title that explains _why_ the changes were made, not _what_.
 2. Commits should be independent, atomic and grouped by scope. Not necessarily one commit per file, they should aggregate changes in a logical way.
 3. The title should have no more than 100 characters.
