@@ -75,7 +75,7 @@
     "enabled": true,
     "mode": "hold"
   },
-  "autoMemoryEnabled": true,
+  "autoMemoryEnabled": false,
   "verbose": true,
   "remoteControlAtStartup": true,
   "agentPushNotifEnabled": true,
