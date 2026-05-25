@@ -26,6 +26,20 @@ for pkg in */; do
 done
 cd "$REPO_DIR"
 
+if ! [ -x "$HOME/.local/bin/claude" ]; then
+  log "Installing Claude Code CLI"
+  curl -fsSL https://claude.ai/install.sh | bash
+fi
+
+log "Setting up Claude config dirs (claude-mvst, claude-clbrt)"
+CLAUDE_SRC="$REPO_DIR/dotfiles/claude/.claude"
+for dir in "$HOME/.claude-mvst" "$HOME/.claude-clbrt"; do
+  mkdir -p "$dir"
+  for item in CLAUDE.md commands hooks instructions keybindings.json settings.json skills; do
+    ln -sfn "$CLAUDE_SRC/$item" "$dir/$item"
+  done
+done
+
 log "Fixing SSH config permissions"
 if [ -e "$HOME/.ssh/config" ]; then
   chmod 600 "$HOME/.ssh/config"
