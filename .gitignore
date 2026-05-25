@@ -2,3 +2,13 @@
 **/.env
 .zsh_secrets
 /dotfiles/lazygit/Library/Application Support/lazygit/state.yml
+
+# Claude runtime state
+/dotfiles/claude/.claude/.last-cleanup
+/dotfiles/claude/.claude/backups/
+/dotfiles/claude/.claude/plugins/
+/dotfiles/claude/.claude/policy-limits.json
+/dotfiles/claude/.claude/projects/
+/dotfiles/claude/.claude/remote-settings.json
+/dotfiles/claude/.claude/sessions/
+/dotfiles/claude/.claude/shell-snapshots/
