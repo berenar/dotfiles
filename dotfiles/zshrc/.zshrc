@@ -72,13 +72,13 @@ bindkey "^[[B" history-beginning-search-forward-end
 alias 'cd..'='cd_up'
 alias o="opencode"
 alias a="opencode --continue"
-alias c='echo "Oops! Use claude-mvst or claude-celebrate"'
-alias claude='echo "Oops! Use claude-mvst or claude-celebrate"'
+alias c='echo "Oops! Use claude-mvst or claude-clbrt"'
+alias claude='echo "Oops! Use claude-mvst or claude-clbrt"'
 alias claude-mvst="CLAUDE_CONFIG_DIR=~/.claude-mvst /Users/berenar/.local/bin/claude"
-alias claude-celebrate="CLAUDE_CONFIG_DIR=~/.claude-celebrate /Users/berenar/.local/bin/claude"
+alias claude-clbrt="CLAUDE_CONFIG_DIR=~/.claude-clbrt /Users/berenar/.local/bin/claude"
 alias ccusage-mvst="CLAUDE_CONFIG_DIR=$HOME/.claude-mvst npx ccusage@latest claude"
-alias ccusage-celebrate="CLAUDE_CONFIG_DIR=$HOME/.claude-celebrate npx ccusage@latest claude"
-alias ccusage-all="CLAUDE_CONFIG_DIR=$HOME/.claude-mvst,$HOME/.claude-celebrate npx ccusage@latest claude"
+alias ccusage-clbrt="CLAUDE_CONFIG_DIR=$HOME/.claude-clbrt npx ccusage@latest claude"
+alias ccusage-all="CLAUDE_CONFIG_DIR=$HOME/.claude-mvst,$HOME/.claude-clbrt npx ccusage@latest claude"
 alias t="tmux a"
 alias l="lazygit"
 alias v="nvim"
