@@ -76,6 +76,7 @@
     "mode": "hold"
   },
   "autoMemoryEnabled": false,
+  "theme": "dark",
   "verbose": true,
   "remoteControlAtStartup": true,
   "agentPushNotifEnabled": true,
