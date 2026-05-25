@@ -68,7 +68,7 @@
   },
   "outputStyle": "default",
   "spinnerTipsEnabled": true,
-  "effortLevel": "high",
+  "effortLevel": "medium",
   "autoUpdatesChannel": "latest",
   "tui": "fullscreen",
   "voice": {
