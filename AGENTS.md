@@ -18,6 +18,14 @@ This is a **config-only repository** - there are no build steps, tests, or linti
 
 ## Quick Reference Commands
 
+### Full bootstrap on a new machine
+
+```bash
+bash scripts/bootstrap.sh
+```
+
+This installs Homebrew, runs `brew bundle`, stows every package under `dotfiles/`, fixes `~/.ssh/config` perms to `600`, restarts the tmux server, and applies macOS defaults.
+
 ### Package Management
 
 ```bash

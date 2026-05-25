@@ -8,6 +8,15 @@ This repository aims to make the setup of a new machine extremely easy. It conta
 
 This set up was inspired by [this blogpost](https://typecraft.dev/tutorial/never-lose-your-configs-again).
 
+## Quick start (new machine)
+
+```bash
+git clone git@github.com:berenar/dotfiles.git ~/dotfiles
+bash ~/dotfiles/scripts/bootstrap.sh
+```
+
+The bootstrap script installs Homebrew (if missing), runs `brew bundle`, stows every package, fixes `~/.ssh/config` permissions, restarts the tmux server, and applies macOS defaults.
+
 ## Requirements
 
 - [Homebrew](https://brew.sh/) for managing packages.
