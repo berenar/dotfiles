@@ -50,11 +50,6 @@
       }
     ]
   },
-  "statusLine": {
-    "type": "command",
-    "command": "npx -y ccstatusline@latest",
-    "padding": 0
-  },
   "enabledPlugins": {
     "celebrate-agentic-tools@celebrate-engineering": true
   },
