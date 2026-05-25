@@ -6,6 +6,7 @@
 # Claude runtime state
 /dotfiles/claude/.claude/.last-cleanup
 /dotfiles/claude/.claude/backups/
+/dotfiles/claude/.claude/plans/
 /dotfiles/claude/.claude/plugins/
 /dotfiles/claude/.claude/policy-limits.json
 /dotfiles/claude/.claude/projects/
