@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+
+if [[ $# -eq 1 ]]; then
+  selected=$1
+else
+  selected=$(find ~/Development ~/mvst/repos ~/mvst/repos/clbrt ~/dotfiles -maxdepth 1 -type d -exec test -e '{}/.git' \; -print | fzf)
+fi
+
+if [[ -z $selected ]]; then
+  exit 0
+fi
+
+selected_name=$(basename "$selected" | tr . _)
+tmux_running=$(pgrep tmux)
+
+setup_windows() {
+  local session=$1
+  local dir=$2
+  tmux rename-window -t "$session:1" git
+  tmux send-keys -t "$session:1" "lazygit" Enter
+  tmux new-window -t "$session" -c "$dir" -n nvim
+  tmux send-keys -t "$session:2" "nvim" Enter
+  tmux new-window -t "$session" -c "$dir" -n claude
+  tmux send-keys -t "$session:3" "claude" Enter
+  tmux select-window -t "$session:2"
+}
+
+if [[ -z $TMUX ]] && [[ -z $tmux_running ]]; then
+  tmux new-session -ds "$selected_name" -c "$selected"
+  setup_windows "$selected_name" "$selected"
+  tmux attach -t "$selected_name"
+  exit 0
+fi
+
+if ! tmux has-session -t "$selected_name" 2>/dev/null; then
+  tmux new-session -ds "$selected_name" -c "$selected"
+  setup_windows "$selected_name" "$selected"
+fi
+
+if [[ -z $TMUX ]]; then
+  tmux attach -t "$selected_name"
+else
+  tmux switch-client -t "$selected_name"
+fi
