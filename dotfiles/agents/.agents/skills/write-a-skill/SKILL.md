@@ -5,6 +5,12 @@ description: Create new agent skills with proper structure, progressive disclosu
 
 # Writing Skills
 
+## Where skills live (this dotfiles repo)
+
+Skill source goes under `~/dotfiles/dotfiles/agents/.agents/skills/<skill-name>/`. The Claude config picks it up via a relative symlink at `~/dotfiles/dotfiles/claude/.claude/skills/<skill-name>` → `../../../agents/.agents/skills/<skill-name>`.
+
+After creating or editing a skill, run `~/dotfiles/scripts/sync-skill-symlinks.sh` to ensure the symlink exists. The repo's pre-commit hook will fail otherwise.
+
 ## Process
 
 1. **Gather requirements** - ask user about:
@@ -13,12 +19,14 @@ description: Create new agent skills with proper structure, progressive disclosu
    - Does it need executable scripts or just instructions?
    - Any reference materials to include?
 
-2. **Draft the skill** - create:
+2. **Draft the skill** - create files under `~/dotfiles/dotfiles/agents/.agents/skills/<skill-name>/`:
    - SKILL.md with concise instructions
    - Additional reference files if content exceeds 500 lines
    - Utility scripts if deterministic operations needed
 
-3. **Review with user** - present draft and ask:
+3. **Wire it up** - run `~/dotfiles/scripts/sync-skill-symlinks.sh` so the Claude config sees it.
+
+4. **Review with user** - present draft and ask:
    - Does this cover your use cases?
    - Anything missing or unclear?
    - Should any section be more/less detailed?
