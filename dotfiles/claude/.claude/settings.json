@@ -51,7 +51,8 @@
     ]
   },
   "enabledPlugins": {
-    "celebrate-agentic-tools@celebrate-engineering": true
+    "celebrate-agentic-tools@celebrate-engineering": true,
+    "security-guidance@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
     "celebrate-engineering": {

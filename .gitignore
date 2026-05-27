@@ -11,6 +11,7 @@
 /dotfiles/claude/.claude/policy-limits.json
 /dotfiles/claude/.claude/projects/
 /dotfiles/claude/.claude/remote-settings.json
+/dotfiles/claude/.claude/security/
 /dotfiles/claude/.claude/sessions/
 /dotfiles/claude/.claude/session-state/
 /dotfiles/claude/.claude/shell-snapshots/
