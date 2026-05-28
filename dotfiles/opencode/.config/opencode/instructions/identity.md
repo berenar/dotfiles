@@ -8,3 +8,12 @@ I speak English, Spanish and Catalan
 ### My Environment
 
 macos tahoe, zsh, neovim, kitty, OrbStack, Arc Browser, pnpm/yarn/npm, git, Github
+
+### Dictionary
+
+Words and abbreviations I typically use:
+
+- ds: design system
+- be: backend
+- fe: frontend
+- pwd: password
