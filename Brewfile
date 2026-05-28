@@ -103,6 +103,7 @@ cask "raycast"
 cask "slack"
 cask "sublime-text"
 cask "tableplus"
+cask "tailscale-app"
 cask "telegram", args: { appdir: "/Applications" }
 cask "visual-studio-code", args: { appdir: "/Applications" }
 cask "windsurf"

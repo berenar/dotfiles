@@ -76,3 +76,15 @@ To apply the settings:
 ```bash
 bash scripts/macos-config.sh
 ```
+
+## Remote Access (desk machine)
+
+For a MacBook that lives on a desk (lid closed, external display, AC power) and
+needs to stay reachable from the phone over SSH:
+
+```bash
+bash scripts/macos-remote-access.sh
+```
+
+Configures power management (no idle sleep on AC), enables Remote Login, and
+checks Tailscale is installed. Pair with the Termius app on the phone.
