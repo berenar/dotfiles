@@ -24,13 +24,3 @@ Prefer `import` than using "require(something)".
 Prefer named imports, avoid default imports if possible.
 Don't use `any`, try to use the correct type, use `unknown` as last resource.
 Don't use `let`, prefer using `const`.
-
-### Next
-
-If, in order to add a feature, you need to switch the component/page to be client-side rendered, make sure the user is well aware of this, as most times it's not worth it.
-
-### Design System
-
-- ALWAYS use design system tokens instead of hardcoded hex/rgb values.
-- When styling, distinguish carefully between text color, border color, and background color before editing.
-- Verify token usage in existing components before introducing new colors.
