@@ -6,9 +6,7 @@ return {
 		"MarkdownPreviewStop",
 	},
 	ft = { "markdown" },
-	build = function()
-		vim.fn["mkdp#util#install"]()
-	end,
+	build = "cd app && sh ./install.sh",
 	keys = {
 		{ "<leader>mp", "<cmd>MarkdownPreviewToggle<cr>", desc = "Toggle Markdown Preview" },
 	},
