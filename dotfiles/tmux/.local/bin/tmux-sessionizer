@@ -10,7 +10,8 @@ if [[ -z $selected ]]; then
   exit 0
 fi
 
-selected_name=$(basename "$selected" | tr . _)
+parent_name=$(basename "$(dirname "$selected")")
+selected_name=$(echo "$parent_name/$(basename "$selected")" | tr . _)
 tmux_running=$(pgrep tmux)
 
 setup_windows() {
