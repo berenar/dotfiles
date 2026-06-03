@@ -76,7 +76,6 @@ cask "chatgpt-atlas"
 cask "claude"
 cask "codex"
 cask "steipete/tap/codexbar"
-cask "copilot-cli"
 cask "cursor"
 cask "figma"
 cask "firefox", args: { appdir: "/Applications" }
