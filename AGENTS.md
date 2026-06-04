@@ -67,7 +67,7 @@ the home directory layout.
 
 ### Current Packages
 
-git, kitty, lazydocker, lazygit, nvim, opencode, ssh, tmux, zshrc
+finicky, git, kitty, lazydocker, lazygit, nvim, opencode, ssh, tmux, zshrc
 
 ### Adding New Dotfiles
 
@@ -86,6 +86,15 @@ dotfiles/
     .config/
       foo/
         config.yml
+```
+
+### Finicky
+
+After editing `.finicky.js` in this repo, restart Finicky to pick up changes —
+the stowed symlink breaks its file watcher:
+
+```bash
+pkill -x Finicky && open -a Finicky
 ```
 
 ---

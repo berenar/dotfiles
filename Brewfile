@@ -78,6 +78,7 @@ cask "codex"
 cask "steipete/tap/codexbar"
 cask "cursor"
 cask "figma"
+cask "finicky"
 cask "firefox", args: { appdir: "/Applications" }
 cask "ghostty"
 cask "gimp"
