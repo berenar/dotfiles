@@ -51,9 +51,16 @@ defaults write com.apple.screencapture disable-shadow -bool true
 defaults write com.apple.TextEdit RichText -int 0
 
 # =============================================================================
+# Menu bar (tighten icon spacing so more icons fit around the notch)
+# =============================================================================
+
+defaults -currentHost write -globalDomain NSStatusItemSpacing -int 1
+defaults -currentHost write -globalDomain NSStatusItemSelectionPadding -int 1
+
+# =============================================================================
 # Restart affected apps
 # =============================================================================
 
-killall Dock Finder SystemUIServer
+killall Dock Finder SystemUIServer ControlCenter
 
 echo "Done. Some changes may require a logout/restart to take effect."
