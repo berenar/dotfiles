@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+# Shows or jumps to the most recently alerted tmux window (excluding the
+# current session). Recency comes from tmux itself: bell-flagged windows
+# ordered by their last activity, which is when the bell rang.
+#   tmux-alert-indicator <current-session>                  pill for status-right
+#   tmux-alert-indicator --goto <current-session> <client>  switch to alerted session/window
+# Kept bash 3.2 compatible: tmux #() runs it with the system bash.
+
+mode="show"
+if [ "${1:-}" = "--goto" ]; then
+  mode="goto"
+  shift
+fi
+current="${1:-}"
+client="${2:-}"
+
+target_name=""
+while IFS=$'\t' read -r _ name window session; do
+  [ "$name" = "$current" ] && continue
+  target_name="$name"
+  break
+done < <(tmux list-windows -a -f '#{window_bell_flag}' -F $'#{window_activity}\t#{session_name}\t#{window_id}\t#{session_id}' | sort -rn)
+
+if [ "$mode" = "show" ]; then
+  [ -z "$target_name" ] && exit 0
+  printf '#[fg=#D78787] %s ✻ #[default]' "$target_name"
+  exit 0
+fi
+
+if [ -z "$target_name" ]; then
+  [ -n "$client" ] && tmux display-message -c "$client" "no pending claude alerts"
+  exit 0
+fi
+
+tmux select-window -t "$window"
+if [ -n "$client" ]; then
+  tmux switch-client -c "$client" -t "$session"
+else
+  tmux switch-client -t "$session"
+fi
