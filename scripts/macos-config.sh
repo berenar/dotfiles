@@ -54,8 +54,8 @@ defaults write com.apple.TextEdit RichText -int 0
 # Menu bar (tighten icon spacing so more icons fit around the notch)
 # =============================================================================
 
-defaults -currentHost write -globalDomain NSStatusItemSpacing -int 1
-defaults -currentHost write -globalDomain NSStatusItemSelectionPadding -int 1
+defaults -currentHost write -globalDomain NSStatusItemSpacing -int 4
+defaults -currentHost write -globalDomain NSStatusItemSelectionPadding -int 4
 
 # =============================================================================
 # Restart affected apps
