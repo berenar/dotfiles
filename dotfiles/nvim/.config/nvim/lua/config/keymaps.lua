@@ -9,3 +9,9 @@ vim.keymap.del("n", "<leader>gg")
 vim.keymap.set("n", "<leader>tt", ":vsplit<CR>:terminal<CR>i", { desc = "Vertical Split" })
 
 vim.keymap.set("n", "<leader>jq", ":%!jq .<CR>", { desc = "JQ JSON format" })
+
+vim.keymap.set("n", "<leader>mp", function()
+	local file = vim.fn.expand("%:p")
+	local tile_script = vim.fn.stdpath("config") .. "/scripts/markdown-preview-tile.sh"
+	vim.fn.jobstart({ tile_script, file })
+end, { desc = "Open in Markdown Preview" })

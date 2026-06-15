@@ -1,8 +1,8 @@
 #!/bin/sh
 
-url="$1"
+file="$1"
 
-open -a Safari "$url"
+open -a "Markdown Preview" "$file"
 
 osascript <<'APPLESCRIPT'
 tell application "Finder"
@@ -16,11 +16,11 @@ set halfWidth to screenWidth / 2
 set usableHeight to screenHeight - menuBarHeight
 
 tell application "System Events"
-  repeat until (exists front window of process "Safari")
+  repeat until (exists front window of process "Markdown Preview")
     delay 0.02
   end repeat
 
-  tell process "Safari"
+  tell process "Markdown Preview"
     set position of front window to {0, menuBarHeight}
     set size of front window to {halfWidth, usableHeight}
   end tell
