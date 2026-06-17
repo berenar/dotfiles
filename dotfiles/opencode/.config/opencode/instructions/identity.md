@@ -17,3 +17,4 @@ Words and abbreviations I typically use:
 - be: backend
 - fe: frontend
 - pwd: password
+- wt: worktree
