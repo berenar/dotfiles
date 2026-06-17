@@ -1,6 +1,6 @@
 ---
 name: create-pr
-description: Create a GitHub pull request with `gh pr create`, following the repo's existing PR conventions. Use when the user wants to create, open, draft, make, raise, submit, or push up a PR / pull request / MR, get the current branch reviewed, or turn committed work into a pull request.
+description: Create, open, or draft a GitHub pull request (PR / MR) with gh pr create, following the repo's PR conventions.
 allowed-tools: Bash(gh pr:*) Bash(gh repo:*) Bash(git status:*) Bash(git diff:*) Bash(git log:*) Bash(git branch:*) Bash(git push:*)
 ---
 
