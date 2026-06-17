@@ -18,3 +18,10 @@ Words and abbreviations I typically use:
 - fe: frontend
 - pwd: password
 - wt: worktree
+- pr / prs: pull request / pull requests
+- repo: repository
+- deps: dependencies
+- wip: work in progress
+- ci: CI pipeline (continuous integration)
+- mvst: MVST GmbH (my employer)
+- cc: Claude Code
