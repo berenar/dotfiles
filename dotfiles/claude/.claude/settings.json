@@ -48,6 +48,11 @@
           {
             "type": "command",
             "command": "$HOME/.claude/hooks/play-sound-if-unfocused.sh /System/Library/Sounds/Funk.aiff"
+          },
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/flag-tmux-window.sh",
+            "async": true
           }
         ]
       }
