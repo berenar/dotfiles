@@ -1,5 +1,8 @@
 #!/bin/bash
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+
 osascript -e 'tell application "System Preferences" to quit'
 
 # =============================================================================
@@ -56,6 +59,16 @@ defaults write com.apple.TextEdit RichText -int 0
 
 defaults -currentHost write -globalDomain NSStatusItemSpacing -int 4
 defaults -currentHost write -globalDomain NSStatusItemSelectionPadding -int 4
+
+# =============================================================================
+# Default applications (file type associations)
+# =============================================================================
+
+if command -v duti >/dev/null 2>&1; then
+  duti "$REPO_DIR/duti.conf"
+else
+  echo "duti not found; skipping default app associations (brew install duti)"
+fi
 
 # =============================================================================
 # Restart affected apps
