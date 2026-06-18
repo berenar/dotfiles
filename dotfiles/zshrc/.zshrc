@@ -56,6 +56,10 @@ source <(carapace _carapace)
 
 ################################### KEY BINDINGS ###################################
 
+# Force emacs keymap. Without this, zsh auto-selects vi mode because EDITOR=nvim,
+# which makes ESC enter vi-command mode (h/j/k/l navigation).
+bindkey -e
+
 autoload -Uz edit-command-line
 zle -N edit-command-line
 bindkey '^X^E' edit-command-line
