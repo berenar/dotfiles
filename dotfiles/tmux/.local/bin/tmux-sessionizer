@@ -25,8 +25,9 @@ setup_windows() {
   tmux send-keys -t "$session:1" "lazygit" Enter
   tmux new-window -t "$session" -c "$dir" -n nvim
   tmux send-keys -t "$session:2" "nvim" Enter
+  tmux new-window -t "$session" -c "$dir" -n bash
   tmux new-window -t "$session" -c "$dir" -n claude
-  tmux send-keys -t "$session:3" "$claude_cmd" Enter
+  tmux send-keys -t "$session:4" "$claude_cmd" Enter
   tmux select-window -t "$session:2"
 }
 
