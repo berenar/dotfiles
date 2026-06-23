@@ -237,3 +237,10 @@ export PATH="$HOME/.local/bin:$PATH"
 
 # Added by Antigravity
 export PATH="/Users/berenar/.antigravity/antigravity/bin:$PATH"
+# pnpm
+export PNPM_HOME="/Users/berenar/Library/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME/bin:"*) ;;
+  *) export PATH="$PNPM_HOME/bin:$PATH" ;;
+esac
+# pnpm end
