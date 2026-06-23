@@ -17,12 +17,16 @@ tmux_running=$(pgrep tmux)
 setup_windows() {
   local session=$1
   local dir=$2
+  local claude_cmd="claude-mvst"
+  if [[ $dir == *clbrt* ]]; then
+    claude_cmd="claude-clbrt"
+  fi
   tmux rename-window -t "$session:1" git
   tmux send-keys -t "$session:1" "lazygit" Enter
   tmux new-window -t "$session" -c "$dir" -n nvim
   tmux send-keys -t "$session:2" "nvim" Enter
   tmux new-window -t "$session" -c "$dir" -n claude
-  tmux send-keys -t "$session:3" "claude" Enter
+  tmux send-keys -t "$session:3" "$claude_cmd" Enter
   tmux select-window -t "$session:2"
 }
 
