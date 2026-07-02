@@ -21,7 +21,8 @@ Words and abbreviations I typically use:
 - pr / prs: pull request / pull requests
 - repo: repository
 - deps: dependencies
-- wip: work in progress
+- wip: work in progress; usually refers to the code changes still uncommitted
 - ci: CI pipeline (continuous integration)
 - mvst: MVST GmbH (my employer)
 - cc: Claude Code
+- cb: clipboard
