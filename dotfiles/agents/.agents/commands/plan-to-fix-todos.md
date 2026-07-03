@@ -8,5 +8,5 @@ agent: plan
 3. List them sorted by easiest to solve first
 4. Ask me which ones should you solve
 5. Solve the ones I tell you one by one
-6. Commit using /commmit
+6. Commit using /commit-pending-changes
 7. Repeat steps 3 to 6 until finished

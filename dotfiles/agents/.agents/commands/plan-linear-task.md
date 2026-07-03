@@ -1,5 +1,6 @@
 ---
 description: plan a Linear issue
+agent: plan
 ---
 
 Your job is to turn a task specification into a detailed implementation plan.

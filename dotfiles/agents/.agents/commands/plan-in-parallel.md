@@ -12,7 +12,7 @@ Rules:
 1. Create the ./plans/ directory if it doesn't exist.
 2. Add a `.gitignore` file with `*` to ignore all files that subagents will add there
 3. Create a ./plans/<current-timestamp>/ directory. The <current-timestamp> is !`date +%Y%m%d%H%M%S`
-4. Run one @general subagent per item, in parallel.
+4. Launch one general-purpose subagent per item, all in parallel (in Claude Code use the Agent tool with `subagent_type: general-purpose` and send all invocations in a single message; in OpenCode use `@general` subagents).
 5. Each subagent may read the codebase as needed to understand the item.
 6. Each subagent must only create one file: `./plans/<timestamp>/<n-short-kebab-case-title>.md` where <n> is the item's index. That way the list of plan files will match the list of items order.
 7. Do not implement any fix or modify any existing file.

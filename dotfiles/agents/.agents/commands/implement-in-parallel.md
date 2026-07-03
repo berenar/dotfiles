@@ -1,5 +1,6 @@
 ---
 description: implement plans in parallel (subagents, worktrees)
+agent: build
 ---
 
 $ARGUMENTS is either a path to a `./plans/<timestamp>/` directory or not provided at all. If not provided, use the most recent `./plans/<timestamp>/` directory that contains plan markdown files.
@@ -20,7 +21,7 @@ Rules:
 7. For each actionable plan, create a dedicated branch from the current `HEAD` named `<timestamp>-<n-short-kebab-case-title>`.
 8. For each branch, create a dedicated worktree at `./.worktrees/<timestamp>/<n-short-kebab-case-title>`.
 9. If a branch or worktree for a plan already exists, reuse it instead of failing.
-10. Launch one Agent per actionable plan in parallel, using the Agent tool with `subagent_type: general-purpose`. Send all agent invocations in a single message so they run concurrently. Scope each subagent to its own worktree only.
+10. Launch one general-purpose subagent per actionable plan, all in parallel (in Claude Code use the Agent tool with `subagent_type: general-purpose` and send all invocations in a single message; in OpenCode use `@general` subagents). Scope each subagent to its own worktree only.
 11. Each subagent may read the full repository context it needs, but may only modify files inside its assigned worktree.
 12. Each subagent must implement only its assigned plan. Do not mix multiple plans into one worktree.
 13. If a plan says the item is already solved, not actionable, or should be skipped, do not implement it. Still create a `RESULTS.md` file in that worktree explaining why it was skipped.
