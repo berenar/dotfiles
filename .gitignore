@@ -16,3 +16,10 @@
 /dotfiles/claude/.claude/session-state/
 /dotfiles/claude/.claude/shell-snapshots/
 /dotfiles/claude/.claude/telemetry/
+/dotfiles/claude/.claude/downloads/
+/dotfiles/claude/.claude/session-env/
+
+# Codex runtime state (everything except the tracked config)
+/dotfiles/codex/.codex/*
+!/dotfiles/codex/.codex/AGENTS.md
+!/dotfiles/codex/.codex/prompts

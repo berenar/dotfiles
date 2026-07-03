@@ -19,6 +19,9 @@ if ! command -v stow >/dev/null 2>&1; then
   exit 1
 fi
 
+log "Generating Codex AGENTS.md from shared instructions"
+bash "$REPO_DIR/scripts/build-codex-agents-md.sh"
+
 log "Stowing all packages"
 cd "$REPO_DIR/dotfiles"
 for pkg in */; do
