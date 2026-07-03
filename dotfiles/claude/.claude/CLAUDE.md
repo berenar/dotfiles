@@ -1,7 +1,7 @@
-@~/.claude/instructions/identity.md
-@~/.claude/instructions/responding.md
-@~/.claude/instructions/build-mode.md
-@~/.claude/instructions/coding-preferences.md
-@~/.claude/instructions/tooling-preferences.md
+@~/.agents/instructions/identity.md
+@~/.agents/instructions/responding.md
+@~/.agents/instructions/build-mode.md
+@~/.agents/instructions/coding-preferences.md
+@~/.agents/instructions/tooling-preferences.md
 
 @RTK.md

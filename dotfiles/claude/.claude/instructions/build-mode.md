@@ -1,1 +1,0 @@
-../../../opencode/.config/opencode/instructions/build-mode.md
