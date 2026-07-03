@@ -7,6 +7,23 @@
   "permissions": {
     "defaultMode": "auto"
   },
+  "deniedMcpServers": [
+    {
+      "serverName": "claude.ai Gmail"
+    },
+    {
+      "serverName": "claude.ai Figma"
+    },
+    {
+      "serverName": "claude.ai Amplitude"
+    },
+    {
+      "serverName": "claude.ai Context7"
+    },
+    {
+      "serverName": "plugin:celebrate-agentic-tools:context7"
+    }
+  ],
   "hooks": {
     "SessionStart": [
       {
@@ -62,7 +79,6 @@
     "celebrate-agentic-tools@celebrate-engineering": true,
     "security-guidance@claude-plugins-official": true,
     "frontend-design@claude-plugins-official": true,
-    "resend@claude-plugins-official": true,
     "playwright@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
