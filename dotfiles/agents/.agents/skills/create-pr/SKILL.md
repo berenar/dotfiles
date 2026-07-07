@@ -1,6 +1,6 @@
 ---
 name: create-pr
-description: Create, open, or draft a GitHub pull request (PR / MR) with gh pr create, following the repo's PR conventions.
+description: Create, open, or draft a concise GitHub pull request (PR / MR) with gh pr create, following the repo's PR conventions and PR template.
 allowed-tools: Bash(gh pr:*) Bash(gh repo:*) Bash(git status:*) Bash(git diff:*) Bash(git log:*) Bash(git branch:*) Bash(git push:*)
 ---
 
@@ -21,14 +21,17 @@ PR template (if any):
 ## Task
 
 1. Inspect the recent merged PRs above to match this repo's title and body conventions (conventional commits prefix, ticket ID, etc.).
-2. If a PR template exists, use it as the body scaffold.
+2. If a PR template exists, use it as the body scaffold. Keep required headings, fields, and checklist items.
 3. Draft a title:
    - Under 70 characters.
    - Don't restate the branch name.
    - Match repo style (conventional commits / ticket prefix / etc.).
 4. Draft the body:
-   - Keep it simple.
-   - Start with `## Summary` — 1-3 bullets on *why*, not a file-by-file changelog.
+   - Write like a human: short, specific, and not over-explained.
+   - Target 2-6 total filled-in lines or bullets unless the template requires more.
+   - If a template exists, fill required sections tersely, delete placeholder guidance, and write `N/A` only for required sections that do not apply.
+   - If no template exists, use `## Summary` with 1-2 bullets and add `## Testing` only when it adds real value.
+   - Avoid file-by-file changelogs, implementation diaries, and generic validation claims.
    - Link the ticket if the repo references one.
 5. Preview the title and body to the user. Wait for explicit confirmation before running `gh pr create`.
 6. Pass the body via HEREDOC to preserve formatting:
