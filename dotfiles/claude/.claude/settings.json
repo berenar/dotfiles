@@ -7,6 +7,7 @@
   "permissions": {
     "defaultMode": "auto"
   },
+  "model": "sonnet",
   "deniedMcpServers": [
     {
       "serverName": "claude.ai Gmail"
@@ -33,6 +34,11 @@
             "type": "command",
             "command": "$HOME/.claude/hooks/reset-tmux-window.sh",
             "async": true
+          },
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/set-claude-running.sh off",
+            "async": true
           }
         ]
       }
@@ -40,6 +46,11 @@
     "UserPromptSubmit": [
       {
         "hooks": [
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/set-claude-running.sh on",
+            "async": true
+          },
           {
             "type": "command",
             "command": "$HOME/.claude/hooks/rename-tmux-window.sh",
@@ -51,6 +62,11 @@
     "Stop": [
       {
         "hooks": [
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/set-claude-running.sh off",
+            "async": true
+          },
           {
             "type": "command",
             "command": "$HOME/.claude/hooks/flag-tmux-window.sh",
@@ -66,6 +82,11 @@
           {
             "type": "command",
             "command": "$HOME/.claude/hooks/play-sound-if-unfocused.sh /System/Library/Sounds/Funk.aiff"
+          },
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/set-claude-running.sh off",
+            "async": true
           },
           {
             "type": "command",
@@ -92,7 +113,7 @@
   },
   "outputStyle": "default",
   "spinnerTipsEnabled": true,
-  "effortLevel": "medium",
+  "effortLevel": "high",
   "autoUpdatesChannel": "latest",
   "tui": "fullscreen",
   "voice": {
@@ -100,6 +121,7 @@
     "mode": "hold"
   },
   "autoMemoryEnabled": false,
+  "skipDangerousModePermissionPrompt": true,
   "theme": "dark",
   "verbose": true,
   "remoteControlAtStartup": true,

@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# Amber-colour the window name while @claude_running is set (claude is thinking),
+# mirroring the red bell style used for the "waiting for input" state. Prepends to
+# whatever tmux-dotbar built, so it must run after it; idempotent across reloads.
+set -euo pipefail
+
+prefix='#{?@claude_running,#[fg=#e6b450],}'
+current=$(tmux show -gv window-status-format 2>/dev/null || true)
+
+case "$current" in
+  "$prefix"*) ;;
+  *) tmux set -g window-status-format "$prefix$current" ;;
+esac
