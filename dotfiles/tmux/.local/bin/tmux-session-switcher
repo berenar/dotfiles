@@ -1,9 +1,51 @@
 #!/usr/bin/env bash
 
+previdx_state="${TMPDIR:-/tmp}/tmux-session-switcher.previdx"
+
+active_window_index() {
+  tmux list-windows -t "$1" -F '#{window_active}' 2>/dev/null | awk '$1==1{print NR-1; exit}'
+}
+
+if [[ $1 == --nav ]]; then
+  direction=$2
+  session=$3
+  windows=($(tmux list-windows -t "$session" -F '#{window_id}' 2>/dev/null))
+  n=${#windows[@]}
+  [[ $n -eq 0 ]] && exit 0
+  read -r stored_id stored_idx <"$previdx_state" 2>/dev/null
+  if [[ $stored_id == "$session" && -n $stored_idx ]]; then
+    idx=$stored_idx
+  else
+    idx=$(active_window_index "$session")
+  fi
+  if [[ $direction == prev ]]; then
+    idx=$(( (idx - 1 + n) % n ))
+  else
+    idx=$(( (idx + 1) % n ))
+  fi
+  printf '%s %s\n' "$session" "$idx" >"$previdx_state"
+  exit 0
+fi
+
 if [[ $1 == --preview ]]; then
-  tmux capture-pane -ep -t "$2" |
+  session=$2
+  windows=($(tmux list-windows -t "$session" -F '#{window_id}' 2>/dev/null))
+  n=${#windows[@]}
+  [[ $n -eq 0 ]] && exit 0
+  read -r stored_id stored_idx <"$previdx_state" 2>/dev/null
+  if [[ $stored_id == "$session" && -n $stored_idx ]]; then
+    idx=$stored_idx
+  else
+    idx=$(active_window_index "$session")
+    printf '%s %s\n' "$session" "$idx" >"$previdx_state"
+  fi
+  idx=$(( (idx % n + n) % n ))
+  target=${windows[idx]}
+  label=$(tmux display-message -p -t "$target" '#{window_index}:#{window_name}' 2>/dev/null)
+  printf '\e[38;2;120;150;200m◀ %d/%d  %s  ▶\e[0m\n' "$((idx + 1))" "$n" "$label"
+  tmux capture-pane -ep -t "$target" 2>/dev/null |
     awk 'NF {last=NR} {lines[NR]=$0} END {for (i = 1; i <= last; i++) print lines[i]}' |
-    tail -n "$FZF_PREVIEW_LINES"
+    tail -n "$((FZF_PREVIEW_LINES - 1))"
   exit 0
 fi
 
@@ -41,6 +83,8 @@ window=$(tmux display-message -p '#{window_id}')
 tmux set -w -t "$window" window-style 'fg=#4d5660,bg=#10141a'
 trap 'tmux set -w -t "$window" -u window-style' EXIT
 
+: >"$previdx_state"
+
 selected=$(
   "$0" --list |
     fzf --reverse \
@@ -49,7 +93,9 @@ selected=$(
       --preview "$0 --preview {1}" \
       --preview-window 'right:65%' \
       --bind "every(0.1):reload-sync($0 --list)" \
-      --bind 'every(0.5):refresh-preview'
+      --bind 'every(0.5):refresh-preview' \
+      --bind "left:execute-silent($0 --nav prev {1})+refresh-preview" \
+      --bind "right:execute-silent($0 --nav next {1})+refresh-preview"
 )
 
 [[ -z $selected ]] && exit 0
