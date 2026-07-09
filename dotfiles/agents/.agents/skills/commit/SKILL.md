@@ -21,7 +21,7 @@ Staged changes:
 ## Task
 
 0. There may be WIP changes unrelated to the work you did — only commit your code, leave the rest unstaged.
-1. Partition the diff into independent change sets before proposing commits. Default to multiple commits when WIP contains more than one fix, feature, refactor, config change, or docs update.
+1. Partition the diff into independent change sets before proposing multiple commits. Default to multiple commits when WIP contains more than one fix, feature, refactor, config change, or docs update.
 2. Combine changes only when they share one clear reason and should be reviewed, reverted, and tested together. Changes are not related just because they touch the same file, package, or session.
 3. Plan a list of commits, each with a short title that explains **why** the change was made, not what. If the "why" is obvious from the diff, the title can just name the change.
 4. Commits should be independent, atomic, and grouped by intent — not one commit per file. If one file contains hunks for multiple unrelated fixes, split those hunks into separate commits.
