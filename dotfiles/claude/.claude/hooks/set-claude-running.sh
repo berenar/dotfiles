@@ -8,15 +8,4 @@ set -euo pipefail
 
 source "$(dirname "${BASH_SOURCE[0]}")/helpers.sh"
 
-[ -n "${CLAUDE_TMUX_RENAME_ACTIVE:-}" ] && exit 0
-[ -z "${TMUX:-}" ] && exit 0
-[ -z "${TMUX_PANE:-}" ] && exit 0
-
-if [ "${1:-off}" = "on" ]; then
-	INPUT=""
-	[ -t 0 ] || INPUT=$(cat)
-	is_main_session_hook "$INPUT" || exit 0
-	tmux set-option -w -t "$TMUX_PANE" @claude_running 1 2>/dev/null || true
-else
-	tmux set-option -uw -t "$TMUX_PANE" @claude_running 2>/dev/null || true
-fi
+set_window_activity_flag @claude_running "${1:-off}" || exit 0
