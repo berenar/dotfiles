@@ -7,7 +7,7 @@
   "permissions": {
     "defaultMode": "auto"
   },
-  "model": "sonnet",
+  "model": "opus",
   "deniedMcpServers": [
     {
       "serverName": "claude.ai Gmail"
@@ -51,6 +51,11 @@
             "type": "command",
             "command": "$HOME/.claude/hooks/set-claude-running.sh off",
             "async": true
+          },
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/caffeinate-while-thinking.sh off",
+            "async": true
           }
         ]
       }
@@ -61,6 +66,11 @@
           {
             "type": "command",
             "command": "$HOME/.claude/hooks/set-claude-running.sh on",
+            "async": true
+          },
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/caffeinate-while-thinking.sh on",
             "async": true
           },
           {
@@ -77,6 +87,11 @@
           {
             "type": "command",
             "command": "$HOME/.claude/hooks/set-claude-running.sh off",
+            "async": true
+          },
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/caffeinate-while-thinking.sh off",
             "async": true
           },
           {
@@ -98,6 +113,11 @@
           {
             "type": "command",
             "command": "$HOME/.claude/hooks/set-claude-running.sh off",
+            "async": true
+          },
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/caffeinate-while-thinking.sh off",
             "async": true
           },
           {
@@ -125,7 +145,7 @@
   },
   "outputStyle": "default",
   "spinnerTipsEnabled": true,
-  "effortLevel": "high",
+  "effortLevel": "xhigh",
   "autoUpdatesChannel": "latest",
   "tui": "fullscreen",
   "voice": {
