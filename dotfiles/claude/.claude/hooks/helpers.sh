@@ -6,6 +6,19 @@ is_main_session_hook() {
 	jq -e '(.agent_id // "") == "" and ((.transcript_path // "") | contains("/subagents/") | not)' <<<"$input" >/dev/null 2>&1
 }
 
+# Returns 0 if the main session currently has >=1 background/async agent pending.
+# Reads the last turn_duration system entry from the transcript named in the
+# hook's stdin JSON. The count is omitted (not written as 0) when none pend.
+has_pending_background_agents() {
+	local input="$1"
+	local transcript count
+	transcript=$(jq -r '.transcript_path // ""' <<<"$input" 2>/dev/null || true)
+	[ -n "$transcript" ] && [ -f "$transcript" ] || return 1
+	count=$(grep '"subtype":"turn_duration"' "$transcript" 2>/dev/null | tail -1 \
+		| grep -oE '"pendingBackgroundAgentCount":[0-9]+' | grep -oE '[0-9]+$' || true)
+	[ -n "$count" ] && [ "$count" -ge 1 ]
+}
+
 # Sets or clears a per-window tmux flag tracking "Claude is actively working in
 # this window". Returns non-zero (so callers can `|| exit 0`) when the event is
 # not a real main-session activity event for a live tmux pane: outside tmux, the

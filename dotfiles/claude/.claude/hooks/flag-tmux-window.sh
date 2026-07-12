@@ -17,6 +17,8 @@ fi
 
 is_main_session_hook "$INPUT" || exit 0
 
+has_pending_background_agents "$INPUT" && exit 0
+
 INFO=$(tmux display-message -p -t "$TMUX_PANE" '#{window_active} #{session_attached} #{pane_tty}' 2>/dev/null || true)
 [ -z "$INFO" ] && exit 0
 read -r WIN_ACTIVE SESS_ATTACHED PANE_TTY <<<"$INFO"

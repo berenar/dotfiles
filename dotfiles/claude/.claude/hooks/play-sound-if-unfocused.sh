@@ -14,6 +14,11 @@ fi
 
 is_main_session_hook "$input" || exit 0
 
+notification_type=$(jq -r '.notification_type // ""' <<<"$input" 2>/dev/null || true)
+if [ "$notification_type" = "idle_prompt" ] && has_pending_background_agents "$input"; then
+	exit 0
+fi
+
 front=$(lsappinfo info -only name "$(lsappinfo front)" 2>/dev/null)
 [[ "$front" == *'"kitty"'* ]] && exit 0
 afplay "$sound"
