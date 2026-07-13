@@ -1,0 +1,250 @@
+#!/usr/bin/env bash
+#
+# Tiled live view of every *active* Claude Code session across all tmux
+# sessions. Each tile mirrors a session's output with a coloured pane border
+# matching the window-tab colours:
+#   thinking          -> amber  #e6b450  (window option @claude_running == 1)
+#   waiting for input -> red    #d78787  (window bell flag)
+# Idle Claude sessions are omitted. The legend is a thin pinned strip at the
+# top of the window; the Claude tiles are hand-tiled evenly in the space
+# below it (so the legend never distorts their grid).
+#
+# Subcommands:
+#   (none)        open/attach the monitor session
+#   --controller  reconcile loop + legend (runs as the monitor window's pane)
+#   --mirror ID   per-tile capture loop for source pane ID
+#   --jump        switch to the focused tile's real session
+
+MONITOR_SESSION="claude-monitor"
+THINKING_COLOR="#e6b450"
+WAITING_COLOR="#d78787"
+REFRESH=1
+LEGEND_HEIGHT=1
+
+GLYPH_THINKING=$'\xe2\x9c\xbb'  # ✻
+GLYPH_WAITING=$'\xe2\x97\x8f'   # ●
+MIDDOT=$'\xc2\xb7'              # ·
+
+SELF="$0"
+case "$SELF" in
+  /*) : ;;
+  *) SELF="$(cd "$(dirname "$SELF")" && pwd)/$(basename "$SELF")" ;;
+esac
+
+# Emit one line per active Claude window: srcpane|state|session|label
+# (label is read last so a '|' in a window name can't shift the fields).
+list_active() {
+  tmux list-windows -a \
+    -F '#{@claude_running}|#{window_bell_flag}|#{pane_id}|#{session_name}|#{window_name}' 2>/dev/null |
+    while IFS='|' read -r running bell pane sname wname; do
+      [ "$sname" = "$MONITOR_SESSION" ] && continue
+      if [ "$running" = "1" ]; then
+        state="thinking"
+      elif [ "$bell" = "1" ]; then
+        state="waiting"
+      else
+        continue
+      fi
+      printf '%s|%s|%s|%s\n' "$pane" "$state" "$sname" "$wname"
+    done
+}
+
+# Print the monitor pane whose @mon_src matches $2, or return 1.
+mirror_pane_for() {
+  local window="$1" src="$2" out
+  out="$(tmux list-panes -t "$window" -F '#{pane_id}|#{@mon_src}' 2>/dev/null |
+    awk -F'|' -v s="$src" '$2==s {print $1; exit}')"
+  [ -n "$out" ] || return 1
+  printf '%s' "$out"
+}
+
+# Split `pane` into `n` equal pieces along `dir` (-v rows / -h cols) by
+# repeatedly peeling off "1/remaining" of it, so every piece ends up the same
+# size. Prints the resulting pane ids in order (first peeled .. last left).
+split_equal() {
+  local dir="$1" n="$2" pane="$3"
+  local -a out=()
+  local i="$n" pct new
+  while [ "$i" -gt 1 ]; do
+    pct=$(( 100 / i ))
+    new="$(tmux split-window -t "$pane" "$dir" -b -d -P -F '#{pane_id}' -p "$pct" 2>/dev/null)"
+    [ -z "$new" ] && return 1
+    out+=("$new")
+    i=$(( i - 1 ))
+  done
+  out+=("$pane")
+  printf '%s\n' "${out[@]}"
+}
+
+# Tear down and rebuild the whole mirror grid below the legend pane for the
+# given desired-sources list. Only called when the active set actually
+# changed (see reconcile), so this doesn't run every tick.
+rebuild_grid() {
+  local window="$1" legend="$2" desired="$3"
+  local pid src
+  while IFS='|' read -r pid src; do
+    [ -n "$src" ] && tmux kill-pane -t "$pid" 2>/dev/null
+  done < <(tmux list-panes -t "$window" -F '#{pane_id}|#{@mon_src}' 2>/dev/null)
+
+  local -a srcs=()
+  local pane state sname label
+  while IFS='|' read -r pane state sname label; do
+    [ -n "$pane" ] && srcs+=("$pane")
+  done <<EOF
+$desired
+EOF
+  local m=${#srcs[@]}
+  [ "$m" -eq 0 ] && return 0
+
+  local first
+  first="$(tmux split-window -t "$legend" -v -d -P -F '#{pane_id}' 2>/dev/null)"
+  [ -z "$first" ] && return 1
+  tmux resize-pane -t "$legend" -y "$LEGEND_HEIGHT" 2>/dev/null
+
+  local -a leaves=("$first")
+  if [ "$m" -gt 1 ]; then
+    local cols=1
+    while [ $(( cols * cols )) -lt "$m" ]; do cols=$(( cols + 1 )); done
+
+    local rows=$(( (m + cols - 1) / cols ))
+    local -a row_panes=()
+    while IFS= read -r new; do row_panes+=("$new"); done < <(split_equal -v "$rows" "$first")
+
+    leaves=()
+    local placed=0 r cols_in_row remain_in_grid
+    for r in "${row_panes[@]}"; do
+      remain_in_grid=$(( m - placed ))
+      if [ "$remain_in_grid" -ge "$cols" ]; then cols_in_row=$cols; else cols_in_row=$remain_in_grid; fi
+      if [ "$cols_in_row" -gt 1 ]; then
+        while IFS= read -r new; do leaves+=("$new"); done < <(split_equal -h "$cols_in_row" "$r")
+      else
+        leaves+=("$r")
+      fi
+      placed=$(( placed + cols_in_row ))
+    done
+  fi
+
+  local i
+  for i in "${!srcs[@]}"; do
+    tmux respawn-pane -k -t "${leaves[$i]}" "$SELF --mirror ${srcs[$i]}" 2>/dev/null
+    tmux set -p -t "${leaves[$i]}" @mon_src "${srcs[$i]}" 2>/dev/null
+  done
+}
+
+render_legend() {
+  local thinking="$1" waiting="$2" total=$(( thinking + waiting )) line
+  if [ "$total" -eq 0 ]; then
+    printf -v line '  No Claude sessions thinking or waiting right now.    h/j/k/l move %s prefix+G jump %s prefix+& close  ' \
+      "$MIDDOT" "$MIDDOT"
+  else
+    printf -v line '  \033[38;2;215;135;135m%s\033[0m %d waiting   \033[38;2;230;180;80m%s\033[0m %d thinking      h/j/k/l move %s prefix+G jump %s prefix+& close  ' \
+      "$GLYPH_WAITING" "$waiting" "$GLYPH_THINKING" "$thinking" "$MIDDOT" "$MIDDOT"
+  fi
+  [ "$line" = "$LAST_LEGEND" ] && return
+  LAST_LEGEND="$line"
+  printf '\033[H\033[K%s\033[0m\033[J' "$line"
+}
+
+reconcile() {
+  local window="$1" legend="$2" desired current_srcs new_srcs
+  desired="$(list_active)"
+
+  current_srcs="$(tmux list-panes -t "$window" -F '#{@mon_src}' 2>/dev/null | grep -v '^$' | sort)"
+  new_srcs="$(printf '%s\n' "$desired" | cut -d'|' -f1 | grep -v '^$' | sort)"
+  [ "$current_srcs" != "$new_srcs" ] && rebuild_grid "$window" "$legend" "$desired"
+
+  local pane state sname label mp thinking=0 waiting=0
+  while IFS='|' read -r pane state sname label; do
+    [ -z "$pane" ] && continue
+    mp="$(mirror_pane_for "$window" "$pane")" || continue
+    if [ "$state" = "thinking" ]; then
+      tmux set -p -t "$mp" @mon_border "fg=$THINKING_COLOR"
+      tmux set -p -t "$mp" @mon_label " $GLYPH_THINKING $sname:$label $MIDDOT thinking "
+      thinking=$(( thinking + 1 ))
+    else
+      tmux set -p -t "$mp" @mon_border "fg=$WAITING_COLOR"
+      tmux set -p -t "$mp" @mon_label " $GLYPH_WAITING $sname:$label $MIDDOT waiting "
+      waiting=$(( waiting + 1 ))
+    fi
+  done <<EOF
+$desired
+EOF
+
+  render_legend "$thinking" "$waiting"
+}
+
+controller() {
+  local window legend
+  legend="$TMUX_PANE"
+  window="$(tmux display-message -p -t "$legend" '#{window_id}')"
+  tmux set -w -t "$window" pane-border-status top
+  tmux set -w -t "$window" pane-border-format '#{@mon_label}'
+  tmux set -w -t "$window" pane-border-style '#{@mon_border}'
+  tmux set -w -t "$window" pane-active-border-style '#{@mon_border}'
+  tmux set -p -t "$legend" @mon_label ' CLAUDE MONITOR '
+
+  LAST_LEGEND=""
+  printf '\033[?25l'
+  trap 'printf "\033[?25h"; exit 0' EXIT INT TERM
+  while tmux has-session -t "$MONITOR_SESSION" 2>/dev/null; do
+    reconcile "$window" "$legend"
+    sleep "$REFRESH"
+  done
+}
+
+mirror() {
+  local src="$1" content rows sig last=""
+  printf '\033[?25l'
+  trap 'printf "\033[?25h"; exit 0' EXIT INT TERM
+  while tmux has-session -t "$MONITOR_SESSION" 2>/dev/null; do
+    if content="$(tmux capture-pane -ep -t "$src" 2>/dev/null)"; then
+      rows="$(tput lines 2>/dev/null || echo 20)"
+      sig="$rows|$content"
+      if [ "$sig" != "$last" ]; then
+        last="$sig"
+        printf '\033[H'
+        printf '%s\n' "$content" |
+          awk 'NF {last=NR} {l[NR]=$0} END {for (i=1;i<=last;i++) print l[i]}' |
+          tail -n "$rows" |
+          awk '{printf "%s\033[K\n", $0}'
+        printf '\033[J\033[0m'
+      fi
+    else
+      if [ "$last" != "ended" ]; then
+        last="ended"
+        printf '\033[H\033[J  [session ended]\n'
+      fi
+    fi
+    sleep "$REFRESH"
+  done
+}
+
+jump() {
+  local pane src win sess
+  pane="$(tmux display-message -p '#{pane_id}')"
+  src="$(tmux display-message -p -t "$pane" '#{@mon_src}')"
+  [ -z "$src" ] && exit 0
+  win="$(tmux display-message -p -t "$src" '#{window_id}' 2>/dev/null)"
+  sess="$(tmux display-message -p -t "$src" '#{session_name}' 2>/dev/null)"
+  [ -z "$sess" ] && exit 0
+  tmux switch-client -t "$sess"
+  [ -n "$win" ] && tmux select-window -t "$win"
+  tmux select-pane -t "$src" 2>/dev/null
+}
+
+open_monitor() {
+  tmux has-session -t "$MONITOR_SESSION" 2>/dev/null ||
+    tmux new-session -d -s "$MONITOR_SESSION" -n monitor "$SELF --controller"
+  if [ -n "${TMUX:-}" ]; then
+    tmux switch-client -t "$MONITOR_SESSION"
+  else
+    tmux attach-session -t "$MONITOR_SESSION"
+  fi
+}
+
+case "${1:-}" in
+  --controller) controller ;;
+  --mirror) shift; mirror "$1" ;;
+  --jump) jump ;;
+  *) open_monitor ;;
+esac
