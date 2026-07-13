@@ -6,9 +6,9 @@
       "sourceType": "github",
       "sourceUrl": "https://github.com/vercel-labs/skills.git",
       "skillPath": "skills/find-skills/SKILL.md",
-      "skillFolderHash": "eb6a23305aea6e340d14b9de3766e721f9f4861b",
+      "skillFolderHash": "76a98a285cb0434f3d39e1a873823556330e398b",
       "installedAt": "2026-07-08T06:29:08.622Z",
-      "updatedAt": "2026-07-08T06:29:08.622Z"
+      "updatedAt": "2026-07-13T11:43:26.926Z"
     },
     "agent-browser": {
       "source": "vercel-labs/agent-browser",
@@ -24,10 +24,9 @@
       "sourceType": "github",
       "sourceUrl": "https://github.com/mattpocock/skills.git",
       "skillPath": "skills/engineering/improve-codebase-architecture/SKILL.md",
-      "skillFolderHash": "e5beae48471adf87c513b5cbcb0ca347467546da",
-      "pluginName": "mattpocock-skills",
+      "skillFolderHash": "1772480f5ee4a99d31a2b876e2dca737028e70d1",
       "installedAt": "2026-07-08T06:30:56.137Z",
-      "updatedAt": "2026-07-08T06:30:56.137Z"
+      "updatedAt": "2026-07-13T11:43:28.816Z"
     }
   },
   "dismissed": {
