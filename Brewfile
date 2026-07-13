@@ -110,6 +110,7 @@ cask "tailscale-app"
 cask "telegram", args: { appdir: "/Applications" }
 cask "visual-studio-code", args: { appdir: "/Applications" }
 cask "windsurf"
+cask "xbar"
 mas "Keynote", id: 409183694
 mas "Numbers", id: 409203825
 mas "Pages", id: 409201541
