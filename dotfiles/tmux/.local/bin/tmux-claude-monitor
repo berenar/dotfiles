@@ -10,10 +10,13 @@
 # below it (so the legend never distorts their grid).
 #
 # Subcommands:
-#   (none)        open/attach the monitor session
-#   --controller  reconcile loop + legend (runs as the monitor window's pane)
-#   --mirror ID   per-tile capture loop for source pane ID
-#   --jump        switch to the focused tile's real session
+#   (none)                    open/attach the monitor session
+#   --controller              reconcile loop + legend (runs as the monitor window's pane)
+#   --mirror ID               per-tile capture loop for source pane ID
+#   --jump                    switch to the focused tile's real session
+#   --open-window SESS [WIN]  jump straight to a session/window (used by the xbar dropdown)
+
+export PATH="/opt/homebrew/bin:$PATH"
 
 MONITOR_SESSION="claude-monitor"
 THINKING_COLOR="#e6b450"
@@ -232,13 +235,50 @@ jump() {
   tmux select-pane -t "$src" 2>/dev/null
 }
 
+# tty of the most recently active attached tmux client, if any. Used to
+# redirect an already-open kitty window instead of spawning a new one.
+most_recent_client() {
+  tmux list-clients -F '#{client_activity} #{client_tty}' 2>/dev/null | sort -rn | awk 'NR==1{print $2}'
+}
+
 open_monitor() {
   tmux has-session -t "$MONITOR_SESSION" 2>/dev/null ||
     tmux new-session -d -s "$MONITOR_SESSION" -n monitor "$SELF --controller"
   if [ -n "${TMUX:-}" ]; then
     tmux switch-client -t "$MONITOR_SESSION"
+    return
+  fi
+  local client
+  client="$(most_recent_client)"
+  if [ -n "$client" ]; then
+    tmux switch-client -c "$client" -t "$MONITOR_SESSION"
   else
-    tmux attach-session -t "$MONITOR_SESSION"
+    kitty tmux attach-session -t "$MONITOR_SESSION" &
+  fi
+}
+
+# Open (or switch to) the given session and land on the given window, e.g.
+# from the xbar dropdown, where each waiting entry links here with its
+# session name and window id. Prefers redirecting an already-attached
+# client (so it reuses the existing kitty window) and only falls back to
+# spawning a new kitty window when nothing is attached at all.
+open_window() {
+  local sess="$1" win="$2"
+  [ -z "$sess" ] && exit 0
+  if [ -n "${TMUX:-}" ]; then
+    tmux switch-client -t "$sess"
+    [ -n "$win" ] && tmux select-window -t "$win"
+    return
+  fi
+  local client
+  client="$(most_recent_client)"
+  if [ -n "$client" ]; then
+    [ -n "$win" ] && tmux select-window -t "$win"
+    tmux switch-client -c "$client" -t "$sess"
+  elif [ -n "$win" ]; then
+    kitty tmux attach-session -t "$sess" \; select-window -t "$win" &
+  else
+    kitty tmux attach-session -t "$sess" &
   fi
 }
 
@@ -246,5 +286,6 @@ case "${1:-}" in
   --controller) controller ;;
   --mirror) shift; mirror "$1" ;;
   --jump) jump ;;
+  --open-window) shift; open_window "$1" "$2" ;;
   *) open_monitor ;;
 esac
