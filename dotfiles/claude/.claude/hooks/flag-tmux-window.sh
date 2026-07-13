@@ -1,7 +1,18 @@
 #!/bin/bash
-# Flags the enclosing tmux window (via monitor-bell) so the title is highlighted
-# when Claude finishes responding. Skips if the user is already viewing this
-# window in an attached session.
+# Flags the enclosing tmux window so the "waiting for input" indicators light up
+# when Claude finishes responding.
+#
+# Normal case (not the terminal's current window): send a real bell, which
+# tmux turns into window_bell_flag -- covers window-tab highlighting and every
+# existing bell-based consumer.
+#
+# Foreground case (this IS the current window of an attached session): tmux
+# itself refuses to ever raise window_bell_flag for a client's current window,
+# regardless of OS-level focus (verified: even a raw bell sent straight to the
+# pane tty is dropped). So when the terminal app isn't actually frontmost on
+# the Mac (user switched to another app), set a separate @claude_waiting_unfocused
+# window option instead -- cleared on the next UserPromptSubmit by
+# set-claude-running.sh.
 set -euo pipefail
 
 source "$(dirname "${BASH_SOURCE[0]}")/helpers.sh"
@@ -24,6 +35,11 @@ INFO=$(tmux display-message -p -t "$TMUX_PANE" '#{window_active} #{session_attac
 read -r WIN_ACTIVE SESS_ATTACHED PANE_TTY <<<"$INFO"
 
 if [ "$WIN_ACTIVE" = "1" ] && [ "${SESS_ATTACHED:-0}" != "0" ]; then
+	FRONT_APP=$(lsappinfo info -only name "$(lsappinfo front)" 2>/dev/null || true)
+	if [[ "$FRONT_APP" == *'"kitty"'* ]]; then
+		exit 0
+	fi
+	tmux set-option -w -t "$TMUX_PANE" @claude_waiting_unfocused 1 2>/dev/null || true
 	exit 0
 fi
 

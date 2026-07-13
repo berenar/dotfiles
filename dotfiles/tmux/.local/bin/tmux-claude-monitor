@@ -38,12 +38,12 @@ esac
 # (label is read last so a '|' in a window name can't shift the fields).
 list_active() {
   tmux list-windows -a \
-    -F '#{@claude_running}|#{window_bell_flag}|#{pane_id}|#{session_name}|#{window_name}' 2>/dev/null |
-    while IFS='|' read -r running bell pane sname wname; do
+    -F '#{@claude_running}|#{window_bell_flag}|#{@claude_waiting_unfocused}|#{pane_id}|#{session_name}|#{window_name}' 2>/dev/null |
+    while IFS='|' read -r running bell waiting_unfocused pane sname wname; do
       [ "$sname" = "$MONITOR_SESSION" ] && continue
       if [ "$running" = "1" ]; then
         state="thinking"
-      elif [ "$bell" = "1" ]; then
+      elif [ "$bell" = "1" ] || [ "$waiting_unfocused" = "1" ]; then
         state="waiting"
       else
         continue

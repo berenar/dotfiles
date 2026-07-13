@@ -9,3 +9,9 @@ set -euo pipefail
 source "$(dirname "${BASH_SOURCE[0]}")/helpers.sh"
 
 set_window_activity_flag @claude_running "${1:-off}" || exit 0
+
+# A new prompt means the user is engaging with this window again, so clear the
+# unfocused-while-waiting alert set by flag-tmux-window.sh.
+if [ "${1:-off}" = "on" ]; then
+	set_window_activity_flag @claude_waiting_unfocused off
+fi

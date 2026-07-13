@@ -19,7 +19,7 @@ while IFS=$'\t' read -r _ name window session; do
   [ "$name" = "$current" ] && continue
   target_name="$name"
   break
-done < <(tmux list-windows -a -f '#{window_bell_flag}' -F $'#{window_activity}\t#{session_name}\t#{window_id}\t#{session_id}' | sort -rn)
+done < <(tmux list-windows -a -f '#{||:#{window_bell_flag},#{@claude_waiting_unfocused}}' -F $'#{window_activity}\t#{session_name}\t#{window_id}\t#{session_id}' | sort -rn)
 
 if [ "$mode" = "show" ]; then
   [ -z "$target_name" ] && exit 0

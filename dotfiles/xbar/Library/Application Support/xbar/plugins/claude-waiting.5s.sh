@@ -10,7 +10,7 @@ export PATH="/opt/homebrew/bin:$PATH"
 WAITING_COLOR="#EC5F36"
 MONITOR="$HOME/.local/bin/tmux-claude-monitor"
 
-WAITING=$(tmux list-windows -a -F '#{window_bell_flag}|#{session_name}|#{window_name}|#{window_id}' 2>/dev/null | awk -F'|' '$1=="1"')
+WAITING=$(tmux list-windows -a -F '#{window_bell_flag}|#{@claude_waiting_unfocused}|#{session_name}|#{window_name}|#{window_id}' 2>/dev/null | awk -F'|' '$1=="1" || $2=="1"')
 COUNT=$(printf '%s\n' "$WAITING" | grep -c . || true)
 
 if [ "$COUNT" -gt 0 ]; then
@@ -22,7 +22,7 @@ fi
 echo "---"
 if [ "$COUNT" -gt 0 ]; then
 	printf '%s\n' "$WAITING" | awk -F'|' -v monitor="$MONITOR" '{
-		printf "%s : %s waiting for input | bash=%s param1=\"--open-window\" param2=\"%s\" param3=\"%s\" terminal=false\n", $2, $3, monitor, $2, $4
+		printf "%s : %s waiting for input | bash=%s param1=\"--open-window\" param2=\"%s\" param3=\"%s\" terminal=false\n", $3, $4, monitor, $3, $5
 	}'
 else
 	echo "No Claude sessions waiting"
