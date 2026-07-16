@@ -133,7 +133,8 @@
     "celebrate-agentic-tools@celebrate-engineering": true,
     "security-guidance@claude-plugins-official": true,
     "frontend-design@claude-plugins-official": true,
-    "playwright@claude-plugins-official": true
+    "playwright@claude-plugins-official": true,
+    "amplitude@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
     "celebrate-engineering": {
