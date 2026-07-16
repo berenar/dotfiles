@@ -265,6 +265,11 @@ open_monitor() {
 open_window() {
   local sess="$1" win="$2"
   [ -z "$sess" ] && exit 0
+  # The click means the user is attending to this session now, so drop the
+  # "waiting for input" alert. The bell flag clears itself once the window is
+  # viewed, but @claude_waiting_unfocused is a plain window option and a
+  # background switch-client may not emit a focus event, so clear it here too.
+  [ -n "$win" ] && tmux set-option -uw -t "$win" @claude_waiting_unfocused 2>/dev/null || true
   if [ -n "${TMUX:-}" ]; then
     tmux switch-client -t "$sess"
     [ -n "$win" ] && tmux select-window -t "$win"
