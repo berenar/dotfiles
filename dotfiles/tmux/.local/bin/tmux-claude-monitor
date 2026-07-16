@@ -252,6 +252,7 @@ open_monitor() {
   client="$(most_recent_client)"
   if [ -n "$client" ]; then
     tmux switch-client -c "$client" -t "$MONITOR_SESSION"
+    open -a kitty 2>/dev/null || true
   else
     kitty tmux attach-session -t "$MONITOR_SESSION" &
   fi
@@ -280,6 +281,7 @@ open_window() {
   if [ -n "$client" ]; then
     [ -n "$win" ] && tmux select-window -t "$win"
     tmux switch-client -c "$client" -t "$sess"
+    open -a kitty 2>/dev/null || true
   elif [ -n "$win" ]; then
     kitty tmux attach-session -t "$sess" \; select-window -t "$win" &
   else
