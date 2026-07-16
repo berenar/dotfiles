@@ -3,11 +3,11 @@
 # Runs async from Claude Code's UserPromptSubmit hook. Failures are silent.
 set -euo pipefail
 
-[ -z "${TMUX:-}" ] && exit 0
-[ -z "${TMUX_PANE:-}" ] && exit 0
-[ -n "${CLAUDE_TMUX_RENAME_ACTIVE:-}" ] && exit 0
+source "$(dirname "${BASH_SOURCE[0]}")/helpers.sh"
 
-INPUT=$(cat)
+require_live_tmux_pane || exit 0
+
+INPUT=$(read_hook_input)
 PROMPT=$(jq -r '.prompt // ""' <<< "$INPUT")
 SESSION_ID=$(jq -r '.session_id // ""' <<< "$INPUT")
 SESSION_TITLE=$(jq -r '.session_title // ""' <<< "$INPUT")
@@ -17,12 +17,14 @@ STATE_FILE="$HOME/.claude/session-state/$SESSION_ID.label"
 STORED_LABEL=""
 [ -f "$STATE_FILE" ] && STORED_LABEL=$(<"$STATE_FILE")
 
-if [ -n "$SESSION_TITLE" ] && [ "$SESSION_TITLE" != "$STORED_LABEL" ]; then
+apply_label() {
   mkdir -p "${STATE_FILE%/*}"
-  tmux set-window-option -t "$TMUX_PANE" automatic-rename off \; \
-       set-window-option -t "$TMUX_PANE" allow-rename off \; \
-       rename-window -t "$TMUX_PANE" "$SESSION_TITLE" 2>/dev/null || true
-  printf '%s' "$SESSION_TITLE" > "$STATE_FILE"
+  pin_window_name "$1"
+  printf '%s' "$1" > "$STATE_FILE"
+}
+
+if [ -n "$SESSION_TITLE" ] && [ "$SESSION_TITLE" != "$STORED_LABEL" ]; then
+  apply_label "$SESSION_TITLE"
   exit 0
 fi
 
@@ -55,8 +57,4 @@ fi
 [ -z "$NEW_LABEL" ] && exit 0
 [ "$NEW_LABEL" = "$STORED_LABEL" ] && exit 0
 
-mkdir -p "${STATE_FILE%/*}"
-tmux set-window-option -t "$TMUX_PANE" automatic-rename off \; \
-     set-window-option -t "$TMUX_PANE" allow-rename off \; \
-     rename-window -t "$TMUX_PANE" "$NEW_LABEL" 2>/dev/null || true
-printf '%s' "$NEW_LABEL" > "$STATE_FILE"
+apply_label "$NEW_LABEL"

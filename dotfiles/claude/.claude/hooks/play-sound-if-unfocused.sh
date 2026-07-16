@@ -7,10 +7,7 @@ source "$(dirname "${BASH_SOURCE[0]}")/helpers.sh"
 sound="${1:-}"
 [ -z "$sound" ] && exit 0
 
-input=""
-if [ ! -t 0 ]; then
-	input=$(cat)
-fi
+input=$(read_hook_input)
 
 is_main_session_hook "$input" || exit 0
 
@@ -19,6 +16,5 @@ if [ "$notification_type" = "idle_prompt" ] && has_pending_background_agents "$i
 	exit 0
 fi
 
-front=$(lsappinfo info -only name "$(lsappinfo front)" 2>/dev/null)
-[[ "$front" == *'"kitty"'* ]] && exit 0
+is_kitty_frontmost && exit 0
 afplay "$sound"

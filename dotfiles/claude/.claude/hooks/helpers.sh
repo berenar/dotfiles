@@ -19,6 +19,37 @@ has_pending_background_agents() {
 	[ -n "$count" ] && [ "$count" -ge 1 ]
 }
 
+# Returns 0 only for a real main-session activity event in a live tmux pane:
+# not the nested rename-labeller (CLAUDE_TMUX_RENAME_ACTIVE), and inside tmux
+# with a pane to target. Callers use `require_live_tmux_pane || exit 0`.
+require_live_tmux_pane() {
+	[ -z "${CLAUDE_TMUX_RENAME_ACTIVE:-}" ] || return 1
+	[ -n "${TMUX:-}" ] || return 1
+	[ -n "${TMUX_PANE:-}" ] || return 1
+}
+
+# Reads the hook's JSON payload from stdin (empty when attached to a tty).
+read_hook_input() {
+	[ -t 0 ] && return 0
+	cat
+}
+
+# Pins the enclosing window's name (disabling tmux auto-rename first) so a
+# hook-set label isn't immediately overwritten by the running command.
+pin_window_name() {
+	tmux set-window-option -t "$TMUX_PANE" automatic-rename off \; \
+	     set-window-option -t "$TMUX_PANE" allow-rename off \; \
+	     rename-window -t "$TMUX_PANE" "$1" 2>/dev/null || true
+}
+
+# Returns 0 when the terminal emulator (kitty) is the frontmost macOS app.
+# Switching terminals means changing only this check.
+is_kitty_frontmost() {
+	local front
+	front=$(lsappinfo info -only name "$(lsappinfo front)" 2>/dev/null || true)
+	[[ "$front" == *'"kitty"'* ]]
+}
+
 # Sets or clears a per-window tmux flag tracking "Claude is actively working in
 # this window". Returns non-zero (so callers can `|| exit 0`) when the event is
 # not a real main-session activity event for a live tmux pane: outside tmux, the
@@ -28,13 +59,11 @@ has_pending_background_agents() {
 set_window_activity_flag() {
 	local option="$1" action="${2:-off}"
 
-	[ -n "${CLAUDE_TMUX_RENAME_ACTIVE:-}" ] && return 1
-	[ -z "${TMUX:-}" ] && return 1
-	[ -z "${TMUX_PANE:-}" ] && return 1
+	require_live_tmux_pane || return 1
 
 	if [ "$action" = "on" ]; then
-		local input=""
-		[ -t 0 ] || IFS= read -rd '' input || true
+		local input
+		input=$(read_hook_input)
 		is_main_session_hook "$input" || return 1
 		tmux set-option -w -t "$TMUX_PANE" "$option" 1 2>/dev/null || true
 	else

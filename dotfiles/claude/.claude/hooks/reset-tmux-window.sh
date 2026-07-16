@@ -4,9 +4,8 @@
 # the UserPromptSubmit hook generates a fresh one.
 set -euo pipefail
 
-[ -z "${TMUX:-}" ] && exit 0
-[ -z "${TMUX_PANE:-}" ] && exit 0
+source "$(dirname "${BASH_SOURCE[0]}")/helpers.sh"
 
-tmux set-window-option -t "$TMUX_PANE" automatic-rename off \; \
-     set-window-option -t "$TMUX_PANE" allow-rename off \; \
-     rename-window -t "$TMUX_PANE" "claude" 2>/dev/null || true
+require_live_tmux_pane || exit 0
+
+pin_window_name "claude"

@@ -17,14 +17,9 @@ set -euo pipefail
 
 source "$(dirname "${BASH_SOURCE[0]}")/helpers.sh"
 
-[ -n "${CLAUDE_TMUX_RENAME_ACTIVE:-}" ] && exit 0
-[ -z "${TMUX:-}" ] && exit 0
-[ -z "${TMUX_PANE:-}" ] && exit 0
+require_live_tmux_pane || exit 0
 
-INPUT=""
-if [ ! -t 0 ]; then
-	INPUT=$(cat)
-fi
+INPUT=$(read_hook_input)
 
 is_main_session_hook "$INPUT" || exit 0
 
@@ -35,10 +30,7 @@ INFO=$(tmux display-message -p -t "$TMUX_PANE" '#{window_active} #{session_attac
 read -r WIN_ACTIVE SESS_ATTACHED PANE_TTY <<<"$INFO"
 
 if [ "$WIN_ACTIVE" = "1" ] && [ "${SESS_ATTACHED:-0}" != "0" ]; then
-	FRONT_APP=$(lsappinfo info -only name "$(lsappinfo front)" 2>/dev/null || true)
-	if [[ "$FRONT_APP" == *'"kitty"'* ]]; then
-		exit 0
-	fi
+	is_kitty_frontmost && exit 0
 	tmux set-option -w -t "$TMUX_PANE" @claude_waiting_unfocused 1 2>/dev/null || true
 	exit 0
 fi
