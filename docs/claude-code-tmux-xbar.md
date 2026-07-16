@@ -79,10 +79,15 @@ same events but are out of scope for this doc:
 4. Otherwise → write a bell (`\a`) to the pane tty, which tmux turns into
    `window_bell_flag`.
 
-`helpers.sh` provides the shared guards: `is_main_session_hook` (ignore
-subagents / `/subagents/` transcripts), `has_pending_background_agents` (don't
-alert while background agents are still running), and `set_window_activity_flag`
-(set/clear a window option, with all the tmux/pane guards).
+`helpers.sh` provides the shared guards and utilities, each defined once and
+reused across the hooks: `is_main_session_hook` (ignore subagents /
+`/subagents/` transcripts), `has_pending_background_agents` (don't alert while
+background agents are still running), `require_live_tmux_pane` (the shared "real
+main-session activity in a live pane" guard — skips the nested labeller and
+non-tmux contexts), `read_hook_input` (read the hook's stdin JSON),
+`is_kitty_frontmost` (the single kitty-frontmost check), `pin_window_name`
+(rename a window with auto-rename disabled), and `set_window_activity_flag`
+(set/clear a window option, built on `require_live_tmux_pane`).
 
 ## Consumers — the readers
 
@@ -127,7 +132,10 @@ from the focused tile to its real session. It hand-tiles one mirror pane per
 active Claude window, with a coloured border: amber = thinking, red = waiting.
 Idle Claude sessions are omitted. `--open-window` (used by the xbar dropdown)
 jumps to a session/window, reusing the current kitty client when possible or
-spawning a new kitty window otherwise.
+spawning a new kitty window otherwise. When it reuses an existing client it also
+runs `open -a kitty` to bring the terminal to the foreground: `switch-client`
+alone redirects the tmux client but leaves kitty backgrounded, so without it the
+click would silently switch to a window you can't see.
 
 ## Lifecycle of a "waiting for input" alert
 
@@ -175,7 +183,7 @@ Two changes close the gap, mirroring how the bell flag clears on view:
 dotfiles/claude/.claude/
   settings.json                     hook wiring (Stop / Notification / UserPromptSubmit / SessionStart)
   hooks/
-    helpers.sh                      shared guards (main-session, background-agents, set flag)
+    helpers.sh                      shared guards + utilities (main-session, background-agents, live-pane guard, kitty-frontmost, read-input, pin-window, set flag)
     set-claude-running.sh           @claude_running on/off; clears @claude_waiting_unfocused on "on"
     flag-tmux-window.sh             raises the waiting alert (bell or @claude_waiting_unfocused)
     reset-tmux-window.sh            resets window name to "claude" on SessionStart
@@ -197,9 +205,12 @@ dotfiles/xbar/Library/Application Support/xbar/plugins/
 
 ## Gotchas
 
-- **kitty-frontmost detection** uses `lsappinfo front` / `lsappinfo info -only
-  name`, matching `"kitty"`. If you switch terminals, update the checks in
-  `flag-tmux-window.sh` and `play-sound-if-unfocused.sh`.
+- **kitty is assumed as the terminal** in two spots. `helpers.sh`
+  `is_kitty_frontmost` does the frontmost detection (`lsappinfo front` /
+  `lsappinfo info -only name`, matching `"kitty"`) for `flag-tmux-window.sh` and
+  `play-sound-if-unfocused.sh`. `tmux-claude-monitor` spawns `kitty` windows and
+  runs `open -a kitty` to raise it on an xbar click. Switching terminals means
+  updating both.
 - **Subagents and background agents never alert** — `helpers.sh` filters
   `/subagents/` transcripts and sessions with `pendingBackgroundAgentCount ≥ 1`.
 - **Hooks are `async`** (except `play-sound-if-unfocused.sh`, which is
