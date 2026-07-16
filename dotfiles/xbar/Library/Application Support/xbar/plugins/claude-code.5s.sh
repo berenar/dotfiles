@@ -89,10 +89,9 @@ usage_line() {
 		return
 	fi
 	local s w sr wr
-	s=$(jq -r '.five_hour.utilization // 0 | round' "$cache" 2>/dev/null)
-	w=$(jq -r '.seven_day.utilization // 0 | round' "$cache" 2>/dev/null)
-	sr=$(humanize_until "$(jq -r '.five_hour.resets_at // empty' "$cache" 2>/dev/null)")
-	wr=$(humanize_until "$(jq -r '.seven_day.resets_at // empty' "$cache" 2>/dev/null)")
+	IFS=$'\t' read -r s w sr wr < <(jq -r '[(.five_hour.utilization // 0 | round), (.seven_day.utilization // 0 | round), (.five_hour.resets_at // ""), (.seven_day.resets_at // "")] | @tsv' "$cache" 2>/dev/null)
+	sr=$(humanize_until "$sr")
+	wr=$(humanize_until "$wr")
 	printf '%-15ssession %3d%% (%s)   ·   week %3d%% (%s) | font="SF Mono" size=12\n' \
 		"$label" "$s" "$sr" "$w" "$wr"
 }
@@ -100,11 +99,9 @@ usage_line() {
 WAITING=$(tmux list-windows -a -F '#{window_bell_flag}|#{@claude_waiting_unfocused}|#{session_name}|#{window_name}|#{window_id}' 2>/dev/null | awk -F'|' '$1=="1" || $2=="1"')
 COUNT=$(printf '%s\n' "$WAITING" | grep -c . || true)
 
-if [ "$COUNT" -gt 0 ]; then
-	echo "✻ | color=$WAITING_COLOR size=15 font=\"SF Mono\""
-else
-	echo "✻ | color=$IDLE_COLOR size=15 font=\"SF Mono\""
-fi
+GLYPH_COLOR=$IDLE_COLOR
+[ "$COUNT" -gt 0 ] && GLYPH_COLOR=$WAITING_COLOR
+echo "✻ | color=$GLYPH_COLOR size=15 font=\"SF Mono\""
 
 echo "---"
 if [ "$COUNT" -gt 0 ]; then
