@@ -8,6 +8,7 @@
 export PATH="/opt/homebrew/bin:/usr/bin:/bin:$PATH"
 
 WAITING_COLOR="#EC5F36"
+IDLE_COLOR="#E8EFF4"
 MONITOR="$HOME/.local/bin/tmux-claude-monitor"
 
 # Per-account Claude Code usage. Each entry is "label:config-dir[:flag]"; the
@@ -102,7 +103,7 @@ COUNT=$(printf '%s\n' "$WAITING" | grep -c . || true)
 if [ "$COUNT" -gt 0 ]; then
 	echo "✻ | color=$WAITING_COLOR size=15 font=\"SF Mono\""
 else
-	echo " "
+	echo "✻ | color=$IDLE_COLOR size=15 font=\"SF Mono\""
 fi
 
 echo "---"
