@@ -2,6 +2,10 @@ export default {
   defaultBrowser: "Safari",
   handlers: [
     {
+      match: /^https?:\/\/accounts\.google\.com\/o\/oauth2/,
+      browser: "Safari",
+    },
+    {
       match: /^https?:\/\/meet\.google\.com\//,
       browser: (url) => ({
         name: "Google Chrome",
