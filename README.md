@@ -55,6 +55,8 @@ This repository manages the following dotfiles packages:
 - [opencode](https://github.com/anomalyco/opencode) - The open source AI coding agent.
 - [claude](https://claude.com/claude-code) - Claude Code CLI configuration.
 
+See [docs/claude-code-tmux-xbar.md](docs/claude-code-tmux-xbar.md) for the Claude Code ↔ tmux ↔ xbar monitoring integration (menu-bar glyph, live monitor, and status-bar alerts driven by Claude Code hooks).
+
 ### Add
 
 To add new dotfiles, move them into `dotfiles/<app>/` matching the application name (e.g., `.config/nvim/` → `dotfiles/nvim/.config/nvim/`).
