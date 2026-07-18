@@ -19,9 +19,6 @@
       "serverName": "claude.ai Amplitude"
     },
     {
-      "serverName": "claude.ai Context7"
-    },
-    {
       "serverName": "plugin:celebrate-agentic-tools:context7"
     }
   ],
