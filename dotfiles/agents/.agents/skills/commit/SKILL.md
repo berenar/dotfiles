@@ -21,14 +21,15 @@ Staged changes:
 ## Task
 
 0. There may be WIP changes unrelated to the work you did — only commit your code, leave the rest unstaged.
-1. Partition the diff into independent change sets before proposing multiple commits. Default to multiple commits when WIP contains more than one fix, feature, refactor, config change, or docs update.
-2. Combine changes only when they share one clear reason and should be reviewed, reverted, and tested together. Changes are not related just because they touch the same file, package, or session.
-3. Plan a list of commits, each with a short title that explains **why** the change was made, not what. If the "why" is obvious from the diff, the title can just name the change.
-4. Commits should be independent, atomic, and grouped by intent — not one commit per file. If one file contains hunks for multiple unrelated fixes, split those hunks into separate commits.
-5. Match the existing repo style (see `git log --oneline -20` above). If the repo uses Conventional Commits or includes a ticket ID (e.g. `ABC-123:` prefix), follow that convention.
-6. Title max 100 characters. No description body unless the user explicitly asks for one.
-7. **Never** add `Co-authored-by: Claude` or any AI attribution line.
-8. Keep each commit scoped to files relevant to its change set — don't sweep in unrelated edits.
-9. Preview the commit plan and messages to the user and wait for confirmation before committing.
-10. Stage selectively for each commit and inspect `git diff --staged` before committing.
-11. Never push unless the user explicitly asks.
+1. Before grouping anything, go hunk by hunk (not file by file) and list every independent change you see, each with its own one-line reason for existing. Build the commit plan from that list — don't start from "how few commits can this be."
+2. Default assumption: **each item on that list is its own commit.** Only merge two items if you can state one single reason that covers both and that reason would still make sense as a PR description. "Both touch auth", "both are cleanup", "both happened in this session" are not valid reasons to merge. If you're unsure whether two changes are related, treat them as unrelated.
+3. Never bundle these together even if they're adjacent or in the same file: a bug fix + a refactor, a new feature + unrelated cleanup, a behavior change + a formatting/lint pass, config changes for different concerns, or changes to different files that happen to serve different features. Each gets its own commit.
+4. If one file contains hunks for multiple unrelated concerns, split those hunks into separate commits (`git add -p` / patch staging) rather than committing the whole file at once.
+5. Plan a list of commits, each with a short title that explains **why** the change was made, not what. If the "why" is obvious from the diff, the title can just name the change.
+6. Match the existing repo style (see `git log --oneline -20` above). If the repo uses Conventional Commits or includes a ticket ID (e.g. `ABC-123:` prefix), follow that convention.
+7. Title max 100 characters. No description body unless the user explicitly asks for one.
+8. **Never** add `Co-authored-by: Claude` or any AI attribution line.
+9. Keep each commit scoped to files/hunks relevant to its change set — don't sweep in unrelated edits.
+10. Preview the full commit plan (numbered list of titles + what's in each) to the user and wait for confirmation before committing. If the user pushes back that it's still too clustered, split further rather than defending the grouping.
+11. Stage selectively for each commit and inspect `git diff --staged` before committing.
+12. Never push unless the user explicitly asks.
