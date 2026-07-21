@@ -39,19 +39,27 @@ juggling.
 4. **Find real test data.** Pick a record or input that actually exercises the changed
    behavior. Reuse the same one for before and after.
 
-5. **Capture each change.** Drive each instance to the exact same state and capture it —
-   screenshot for UI, or the equivalent evidence for non-UI changes (a curl response, CLI
-   output, log line). Use `agent-browser` for browser work if available, otherwise the
-   Playwright MCP. Save both files into the output folder.
+5. **Capture each change — delegate to a fork per change.** Driving the browser (or curl/CLI),
+   verifying the capture, and re-capturing on failure generates a lot of tool noise
+   (navigation steps, DOM snapshots, network logs) that's only useful in the moment, not
+   afterward. Dispatch a fork (`Agent` with `subagent_type: "fork"`) per change instead of
+   capturing inline — it already knows the before/after setup from steps 1-4. Tell each fork:
 
-6. **Verify every capture.** Read each file back to confirm it shows the intended state —
-   automation silently produces blank or wrong-state captures. Re-capture failures.
+   - Which change (from step 2) it owns, and the before/after URLs or commands to hit.
+   - The exact output filenames (`NN-<slug>-before.png` / `NN-<slug>-after.png`) and folder.
+   - Drive each instance to the exact same state and capture it — screenshot for UI, or the
+     equivalent evidence for non-UI changes (a curl response, CLI output, log line). Use
+     `agent-browser` for browser work if available, otherwise the Playwright MCP.
+   - Read each file back itself to confirm it shows the intended state before reporting
+     done — automation silently produces blank or wrong-state captures; re-capture on
+     failure.
+   - Return only a one-line confirmation per file (path + one-sentence description of what
+     it shows) — not any snapshot/log content.
 
-7. **(Optional) Fan out.** One subagent per change speeds this up, but if they share a single
-   browser/instance they must run **sequentially**; only parallelize if each has its own
-   session.
+   If both instances share a single browser/session, dispatch the forks **sequentially** (one
+   change at a time); only run them concurrently if each change has its own isolated session.
 
-8. **Update the PR description.** GitHub has no API/CLI to upload images, so this step is
+6. **Update the PR description.** GitHub has no API/CLI to upload images, so this step is
    manual: ask the user to open the PR description editor and drag-and-drop the files in order
    — `01-*-before`, `01-*-after`, `02-*-before`, `02-*-after`, ... — then save. Once the user
    confirms it's saved, fetch the resulting body with `gh pr view <number> --json body -q

@@ -36,6 +36,17 @@ agent-browser skills get agentcore         # AWS Bedrock AgentCore cloud browser
 
 Run `agent-browser skills list` to see everything available on the installed version.
 
+## Context hygiene
+
+Driving a browser session generates a lot of accessibility-tree snapshots, network logs, and
+intermediate screenshots that are only useful moment-to-moment — not worth keeping around
+afterward. For any multi-step or exploratory session (dogfooding, QA, bug hunts, scraping
+multiple pages, multi-page form fills), dispatch a fork (`Agent` with
+`subagent_type: "fork"`) to drive the browser instead of doing it inline, and have it return
+only the extracted result: the data scraped, the bug found, the saved screenshot paths, a
+pass/fail — never the raw snapshots or logs. Reserve driving it inline for a single quick
+action (one click, one screenshot) where forking would be overkill.
+
 ## Why agent-browser
 
 - Fast native Rust CLI, not a Node.js wrapper

@@ -1,12 +1,24 @@
 ---
 name: audit-content
 description: Audits the copy of a multilingual project (next-intl, i18next, vue-i18n, Rails locales, etc.) for grammar errors, register inconsistencies (e.g. tu/vostè mixing in Catalan, tú/usted in Spanish), cross-locale structural gaps, non-idiomatic phrasing, and formatting issues. Discovers the locale files, presents findings in severity-grouped tables, then asks the user to confirm each group before applying any fix. Use when the user says "audit copy", "check translations", "find copy inconsistencies", "review locale files", or wants to check multilingual content quality.
-allowed-tools: Bash, Read, Edit, Grep, Glob
+allowed-tools: Bash, Read, Edit, Grep, Glob, Agent
 ---
 
 # audit-content
 
-## Step 0 — Discover the content
+## Step 0 — Delegate discovery + analysis to a fork
+
+Discovery (finding locale files) and analysis (reading every locale file, cross-referencing
+keys across locales, checking grammar/register/formatting) can touch dozens of files and
+produce a lot of raw output that's only useful for building the findings table below — not
+useful to keep around afterward. Dispatch it to a fork (`Agent` with
+`subagent_type: "fork"`) instead of doing it inline.
+
+Prompt the fork with the Discover + Analyse instructions below verbatim, and tell it to
+return ONLY the findings list (nothing edited, no file dumps) in the exact format from
+"Analyse". Then continue at "Present findings" using what it returns.
+
+### Discover
 
 Do NOT assume file paths. Find them first.
 
@@ -20,9 +32,7 @@ Do NOT assume file paths. Find them first.
 
 3. **Build/lint command** — read `CLAUDE.md`, `Makefile`, then `package.json` scripts. Note it for the Verify step instead of assuming a package manager.
 
-## Workflow
-
-### 1. Analyse
+### Analyse
 
 Build a findings list — each entry records:
 `severity · locale(s) · key or file:line · current value · proposed fix · reason`
@@ -39,7 +49,9 @@ Check categories in this order:
 
 Cite an exact anchor per finding (key path or `file:line`); `Current` and `Proposed fix` must be copy-pasteable exact strings. Within a category sort Critical → Major → Minor.
 
-### 2. Present findings
+## Workflow
+
+### 1. Present findings
 
 For each non-empty category, output a markdown table:
 
@@ -54,13 +66,15 @@ Then call **AskUserQuestion** (multiSelect: true):
 
 Do **not** edit any file until the user has responded for that category.
 
-### 3. Apply confirmed fixes
+### 2. Apply confirmed fixes
 
-For each confirmed fix use **Edit** to replace the exact string. Batch all edits to the same file together.
+Read each file that has a confirmed fix (only those files — no need to re-read ones with
+nothing confirmed), then use **Edit** to replace the exact string. Batch all edits to the
+same file together.
 
-### 4. Verify
+### 3. Verify
 
-Run the build/lint command found in step 0 and report pass/fail.
+Run the build/lint command the fork found in Discover and report pass/fail.
 
 ## Notes
 

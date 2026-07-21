@@ -1,7 +1,7 @@
 ---
 name: audit-ds
 description: Audit and realign a project's design system. Finds hardcoded colors/values that bypass DS tokens, unused DS tokens, and font inconsistencies. Use when the user wants to check DS coverage, hunt down hardcoded styling, or readjust styling to flow through the DS.
-allowed-tools: Bash, Read, Edit, Grep, Glob
+allowed-tools: Bash, Read, Edit, Grep, Glob, Agent
 ---
 
 ## Goal
@@ -11,6 +11,14 @@ Make sure all styling flows through the project's design system. Report any hard
 ## Inputs
 
 - `$ARGUMENTS` (optional): `--fix` to also propose/apply edits inline. Without it, the skill only reports.
+
+## Delegate discovery + scanning to a fork
+
+Steps 0-5 below are pure discovery and read-only scanning (dozens of `rg` calls across the
+whole source tree) whose only output that matters afterward is the grouped Report in step 6.
+Dispatch steps 0-5 to a fork (`Agent` with `subagent_type: "fork"`) and tell it to return
+ONLY the Report (step 6's format) — not the raw grep hits. Continue from "If `--fix` was
+passed" using what it returns.
 
 ## Step 0 — Discover the design system
 
@@ -106,7 +114,10 @@ Suggested new tokens (N)
   --… for repeated literal #abcdef seen in 3 files
 ```
 
-If `--fix` was passed, apply only the unambiguous mapping-table replacements from steps 1 + 2, then run the project's lint + typecheck (discover via `package.json` scripts or a `Makefile`) and report. Leave anything ambiguous (new tokens, unused-token deletions, font changes) for the user to confirm.
+If `--fix` was passed, Read each file with an unambiguous mapping-table replacement from steps
+1 + 2 (only those files) and apply the edit, then run the project's lint + typecheck
+(discover via `package.json` scripts or a `Makefile`) and report. Leave anything ambiguous
+(new tokens, unused-token deletions, font changes) for the user to confirm.
 
 ## Notes
 
