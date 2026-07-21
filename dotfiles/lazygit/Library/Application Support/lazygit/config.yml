@@ -5,7 +5,8 @@ os:
 git:
   overrideGpg: true
   pagers:
-    - externalDiffCommand: difft --color=always --tab-width=2
+    - colorArg: always
+      pager: delta --side-by-side --paging=never
 gui:
   sidePanelWidth: 0.30
   expandFocusedSidePanel: true
