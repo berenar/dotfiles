@@ -4,9 +4,14 @@ os:
   editPreset: "nvim"
 git:
   overrideGpg: true
+  diffContextSize: 20
   pagers:
-    - colorArg: always
-      pager: delta --side-by-side --paging=never
+    - name: side-by-side
+      colorArg: always
+      pager: delta --side-by-side --paging=never --line-numbers-left-format="" --line-numbers-right-format="" --wrap-max-lines=unlimited --line-fill-method=spaces
+    - name: unified
+      colorArg: always
+      pager: delta --paging=never --line-numbers-left-format="" --line-numbers-right-format="" --wrap-max-lines=unlimited --line-fill-method=spaces
 gui:
   sidePanelWidth: 0.30
   expandFocusedSidePanel: true
