@@ -3,6 +3,7 @@
 os:
   editPreset: "nvim"
 git:
+  overrideGpg: true
   pagers:
     - externalDiffCommand: difft --color=always --tab-width=2
 gui:
