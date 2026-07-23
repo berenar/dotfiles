@@ -123,17 +123,19 @@ Refreshes every 5s (the `.5s.` in the filename).
   a Raycast script command that opens the dropdown from anywhere, without
   touching the mouse:
   ```sh
-  osascript -e 'tell application "System Events" to tell process "xbar" to click menu bar item 1 of menu bar 2'
+  osascript -e 'tell application "System Events" to tell process "xbar" to click menu bar item 1 of menu bar 2' >/dev/null 2>&1
   ```
   This is the standard AppleScript idiom for clicking a menu-bar-extra (`menu bar
   2` is the system status bar, as opposed to `menu bar 1`, an app's own menu bar);
-  it only targets item 1 because xbar currently runs a single plugin. Needs
-  Accessibility permission granted to whatever runs it (Raycast, or Terminal if
-  invoked directly). The `.sh` extension is required — Raycast's script-command
-  scanner uses it to pick the interpreter and silently ignores extension-less
-  files. To wire up a hotkey: Raycast Preferences → Extensions → Script Commands
-  → add a script directory → assign a hotkey to "Open Claude Alerts Menu". Point
-  the directory at the real repo path
+  it only targets item 1 because xbar currently runs a single plugin. `click`'s
+  AppleScript return value (the clicked element's object reference) is discarded
+  with `>/dev/null 2>&1` — otherwise it leaks through Raycast's `silent` mode as
+  visible output. Needs Accessibility permission granted to whatever runs it
+  (Raycast, or Terminal if invoked directly). The `.sh` extension is required —
+  Raycast's script-command scanner uses it to pick the interpreter and silently
+  ignores extension-less files. To wire up a hotkey: Raycast Preferences →
+  Extensions → Script Commands → add a script directory → assign a hotkey to
+  "Open Claude Alerts Menu". Point the directory at the real repo path
   (`~/dotfiles/dotfiles/raycast/.local/bin`), not `~/.local/bin` — Raycast's
   directory scan does not reliably follow the stow symlinks living there.
 - **Detection query:**
