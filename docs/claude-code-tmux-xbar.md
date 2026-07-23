@@ -13,8 +13,8 @@ Claude Code hooks            tmux window options              consumers
 UserPromptSubmit ─┐          @claude_running          ┌─► window-status colour (amber)
 Stop / Notif.  ───┤  set/    (thinking)               ├─► session switcher badges
 SessionStart ─────┘  clear   @claude_waiting_unfocused ├─► tmux-claude-monitor tiles
-                             window_bell_flag (native) ├─► status-right alert pill
-                             (waiting for input)       └─► xbar menu-bar glyph ✻
+                             window_bell_flag (native) ├─► xbar menu-bar glyph ✻
+                             (waiting for input)       └─► prefix+Enter jump (no display)
 ```
 
 The **only shared state is a set of per-window tmux options.** Claude Code hooks
@@ -95,7 +95,7 @@ non-tmux contexts), `read_hook_input` (read the hook's stdin JSON),
 | --- | --- | --- |
 | **xbar menu-bar plugin** | `dotfiles/xbar/Library/Application Support/xbar/plugins/claude-code.5s.sh` | menu-bar `✻` glyph + dropdown of waiting sessions + per-account usage |
 | **Live monitor** | `dotfiles/tmux/.local/bin/tmux-claude-monitor` | tiled tmux view mirroring every active Claude pane, colour-coded by state |
-| **Status-right alert pill** | `dotfiles/tmux/.local/bin/tmux-alert-indicator` | shows / jumps to the most-recently-alerted window |
+| **Alert jump shortcut** | `dotfiles/tmux/.local/bin/tmux-alert-indicator` | `prefix+Enter` jumps to the most-recently-alerted window; no longer displayed (redundant with the always-visible xbar glyph) |
 | **Window-tab colour** | `dotfiles/tmux/.local/bin/tmux-claude-window-style` | amber window name while `@claude_running` is set |
 | **Session switcher** | `dotfiles/tmux/.local/bin/tmux-session-switcher` | marks sessions that have a running Claude |
 
@@ -163,8 +163,8 @@ Cleared when:
 ### The stuck-alert bug (fixed)
 
 `@claude_waiting_unfocused` is a plain window option — unlike the native bell
-flag, tmux does **not** auto-clear it on view. It stuck around and its xbar/pill
-entry lingered "since yesterday", with clicking never dismissing it.
+flag, tmux does **not** auto-clear it on view. It stuck around and its xbar entry
+lingered "since yesterday", with clicking never dismissing it.
 
 The fix took two rounds:
 
@@ -216,7 +216,7 @@ dotfiles/tmux/
   .tmux.conf                        focus-events, alert-clear hooks, keybinds (M/G), status bar
   .local/bin/
     tmux-claude-monitor             tiled live monitor + --open-window / --jump
-    tmux-alert-indicator            status-right alert pill + --goto
+    tmux-alert-indicator            --goto (prefix+Enter), no display -- redundant with the always-visible xbar glyph
     tmux-clear-claude-alert         clears @claude_waiting_unfocused on the focused client's on-screen window (hooks)
     tmux-claude-window-style        amber window name while @claude_running
     tmux-session-switcher           session picker, flags running Claude sessions
