@@ -123,6 +123,7 @@ Refreshes every 5s (the `.5s.` in the filename).
   a Raycast script command that opens the dropdown from anywhere, without
   touching the mouse:
   ```sh
+  open -g "xbar://app.xbarapp.com/refreshPlugin?path=claude-code.5s.sh"
   osascript -e 'tell application "System Events" to tell process "xbar" to click menu bar item 1 of menu bar 2' >/dev/null 2>&1
   ```
   This is the standard AppleScript idiom for clicking a menu-bar-extra (`menu bar
@@ -138,6 +139,19 @@ Refreshes every 5s (the `.5s.` in the filename).
   "Open Claude Alerts Menu". Point the directory at the real repo path
   (`~/dotfiles/dotfiles/raycast/.local/bin`), not `~/.local/bin` — Raycast's
   directory scan does not reliably follow the stow symlinks living there.
+- **Refresh on open:** the hotkey first triggers a refresh via xbar's
+  `xbar://app.xbarapp.com/refreshPlugin?path=…` URL scheme, so the dropdown isn't
+  showing data up to 5s stale when it opens. This stays a single one-off refresh,
+  not a fast-poll loop: xbar re-renders (and visibly blinks) the whole menu bar
+  item on every plugin run, so polling every 1s made the glyph flicker
+  continuously — a worse trade than occasionally-stale data. There's also no
+  "menu opened" event and no safe way to change a plugin's refresh interval at
+  runtime (renaming the file mid-flight, the usual trick since the interval is
+  encoded in the filename, is a known xbar bug that can leave it stuck showing
+  "Updating…" forever — matryer/xbar#332), so this couldn't be a native interval
+  change regardless. Scope: this only fires when the dropdown is opened via the
+  hotkey — a manual click directly on the menu bar icon isn't detectable from
+  outside xbar, so it still shows whatever the last 5s tick rendered.
 - **Detection query:**
   ```sh
   tmux list-windows -a -F '#{window_bell_flag}|#{@claude_waiting_unfocused}|…' \
@@ -261,7 +275,12 @@ dotfiles/raycast/.local/bin/
   synchronous) — they must never block; all guards `exit 0` cheaply when not
   applicable.
 - **xbar refresh cadence** is encoded in the filename (`.5s.`). Rename to change
-  it; use the dropdown's *Refresh* item to force an update.
+  it; use the dropdown's *Refresh* item to force an update. Don't try to change
+  it dynamically by renaming the file at runtime — see "Refresh on open" above
+  for why (a known xbar bug), and its `refreshPlugin` URL workaround.
+- **xbar visibly blinks the menu bar item on every plugin run** — fine at 5s, but
+  a bad look at high frequency. Keep any future refresh-triggering additions to
+  occasional one-offs rather than fast-poll loops.
 - **Reloading tmux config** (`prefix + r`) re-registers the alert-clear hooks; a
   stuck flag from before the fix clears the next time you view its window, or
   immediately with `tmux set-option -uw -t <window_id> @claude_waiting_unfocused`.
