@@ -27,7 +27,7 @@ and there is no daemon — every consumer just reads tmux window flags on demand
 | --- | --- | --- | --- |
 | `@claude_running` | Claude is actively responding ("thinking") | `set-claude-running.sh on` (UserPromptSubmit) | `set-claude-running.sh off` (Stop / Notification / SessionStart) |
 | `window_bell_flag` | Waiting for input — window is **not** the current one | native tmux bell from `flag-tmux-window.sh` | tmux itself, automatically, when the window is viewed |
-| `@claude_waiting_unfocused` | Waiting for input — window **is** current + attached, but kitty isn't frontmost | `flag-tmux-window.sh` | next `UserPromptSubmit`, **or** the `pane-focus-in` tmux hook when the window is viewed, **or** clicking the xbar entry |
+| `@claude_waiting_unfocused` | Waiting for input — window **is** current + attached, but kitty isn't frontmost | `flag-tmux-window.sh` | next `UserPromptSubmit`; **or** the moment the window comes into view — `tmux-clear-claude-alert` (wired to `session-window-changed` / `client-session-changed` / `client-attached`) for in-tmux navigation, plus the `pane-focus-in` hook for kitty regaining macOS focus |
 
 A fourth per-window option, `@claude_caffeinate`, exists in the same family (set
 via the same `helpers.sh` `set_window_activity_flag`) but belongs to a separate
@@ -153,29 +153,50 @@ flag-tmux-window.sh
 Cleared when:
   window_bell_flag           → tmux auto-clears the moment the window is viewed
   @claude_waiting_unfocused  → next UserPromptSubmit (set-claude-running.sh on)
-                             → pane-focus-in tmux hook when the window is viewed
-                             → clicking the xbar entry (open_window)
+                             → tmux-clear-claude-alert, on session-window-changed /
+                               client-session-changed / client-attached (any in-tmux
+                               navigation that brings the window on screen)
+                             → pane-focus-in hook, on kitty regaining macOS focus
+                             → clicking the xbar entry (open_window, belt-and-suspenders)
 ```
 
 ### The stuck-alert bug (fixed)
 
 `@claude_waiting_unfocused` is a plain window option — unlike the native bell
-flag, tmux does **not** auto-clear it on view. Originally it was only cleared on
-the next `UserPromptSubmit`. So if Claude in that pane went idle or exited and
-never got another prompt, the flag — and its xbar entry — stuck forever (e.g. an
-entry lingering "since yesterday" that clicking never dismissed).
+flag, tmux does **not** auto-clear it on view. It stuck around and its xbar/pill
+entry lingered "since yesterday", with clicking never dismissing it.
 
-Two changes close the gap, mirroring how the bell flag clears on view:
+The fix took two rounds:
 
-1. **`tmux.conf`** — a `pane-focus-in` hook clears the option as soon as the
-   window is focused (switching to it, or bringing kitty back to front):
-   ```tmux
-   set-hook -g pane-focus-in "set-option -uw -t '#{hook_pane}' @claude_waiting_unfocused"
-   ```
-   (Relies on `set -g focus-events on`, already set.)
-2. **`tmux-claude-monitor` `open_window()`** — clears the option directly when
-   you click the xbar entry, because a background `switch-client` may not emit a
-   focus event.
+**Round 1 (incomplete)** added a `pane-focus-in` hook plus an explicit clear in
+`open_window()`. The catch: **`pane-focus-in` only fires on real terminal focus
+changes** (kitty gaining/losing macOS focus), **not** when you switch
+windows/sessions *inside* tmux. So reaching a flagged window by switching to it —
+the status pill (`--goto`), the session switcher, `prefix`+number, the monitor —
+never fired the hook, and the flag stayed stuck. A flag on a window in a
+*detached* session (`pane-focus-in` can't fire there at all) was doubly stuck.
+
+**Round 2 (complete)** clears the option on the tmux hooks that actually fire when
+a window comes into view through in-tmux navigation, via a small shared helper:
+
+```tmux
+set-hook -g pane-focus-in "set-option -uw -t '#{hook_pane}' @claude_waiting_unfocused"
+set-hook -g session-window-changed "run-shell -b '$HOME/.local/bin/tmux-clear-claude-alert'"
+set-hook -g client-session-changed "run-shell -b '$HOME/.local/bin/tmux-clear-claude-alert'"
+set-hook -g client-attached "run-shell -b '$HOME/.local/bin/tmux-clear-claude-alert'"
+```
+
+`tmux-clear-claude-alert` clears `@claude_waiting_unfocused` on whatever window
+each **focused** client currently has on screen. It only touches focused clients
+so a background `switch-client` (e.g. an xbar click while you're in another app)
+doesn't pre-clear a window you haven't actually looked at — that clears once kitty
+returns to the foreground (`pane-focus-in`). `open_window()` keeps its own
+explicit clear as a belt-and-suspenders path for the xbar dropdown.
+
+Between them these cover every way a window reaches the screen: switch windows
+(`session-window-changed`), switch sessions (`client-session-changed`), attach a
+session (`client-attached`), and refocus kitty (`pane-focus-in`). All rely on
+`set -g focus-events on`, already set.
 
 ## File map
 
@@ -192,10 +213,11 @@ dotfiles/claude/.claude/
     rename-tmux-window.sh           auto-names the window from the prompt; sets CLAUDE_TMUX_RENAME_ACTIVE (out of scope)
 
 dotfiles/tmux/
-  .tmux.conf                        focus-events, pane-focus-in clear hook, keybinds (M/G), status bar
+  .tmux.conf                        focus-events, alert-clear hooks, keybinds (M/G), status bar
   .local/bin/
     tmux-claude-monitor             tiled live monitor + --open-window / --jump
     tmux-alert-indicator            status-right alert pill + --goto
+    tmux-clear-claude-alert         clears @claude_waiting_unfocused on the focused client's on-screen window (hooks)
     tmux-claude-window-style        amber window name while @claude_running
     tmux-session-switcher           session picker, flags running Claude sessions
 
@@ -218,7 +240,10 @@ dotfiles/xbar/Library/Application Support/xbar/plugins/
   applicable.
 - **xbar refresh cadence** is encoded in the filename (`.5s.`). Rename to change
   it; use the dropdown's *Refresh* item to force an update.
-- **Reloading tmux config** (`prefix + r`) re-registers the `pane-focus-in` hook;
-  a stuck flag from before the fix can be cleared once manually with
-  `tmux set-option -uw -t <window_id> @claude_waiting_unfocused`.
+- **Reloading tmux config** (`prefix + r`) re-registers the alert-clear hooks; a
+  stuck flag from before the fix clears the next time you view its window, or
+  immediately with `tmux set-option -uw -t <window_id> @claude_waiting_unfocused`.
+- **`tmux-clear-claude-alert` is a new file** — a fresh `stow` (or a manual
+  symlink into `~/.local/bin`) is needed after pulling, or the hooks silently
+  no-op.
 ```

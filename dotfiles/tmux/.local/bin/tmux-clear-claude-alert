@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+# Clears the @claude_waiting_unfocused "waiting for input" alert on any window a
+# focused client is currently viewing.
+#
+# The native bell flag auto-clears the moment a window is viewed, but
+# @claude_waiting_unfocused is a plain window option tmux never clears on its own.
+# The pane-focus-in hook only fires on real terminal focus changes (kitty
+# gaining/losing macOS focus), NOT when you switch windows/sessions inside tmux --
+# so reaching a flagged window via the status pill, session switcher, prefix+number
+# or the monitor would leave it stuck. Wired to session-window-changed /
+# client-session-changed / client-attached, this clears whatever window each
+# focused client now has on screen, so any "the window is now visible" transition
+# dismisses the alert. Kept bash 3.2 compatible: tmux run-shell uses system bash.
+#
+# Only focused clients count: a background switch-client (e.g. an xbar click while
+# you're in another app) must not pre-clear an alert for a window you haven't
+# actually looked at yet -- it clears once kitty comes back to the foreground.
+
+tmux list-clients -F '#{client_flags}|#{window_id}' 2>/dev/null |
+	while IFS='|' read -r flags win; do
+		case "$flags" in
+		*focused*)
+			[ -n "$win" ] && tmux set-option -uw -t "$win" @claude_waiting_unfocused 2>/dev/null || true
+			;;
+		esac
+	done
