@@ -119,6 +119,23 @@ Refreshes every 5s (the `.5s.` in the filename).
   and `/api/oauth/usage` is queried. Results cache in
   `~/.cache/claude-usage-xbar` for `USAGE_TTL` (60s). A `:unlimited` flag skips
   the lookup and just prints `unlimited`.
+- **Global hotkey:** `dotfiles/raycast/.local/bin/open-claude-alerts-menu.sh` is
+  a Raycast script command that opens the dropdown from anywhere, without
+  touching the mouse:
+  ```sh
+  osascript -e 'tell application "System Events" to tell process "xbar" to click menu bar item 1 of menu bar 2'
+  ```
+  This is the standard AppleScript idiom for clicking a menu-bar-extra (`menu bar
+  2` is the system status bar, as opposed to `menu bar 1`, an app's own menu bar);
+  it only targets item 1 because xbar currently runs a single plugin. Needs
+  Accessibility permission granted to whatever runs it (Raycast, or Terminal if
+  invoked directly). The `.sh` extension is required — Raycast's script-command
+  scanner uses it to pick the interpreter and silently ignores extension-less
+  files. To wire up a hotkey: Raycast Preferences → Extensions → Script Commands
+  → add a script directory → assign a hotkey to "Open Claude Alerts Menu". Point
+  the directory at the real repo path
+  (`~/dotfiles/dotfiles/raycast/.local/bin`), not `~/.local/bin` — Raycast's
+  directory scan does not reliably follow the stow symlinks living there.
 - **Detection query:**
   ```sh
   tmux list-windows -a -F '#{window_bell_flag}|#{@claude_waiting_unfocused}|…' \
@@ -223,6 +240,9 @@ dotfiles/tmux/
 
 dotfiles/xbar/Library/Application Support/xbar/plugins/
   claude-code.5s.sh                 menu-bar glyph + waiting dropdown + per-account usage
+
+dotfiles/raycast/.local/bin/
+  open-claude-alerts-menu.sh        Raycast script command: opens the xbar dropdown via a global hotkey
 ```
 
 ## Gotchas
