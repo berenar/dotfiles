@@ -93,15 +93,17 @@ non-tmux contexts), `read_hook_input` (read the hook's stdin JSON),
 
 | Consumer | File | What it does |
 | --- | --- | --- |
-| **xbar menu-bar plugin** | `dotfiles/xbar/Library/Application Support/xbar/plugins/claude-code.5s.sh` | menu-bar `✻` glyph + dropdown of waiting sessions + per-account usage |
+| **xbar menu-bar plugin** | `dotfiles/xbar/Library/Application Support/xbar/plugins/claude-code.1s.sh` | menu-bar `✻` glyph + dropdown of waiting sessions + per-account usage |
 | **Live monitor** | `dotfiles/tmux/.local/bin/tmux-claude-monitor` | tiled tmux view mirroring every active Claude pane, colour-coded by state |
 | **Alert jump shortcut** | `dotfiles/tmux/.local/bin/tmux-alert-indicator` | `prefix+Enter` jumps to the most-recently-alerted window; no longer displayed (redundant with the always-visible xbar glyph) |
 | **Window-tab colour** | `dotfiles/tmux/.local/bin/tmux-claude-window-style` | amber window name while `@claude_running` is set |
 | **Session switcher** | `dotfiles/tmux/.local/bin/tmux-session-switcher` | marks sessions that have a running Claude |
 
-### xbar plugin (`claude-code.5s.sh`)
+### xbar plugin (`claude-code.1s.sh`)
 
-Refreshes every 5s (the `.5s.` in the filename).
+Refreshes every 1s (the `.1s.` in the filename). Cheap: each tick is just a
+`tmux list-windows` query plus a cache-freshness `stat` — the usage lookup
+(keychain + network) only fires when its own 60s cache is stale.
 
 - **Menu-bar glyph:** always shows `✻`.
   - orange `#EC5F36` when ≥1 session is waiting for input;
@@ -123,7 +125,6 @@ Refreshes every 5s (the `.5s.` in the filename).
   a Raycast script command that opens the dropdown from anywhere, without
   touching the mouse:
   ```sh
-  open -g "xbar://app.xbarapp.com/refreshPlugin?path=claude-code.5s.sh"
   osascript -e 'tell application "System Events" to tell process "xbar" to click menu bar item 1 of menu bar 2' >/dev/null 2>&1
   ```
   This is the standard AppleScript idiom for clicking a menu-bar-extra (`menu bar
@@ -139,19 +140,13 @@ Refreshes every 5s (the `.5s.` in the filename).
   "Open Claude Alerts Menu". Point the directory at the real repo path
   (`~/dotfiles/dotfiles/raycast/.local/bin`), not `~/.local/bin` — Raycast's
   directory scan does not reliably follow the stow symlinks living there.
-- **Refresh on open:** the hotkey first triggers a refresh via xbar's
-  `xbar://app.xbarapp.com/refreshPlugin?path=…` URL scheme, so the dropdown isn't
-  showing data up to 5s stale when it opens. This stays a single one-off refresh,
-  not a fast-poll loop: xbar re-renders (and visibly blinks) the whole menu bar
-  item on every plugin run, so polling every 1s made the glyph flicker
-  continuously — a worse trade than occasionally-stale data. There's also no
-  "menu opened" event and no safe way to change a plugin's refresh interval at
-  runtime (renaming the file mid-flight, the usual trick since the interval is
-  encoded in the filename, is a known xbar bug that can leave it stuck showing
-  "Updating…" forever — matryer/xbar#332), so this couldn't be a native interval
-  change regardless. Scope: this only fires when the dropdown is opened via the
-  hotkey — a manual click directly on the menu bar icon isn't detectable from
-  outside xbar, so it still shows whatever the last 5s tick rendered.
+  No explicit refresh is triggered before opening: the plugin's own 1s cadence
+  keeps data fresh enough, and forcing a refresh via xbar's `refreshPlugin` URL
+  scheme (or the dropdown's *Refresh* item) always flashes a grey "Updating…"
+  placeholder first — a hardcoded, intentional xbar behaviour for any
+  externally-triggered refresh (matryer/xbar#545, #331), never silent. A
+  plugin's own scheduled tick doesn't go through that path, so it's the only
+  way to get fresh data with no visible flicker.
 - **Detection query:**
   ```sh
   tmux list-windows -a -F '#{window_bell_flag}|#{@claude_waiting_unfocused}|…' \
@@ -255,7 +250,7 @@ dotfiles/tmux/
     tmux-session-switcher           session picker, flags running Claude sessions
 
 dotfiles/xbar/Library/Application Support/xbar/plugins/
-  claude-code.5s.sh                 menu-bar glyph + waiting dropdown + per-account usage
+  claude-code.1s.sh                 menu-bar glyph + waiting dropdown + per-account usage
 
 dotfiles/raycast/.local/bin/
   open-claude-alerts-menu.sh        Raycast script command: opens the xbar dropdown via a global hotkey
@@ -274,13 +269,16 @@ dotfiles/raycast/.local/bin/
 - **Hooks are `async`** (except `play-sound-if-unfocused.sh`, which is
   synchronous) — they must never block; all guards `exit 0` cheaply when not
   applicable.
-- **xbar refresh cadence** is encoded in the filename (`.5s.`). Rename to change
-  it; use the dropdown's *Refresh* item to force an update. Don't try to change
-  it dynamically by renaming the file at runtime — see "Refresh on open" above
-  for why (a known xbar bug), and its `refreshPlugin` URL workaround.
-- **xbar visibly blinks the menu bar item on every plugin run** — fine at 5s, but
-  a bad look at high frequency. Keep any future refresh-triggering additions to
-  occasional one-offs rather than fast-poll loops.
+- **xbar refresh cadence** is encoded in the filename (`.1s.`). Rename to change
+  it. Don't try to change it dynamically by renaming the file at runtime while
+  xbar is running — a known xbar bug can leave it stuck showing "Updating…"
+  forever (matryer/xbar#332); rename it, then relaunch xbar.
+- **Forcing a refresh via xbar's `refreshPlugin` URL scheme (or the dropdown's
+  *Refresh* item) always shows a grey "Updating…" placeholder first** — this is
+  hardcoded and intentional (matryer/xbar#545, #331), never silent, regardless
+  of how fast the underlying script runs. Only a plugin's own scheduled tick is
+  silent, which is why freshness here is solved with a fast native interval
+  rather than an explicit refresh trigger.
 - **Reloading tmux config** (`prefix + r`) re-registers the alert-clear hooks; a
   stuck flag from before the fix clears the next time you view its window, or
   immediately with `tmux set-option -uw -t <window_id> @claude_waiting_unfocused`.
