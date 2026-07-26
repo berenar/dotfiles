@@ -1,0 +1,48 @@
+#!/bin/bash
+# Tie xbar's menu bar presence to kitty: xbar runs only while the terminal is
+# open, so on weekends (kitty quit, tmux left running in the background) the
+# Claude glyph does not sit in the menu bar taking up space.
+#
+# Why quit the whole app rather than hide the plugin: xbar has no "hide this
+# item" output. A plugin that prints nothing keeps its slot in the menu bar
+# (verified), and there is no URL scheme to disable a plugin. Since
+# claude-code.1s.sh is the only plugin installed, app lifetime == icon lifetime.
+#
+# Run one pass per invocation; the LaunchAgent
+# (com.berenar.xbar-follow-kitty.plist) re-runs it every few seconds, so there
+# is no daemon or pidfile to manage here.
+#
+# Usage:
+#   xbar-follow-kitty          one pass (what launchd calls)
+#   xbar-follow-kitty --off    quit xbar now, whatever kitty is doing
+#   xbar-follow-kitty --on     start xbar now, whatever kitty is doing
+
+export PATH="/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:$PATH"
+
+start_xbar() { open -ga xbar; }
+
+# AppleScript quit first so xbar exits on its own terms; if Automation
+# permission is missing (a background launchd job never gets a TCC prompt), fall
+# back to a signal -- xbar keeps no state worth saving, plugins reload on launch.
+stop_xbar() {
+	osascript -e 'quit app "xbar"' >/dev/null 2>&1 || pkill -x xbar
+}
+
+kitty_running() { pgrep -qx kitty; }
+
+xbar_running() { pgrep -qx xbar; }
+
+sync_xbar() {
+	if kitty_running; then
+		xbar_running || start_xbar
+		return 0
+	fi
+	xbar_running && stop_xbar
+	return 0
+}
+
+case "${1:-}" in
+--on) start_xbar ;;
+--off) stop_xbar ;;
+*) sync_xbar ;;
+esac

@@ -153,6 +153,33 @@ Refreshes every 1s (the `.1s.` in the filename). Cheap: each tick is just a
     | awk -F'|' '$1=="1" || $2=="1"'
   ```
 
+### Menu-bar presence follows kitty (`xbar-follow-kitty`)
+
+The glyph should only occupy menu-bar space while the terminal is open — quit
+kitty (tmux keeps running in the background) and it goes away; reopen kitty and
+it comes back within ~5s.
+
+xbar has **no way for a plugin to hide its own item**: a plugin that prints
+nothing keeps its menu-bar slot (verified), and there is no URL scheme to disable
+a plugin. So the presence is controlled at the app level — `claude-code.1s.sh` is
+the only plugin installed, so xbar's lifetime *is* the icon's lifetime.
+
+`dotfiles/xbar/.local/bin/xbar-follow-kitty` does one pass: `pgrep -qx kitty` →
+`open -ga xbar`, else quit xbar (AppleScript `quit`, falling back to `pkill -x`
+in case Automation permission is missing — a background launchd job never gets a
+TCC prompt). No daemon: `com.berenar.xbar-follow-kitty.plist`
+(`dotfiles/xbar/Library/LaunchAgents/`) re-runs it every 5s via `StartInterval`.
+`--on` / `--off` force either state manually.
+
+Load it after stowing:
+
+```sh
+launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.berenar.xbar-follow-kitty.plist
+```
+
+xbar is also a login item; if kitty isn't running at login the agent quits it
+again within 5s.
+
 ### Live monitor (`tmux-claude-monitor`)
 
 `prefix + M` opens/attaches a `claude-monitor` tmux session; `prefix + G` jumps
