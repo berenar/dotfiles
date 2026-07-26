@@ -1,0 +1,74 @@
+#!/usr/bin/env bash
+# Relaunch the lazygit that tmux-idle-suspend killed, the moment you return to a
+# session.
+#
+# tmux-idle-suspend terminates an idle session's lazygit and tags the pane
+# @idle_frozen with @idle_relaunch holding the command to bring back. Here we
+# reverse that: reset the pane's terminal state, clear any stray input, and type
+# the relaunch command back into the shell.
+#
+# Why the reset + clear: a killed lazygit leaves the pane with mouse tracking
+# still on. tmux-idle-suspend already `send-keys -R`s it at kill time, but we do
+# it again here as a belt-and-suspenders guard, and follow with C-c so that any
+# mouse-report garbage that did leak into the shell's input line is discarded
+# before we type the relaunch command (otherwise "lazygit" would be appended to
+# garbage and fail as `command not found`).
+#
+# We relaunch only when the pane's foreground is a shell (so the keystrokes go to
+# a prompt, not into some app you started there since) and only for panes tagged
+# @idle_frozen, so a process you killed yourself is never disturbed. The tags are
+# cleared either way, so a pane you brought back by hand self-heals.
+#
+# Wired to the focus hooks (client-session-changed, session-window-changed,
+# client-attached). A suspended session is always detached, so it is only seen
+# once attached again -- hence we scan every attached session's panes.
+#
+# Single-flight lock: a single switch-client fires several of those hooks at
+# once, each as a backgrounded `run-shell -b`. Without the lock two invocations
+# race and relaunch lazygit twice. The lock lets the first invocation handle
+# every attached pane (we scan `-a`) while the rest exit immediately; a dead
+# owner's lock is reclaimed so a killed run can't wedge resume forever.
+#
+# Kept bash 3.2 compatible: tmux run-shell uses the system bash.
+
+# noclobber writes our pid and creates the lock in one atomic O_EXCL open, so a
+# contender never sees a half-made lock (an empty pid it would wrongly treat as
+# stale). If acquiring fails we only reclaim when the recorded owner is actually
+# dead -- otherwise we bow out.
+lock="${TMPDIR:-/tmp}/tmux-idle-resume.lock"
+acquire() { (
+	set -o noclobber
+	echo $$ >"$lock"
+) 2>/dev/null; }
+if ! acquire; then
+	owner="$(cat "$lock" 2>/dev/null)"
+	if [ -n "$owner" ] && kill -0 "$owner" 2>/dev/null; then
+		exit 0
+	fi
+	rm -f "$lock"
+	acquire || exit 0
+fi
+trap 'rm -f "$lock"' EXIT
+trap 'exit' INT TERM HUP
+
+tmux list-panes -a -F '#{session_attached}|#{pane_id}|#{pane_current_command}|#{@idle_frozen}|#{@idle_relaunch}' 2>/dev/null |
+	while IFS='|' read -r attached pane cmd frozen relaunch; do
+		[ "$attached" = "1" ] || continue
+		[ "$frozen" = "1" ] || continue
+
+		if [ -n "$relaunch" ]; then
+			case "$cmd" in
+			zsh | -zsh | bash | -bash | fish | -fish)
+				tmux send-keys -R -t "$pane" 2>/dev/null || true
+				tmux send-keys -t "$pane" C-c 2>/dev/null || true
+				tmux send-keys -t "$pane" "$relaunch" Enter 2>/dev/null || true
+				;;
+			*) : ;;
+			esac
+		fi
+
+		tmux set-option -p -t "$pane" -u @idle_frozen 2>/dev/null || true
+		tmux set-option -p -t "$pane" -u @idle_relaunch 2>/dev/null || true
+	done
+
+tmux refresh-client 2>/dev/null || true

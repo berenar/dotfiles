@@ -1,0 +1,139 @@
+#!/usr/bin/env bash
+# Reclaim the resources held by the lazygit instances running in tmux sessions
+# you have not looked at for a while: kill them off, and let tmux-idle-resume
+# (wired to the focus hooks) relaunch them the moment you switch back.
+#
+# Why kill rather than freeze: a stopped (SIGSTOP/SIGTSTP) TUI is frozen mid
+# raw-mode with mouse tracking still enabled, and with tmux `mouse on` every
+# mouse move over that pane floods SGR mouse reports into the shell as garbage.
+# lazygit does not restore the terminal on an external stop *or* on a kill, so
+# there is no clean "pause". Instead we terminate it (it is stateless -- there
+# is nothing to lose) and, crucially, `send-keys -R` the pane straight after to
+# reset its terminal state (mouse tracking back off). That is done while the
+# session is still detached, so it never flashes on screen. tmux-idle-resume
+# then relaunches lazygit on refocus.
+#
+# Only lazygit is targeted by default. nvim is deliberately excluded: killing it
+# would drop unsaved buffers/undo, and it cannot be cleanly frozen either -- so
+# it is simply left running.
+#
+# The pane is tagged @idle_frozen (so resume only ever touches panes this script
+# suspended) and @idle_relaunch records the command to bring back.
+#
+# Only lazygit running *under* a pane's shell is ever killed: a pane whose direct
+# command is lazygit (no shell parent) is skipped, so we never close a window.
+#
+# Usage:
+#   tmux-idle-suspend            one reap pass (manual runs / testing)
+#   tmux-idle-suspend --daemon   self-guarded loop, launched from .tmux.conf
+#   tmux-idle-suspend --list     show which panes are currently suspended
+#
+# Config (global tmux options, shown with their defaults):
+#   @idle-suspend-enabled    on
+#   @idle-suspend-seconds    14400   idle threshold before a session is reaped
+#   @idle-suspend-interval   60      seconds between daemon reap passes
+#   @idle-suspend-processes  "lazygit"
+#
+# Kept bash 3.2 compatible: tmux run-shell uses the system bash.
+
+# --- helpers ---------------------------------------------------------------
+
+opt() { tmux show-option -gqv "$1" 2>/dev/null; }
+
+now() { date +%s; }
+
+process_table() { ps -axo pid=,ppid=,stat=,comm= 2>/dev/null; }
+
+# Direct-child pids of $1 (a pane's shell) whose basename command is a target
+# and which are not already stopped -- i.e. the foreground app to kill. Emits
+# "pid basename" lines. Reads the global $TABLE (pid ppid stat comm) and
+# $TARGETS.
+suspendable_pids() {
+	printf '%s\n' "$TABLE" | awk -v parent="$1" -v targets=" $TARGETS " '
+		{
+			pid = $1; ppid = $2; st = $3; base = $4; sub(/.*\//, "", base)
+			if (ppid == parent && st !~ /^T/ && index(targets, " " base " "))
+				print pid, base
+		}'
+}
+
+# --- core ------------------------------------------------------------------
+
+# One pass: kill the foreground lazygit of every detached session that has been
+# idle past the threshold, reset the pane, and tag it for relaunch.
+reap() {
+	[ "$(opt @idle-suspend-enabled)" = "off" ] && return 0
+
+	local threshold current attached last name idle pane ppid pid base froze relaunch
+	threshold="$(opt @idle-suspend-seconds)"
+	[ -n "$threshold" ] || threshold=14400
+	TARGETS="$(opt @idle-suspend-processes)"
+	[ -n "$TARGETS" ] || TARGETS="lazygit"
+	current="$(now)"
+	TABLE="$(process_table)"
+
+	tmux list-sessions -F '#{session_attached}|#{session_last_attached}|#{session_name}' 2>/dev/null |
+		while IFS='|' read -r attached last name; do
+			[ "$attached" = "1" ] && continue
+			{ [ -n "$last" ] && [ "$last" != "0" ]; } || continue
+			idle=$((current - last))
+			[ "$idle" -ge "$threshold" ] || continue
+
+			tmux list-panes -s -t "$name" -F '#{pane_id}|#{pane_pid}' 2>/dev/null |
+				while IFS='|' read -r pane ppid; do
+					froze=0
+					relaunch=""
+					while read -r pid base; do
+						[ -n "$pid" ] || continue
+						if kill -TERM "$pid" 2>/dev/null; then
+							froze=1
+							[ -n "$relaunch" ] || relaunch="$base"
+						fi
+					done < <(suspendable_pids "$ppid")
+
+					[ "$froze" = "1" ] || continue
+					tmux send-keys -R -t "$pane" 2>/dev/null || true
+					tmux set-option -p -t "$pane" @idle_frozen 1 2>/dev/null || true
+					tmux set-option -p -t "$pane" @idle_relaunch "$relaunch" 2>/dev/null || true
+				done
+		done
+}
+
+daemon() {
+	local pidfile interval
+	pidfile="${TMPDIR:-/tmp}/tmux-idle-suspend.pid"
+	if [ -f "$pidfile" ] && kill -0 "$(cat "$pidfile" 2>/dev/null)" 2>/dev/null; then
+		exit 0
+	fi
+	echo $$ >"$pidfile"
+	trap 'rm -f "$pidfile"; exit 0' INT TERM
+	trap 'rm -f "$pidfile"' EXIT
+
+	# `sleep & wait` rather than a bare `sleep`: a trapped signal (INT/TERM on
+	# reload, logout or a manual restart) interrupts `wait` at once, whereas it
+	# would sit queued behind a plain foreground `sleep` for up to a full
+	# interval -- which read as an "unkillable" daemon.
+	while tmux list-sessions >/dev/null 2>&1; do
+		reap
+		interval="$(opt @idle-suspend-interval)"
+		[ -n "$interval" ] || interval=60
+		sleep "$interval" &
+		wait $!
+	done
+}
+
+list_frozen() {
+	tmux list-panes -a -F '#{@idle_frozen}|#{session_name}|#{window_index}|#{pane_id}|#{@idle_relaunch}|#{pane_current_command}' 2>/dev/null |
+		while IFS='|' read -r frozen sess win pane relaunch cmd; do
+			[ "$frozen" = "1" ] || continue
+			printf 'suspended %s:%s %s  (relaunch: %s | fg now: %s)\n' "$sess" "$win" "$pane" "$relaunch" "$cmd"
+		done
+}
+
+# --- entrypoint ------------------------------------------------------------
+
+case "${1:-}" in
+--daemon) daemon ;;
+--list) list_frozen ;;
+*) reap ;;
+esac
