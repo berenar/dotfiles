@@ -31,6 +31,13 @@
 #
 # Kept bash 3.2 compatible: tmux run-shell uses the system bash.
 
+# Fast path: this hook fires on *every* in-tmux window/session switch. If no pane
+# is frozen there is nothing to resume, so exit before doing any work -- and, in
+# particular, before the `refresh-client` at the end, which must not run on every
+# switch. With the suspend daemon off (the default) nothing is ever frozen, so
+# this makes the hook a true no-op during normal navigation.
+tmux list-panes -a -F '#{@idle_frozen}' 2>/dev/null | grep -q '^1$' || exit 0
+
 # noclobber writes our pid and creates the lock in one atomic O_EXCL open, so a
 # contender never sees a half-made lock (an empty pid it would wrongly treat as
 # stale). If acquiring fails we only reclaim when the recorded owner is actually
