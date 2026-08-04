@@ -43,6 +43,7 @@ PR template (if any):
    )"
    ```
 7. If the branch has no upstream, push with `-u` first (also requires user confirmation).
+8. After the PR is created, open it in the browser with `gh pr view --web` and report the PR URL.
 
 ## Rules
 
