@@ -38,7 +38,7 @@ log "Setting up Claude config dirs (claude-mvst, claude-clbrt)"
 CLAUDE_SRC="$REPO_DIR/dotfiles/claude/.claude"
 for dir in "$HOME/.claude-mvst" "$HOME/.claude-clbrt"; do
   mkdir -p "$dir"
-  for item in CLAUDE.md commands hooks instructions keybindings.json settings.json skills; do
+  for item in agents CLAUDE.md commands hooks instructions keybindings.json settings.json skills; do
     ln -sfn "$CLAUDE_SRC/$item" "$dir/$item"
   done
 done
