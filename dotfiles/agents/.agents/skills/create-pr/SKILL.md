@@ -26,9 +26,9 @@ PR template (if any):
    - Under 70 characters.
    - Don't restate the branch name.
    - Match repo style (conventional commits / ticket prefix / etc.).
-4. Draft the body:
+4. Draft the body following the Writing style section below:
    - Write like a human: short, specific, and not over-explained.
-   - Target 2-6 total filled-in lines or bullets unless the template requires more.
+   - Target 2-6 total filled-in lines or bullets unless the template requires more or the change warrants the bug-fix structure from Writing style.
    - If a template exists, fill required sections tersely, delete placeholder guidance, and write `N/A` only for required sections that do not apply.
    - If no template exists, use `## Summary` with 1-2 bullets and add `## Testing` only when it adds real value.
    - Avoid file-by-file changelogs, implementation diaries, and generic validation claims.
@@ -44,6 +44,23 @@ PR template (if any):
    ```
 7. If the branch has no upstream, push with `-u` first (also requires user confirmation).
 8. After the PR is created, open it in the browser with `gh pr view --web` and report the PR URL.
+
+## Writing style
+
+Write for a reviewer who skims and doesn't know the internals of the change.
+
+- Plain words over jargon. If a technical term isn't needed to act on the PR, replace it with what actually happens: "the test waits on a spinner that is already gone from the page", not "deadlocks on a detached subtree". Terms to avoid unless essential: deadlock, race window, macrotask/microtask, vacuous, detached, structurally, idempotent, invariant.
+- Short sentences, one idea each. Break dense cause-and-effect paragraphs into 2-4 bullets that read in order: what happens, then what that causes, then why it fails.
+- The title names the symptom fixed or the behavior changed, in words the whole team recognizes ("fix flaky add-to-cart spinner wait"), not the mechanism ("fix wait deadlocking on detached spinner").
+- When library or framework internals matter, explain them in one plain sentence ("it remembers the element's parent and keeps checking if it still contains it - the answer stays yes forever"). Never narrate implementation code.
+- Scale the body to the change:
+  - Routine change: Summary with 1-2 bullets, nothing else.
+  - Bug fix, flaky-test fix, or anything a reviewer might doubt: use sections `What was wrong`, `The fix`, `Evidence`, `Verification`.
+- Keep hard facts verbatim, they are not jargon: exact error messages in code blocks, CI run IDs and dates (a table works well), commit hashes, test counts, commands run.
+- Show minimal before/after code snippets when the fix changes a code pattern.
+- Say what was deliberately left unchanged and why, in one plain sentence.
+- If a root cause was proven (e.g. a deterministic repro), describe the proof in one or two sentences: what was done, what the old code did, what the new code did.
+- Prefer concrete subjects: "the test", "the helper", "React" - not "the logic", "the flow", "the mechanism".
 
 ## Rules
 
