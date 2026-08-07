@@ -1,6 +1,15 @@
 {
   "version": 3,
   "skills": {
+    "agent-browser": {
+      "source": "vercel-labs/agent-browser",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/vercel-labs/agent-browser.git",
+      "skillPath": "skills/agent-browser/SKILL.md",
+      "skillFolderHash": "9b31e495b887e4ca123960415eca69fc7e1bba28",
+      "installedAt": "2026-07-08T06:29:44.410Z",
+      "updatedAt": "2026-07-08T06:29:44.410Z"
+    },
     "find-skills": {
       "source": "vercel-labs/skills",
       "sourceType": "github",
@@ -10,14 +19,14 @@
       "installedAt": "2026-07-08T06:29:08.622Z",
       "updatedAt": "2026-07-13T11:43:26.926Z"
     },
-    "agent-browser": {
-      "source": "vercel-labs/agent-browser",
+    "gh-stack": {
+      "source": "github/gh-stack",
       "sourceType": "github",
-      "sourceUrl": "https://github.com/vercel-labs/agent-browser.git",
-      "skillPath": "skills/agent-browser/SKILL.md",
-      "skillFolderHash": "9b31e495b887e4ca123960415eca69fc7e1bba28",
-      "installedAt": "2026-07-08T06:29:44.410Z",
-      "updatedAt": "2026-07-08T06:29:44.410Z"
+      "sourceUrl": "https://github.com/github/gh-stack.git",
+      "skillPath": "skills/gh-stack/SKILL.md",
+      "skillFolderHash": "c95c8b5b4dd850f3fef007b304428f5684f2fb87",
+      "installedAt": "2026-08-07T09:00:28Z",
+      "updatedAt": "2026-08-07T09:00:28Z"
     },
     "improve-codebase-architecture": {
       "source": "mattpocock/skills",
@@ -31,20 +40,5 @@
   },
   "dismissed": {
     "findSkillsPrompt": true
-  },
-  "lastSelectedAgents": [
-    "amp",
-    "antigravity",
-    "antigravity-cli",
-    "cline",
-    "codex",
-    "cursor",
-    "deepagents",
-    "gemini-cli",
-    "github-copilot",
-    "kimi-code-cli",
-    "opencode",
-    "warp",
-    "zed"
-  ]
+  }
 }
