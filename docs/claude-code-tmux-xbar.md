@@ -2,7 +2,8 @@
 
 A small system that surfaces, at a glance, which Claude Code sessions are
 **thinking** and which are **waiting for input**, across every tmux window — in
-the tmux status bar, a tiled live monitor, and the macOS menu bar (xbar).
+the tmux status bar, a tiled live monitor, the macOS menu bar (xbar), and
+kitty's own background color.
 
 ## How it works, in one picture
 
@@ -13,7 +14,7 @@ Claude Code hooks            tmux window options              consumers
 UserPromptSubmit ─┐          @claude_running          ┌─► window-status colour (amber)
 Stop / Notif.  ───┤  set/    (thinking)               ├─► session switcher badges
 SessionStart ─────┘  clear   @claude_waiting_unfocused ├─► tmux-claude-monitor tiles
-                             window_bell_flag (native) ├─► xbar menu-bar glyph ✻
+                             window_bell_flag (native) ├─► xbar menu-bar glyph ✻ ─► kitty tint
                              (waiting for input)       └─► prefix+Enter jump (no display)
 ```
 
@@ -93,7 +94,8 @@ non-tmux contexts), `read_hook_input` (read the hook's stdin JSON),
 
 | Consumer | File | What it does |
 | --- | --- | --- |
-| **xbar menu-bar plugin** | `dotfiles/xbar/Library/Application Support/xbar/plugins/claude-code.1s.sh` | menu-bar `✻` glyph + dropdown of waiting sessions + per-account usage |
+| **xbar menu-bar plugin** | `dotfiles/xbar/Library/Application Support/xbar/plugins/claude-code.1s.sh` | menu-bar `✻` glyph + dropdown of waiting sessions + per-account usage; also drives the kitty tint below |
+| **kitty background tint** | `dotfiles/kitty/.local/bin/kitty-tint-orange` | tints every kitty OS window's background orange while the glyph is orange |
 | **Live monitor** | `dotfiles/tmux/.local/bin/tmux-claude-monitor` | tiled tmux view mirroring every active Claude pane, colour-coded by state |
 | **Alert jump shortcut** | `dotfiles/tmux/.local/bin/tmux-alert-indicator` | `prefix+Enter` jumps to the most-recently-alerted window; no longer displayed (redundant with the always-visible xbar glyph) |
 | **Window-tab colour** | `dotfiles/tmux/.local/bin/tmux-claude-window-style` | amber window name while `@claude_running` is set |
@@ -152,6 +154,47 @@ Refreshes every 1s (the `.1s.` in the filename). Cheap: each tick is just a
   tmux list-windows -a -F '#{window_bell_flag}|#{@claude_waiting_unfocused}|…' \
     | awk -F'|' '$1=="1" || $2=="1"'
   ```
+
+### kitty background tint (`kitty-tint-orange`)
+
+Same underlying alert data as the glyph, applied to the terminal itself, but
+gated more narrowly than the glyph's aggregate `COUNT`. The glyph/menu should
+light up for *any* waiting window anywhere (that's the whole point of a
+menu-bar summary); the tint should not, because it's supposed to mean "if you
+looked at kitty right now, you'd see a waiting session" -- a window that's
+merely waiting somewhere else in the background, on a session/window you
+aren't currently on, must not tint the whole terminal.
+
+So `claude-code.1s.sh` computes a second, narrower value just for the tint,
+`FOREGROUND_COUNT`: same `window_bell_flag`/`@claude_waiting_unfocused` check
+as `WAITING`, additionally filtered to `#{window_active}==1` (it's the current
+window of its session) **and** `#{session_attached}>0` (that session has an
+attached client) -- i.e. it's literally the window you'd land on if you
+switched to kitty right now. `DESIRED_TINT=on` only when `FOREGROUND_COUNT>0`
+**and** kitty is not frontmost (`is_kitty_frontmost`, the same
+`lsappinfo`-based check `helpers.sh` uses). So switching to a different tmux
+window/session clears the tint even if some other, unrelated window is still
+flagged elsewhere; clicking into kitty on the alerted window clears it
+immediately; losing focus again (with the alert still outstanding on the
+window you're on) brings the tint back.
+`kitty-tint-orange on|off` is only called when `DESIRED_TINT` differs from the
+last state written to `~/.cache/claude-usage-xbar/kitty-tint-state`, so the
+remote-control call only happens on a transition, not every tick.
+
+`kitty-tint-orange` finds the running kitty process (`pgrep -x kitty`) and
+talks to its remote-control socket at `unix:/tmp/kitty-<pid>` (the pid is
+appended automatically by kitty's `listen_on unix:/tmp/kitty`, since the path
+has no `{kitty_pid}` placeholder). It only ever sets `background` -- to
+`WAITING_COLOR` (`#EC5F36`, the same orange as the glyph) when turning on,
+back to the fixed configured background when turning off -- rather than doing
+a full `set-colors --reset`, so a live theme change made via a kitten in
+between isn't clobbered by the next "off".
+
+Remote control is scoped to `allow_remote_control socket-only` in
+`kitty.conf`: only requests over that local socket are accepted, TTY-based
+control stays denied. Changing `listen_on`/`allow_remote_control` isn't
+picked up by a config reload -- kitty needs a restart after first stowing
+this.
 
 ### Menu-bar presence follows kitty (`xbar-follow-kitty`)
 
@@ -277,7 +320,12 @@ dotfiles/tmux/
     tmux-session-switcher           session picker, flags running Claude sessions
 
 dotfiles/xbar/Library/Application Support/xbar/plugins/
-  claude-code.1s.sh                 menu-bar glyph + waiting dropdown + per-account usage
+  claude-code.1s.sh                 menu-bar glyph + waiting dropdown + per-account usage; drives kitty tint
+
+dotfiles/kitty/
+  .config/kitty/kitty.conf          allow_remote_control socket-only; listen_on unix:/tmp/kitty
+  .local/bin/
+    kitty-tint-orange                on/off: tint or restore every kitty OS window's background
 
 dotfiles/raycast/.local/bin/
   open-claude-alerts-menu.sh        Raycast script command: opens the xbar dropdown via a global hotkey
@@ -285,12 +333,19 @@ dotfiles/raycast/.local/bin/
 
 ## Gotchas
 
-- **kitty is assumed as the terminal** in two spots. `helpers.sh`
+- **kitty is assumed as the terminal** in three spots now. `helpers.sh`
   `is_kitty_frontmost` does the frontmost detection (`lsappinfo front` /
   `lsappinfo info -only name`, matching `"kitty"`) for `flag-tmux-window.sh` and
   `play-sound-if-unfocused.sh`. `tmux-claude-monitor` spawns `kitty` windows and
-  runs `open -a kitty` to raise it on an xbar click. Switching terminals means
-  updating both.
+  runs `open -a kitty` to raise it on an xbar click. `kitty-tint-orange` talks to
+  kitty's remote-control socket. Switching terminals means updating all three.
+- **`kitty-tint-orange` assumes a single kitty process** (`pgrep -x kitty | head
+  -1`), matching the same assumption `xbar-follow-kitty` already makes — macOS
+  keeps kitty single-instance by default, so multiple OS windows/tabs share one
+  process and one remote-control socket, and `--all` tints every one of them.
+- **`listen_on`/`allow_remote_control` changes need a kitty restart** — the docs
+  explicitly call out that reloading the config does not pick these up. First
+  stow after adding this needs `killall kitty` (or quit/reopen) once.
 - **Subagents and background agents never alert** — `helpers.sh` filters
   `/subagents/` transcripts and sessions with `pendingBackgroundAgentCount ≥ 1`.
 - **Hooks are `async`** (except `play-sound-if-unfocused.sh`, which is

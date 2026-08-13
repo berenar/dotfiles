@@ -1,0 +1,27 @@
+#!/bin/bash
+# Tints every kitty OS window's background orange while >=1 Claude Code tmux
+# session is waiting for input, mirroring the xbar menu-bar glyph. Driven by
+# claude-code.1s.sh, which already polls tmux for the same "waiting" signal
+# once a second and only calls this on state transitions.
+#
+# Only the background is touched (not a full color reset) so that "off"
+# never clobbers other colors changed live via a theme kitten -- it just
+# restores the one color this script itself changes.
+#
+# Usage:
+#   kitty-tint-orange on     tint all kitty windows orange
+#   kitty-tint-orange off    restore the configured background
+
+export PATH="/opt/homebrew/bin:/usr/bin:/bin:$PATH"
+
+BASE_COLOR="#22272e"
+TINT_COLOR="#EC5F36" # same orange as WAITING_COLOR in claude-code.1s.sh
+
+kitty_pid="$(pgrep -x kitty | head -1)"
+[ -z "$kitty_pid" ] && exit 0
+socket="unix:/tmp/kitty-$kitty_pid"
+
+case "$1" in
+on) kitty @ --to "$socket" set-colors --all "background=$TINT_COLOR" >/dev/null 2>&1 ;;
+off) kitty @ --to "$socket" set-colors --all "background=$BASE_COLOR" >/dev/null 2>&1 ;;
+esac
