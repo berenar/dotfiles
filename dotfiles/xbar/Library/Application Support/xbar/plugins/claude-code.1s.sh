@@ -10,8 +10,6 @@ export PATH="/opt/homebrew/bin:/usr/bin:/bin:$PATH"
 WAITING_COLOR="#EC5F36"
 IDLE_COLOR="#E8EFF4"
 MONITOR="$HOME/.local/bin/tmux-claude-monitor"
-KITTY_TINT="$HOME/.local/bin/kitty-tint-orange"
-KITTY_TINT_STATE="$HOME/.cache/claude-usage-xbar/kitty-tint-state"
 
 # Per-account Claude Code usage. Each entry is "label:config-dir[:flag]"; the
 # OAuth token lives in the macOS keychain under a service name derived from the
@@ -104,30 +102,6 @@ COUNT=$(printf '%s\n' "$WAITING" | grep -c . || true)
 GLYPH_COLOR=$IDLE_COLOR
 [ "$COUNT" -gt 0 ] && GLYPH_COLOR=$WAITING_COLOR
 echo "✻ | color=$GLYPH_COLOR size=15 font=\"SF Mono\""
-
-is_kitty_frontmost() {
-	local front
-	front=$(lsappinfo info -only name "$(lsappinfo front)" 2>/dev/null || true)
-	[[ "$front" == *'"kitty"'* ]]
-}
-
-# Only tint for the window that's actually in the foreground -- i.e. the
-# active window of a session that has an attached client, so it's what you'd
-# see the instant you looked at kitty. A waiting window elsewhere (a
-# different tmux window/session you're not currently on) still shows in the
-# glyph/menu above, but must not tint the whole terminal.
-FOREGROUND_WAITING=$(tmux list-windows -a -F '#{window_bell_flag}|#{@claude_waiting_unfocused}|#{window_active}|#{session_attached}|#{session_name}|#{window_name}|#{window_id}' 2>/dev/null | awk -F'|' '($1=="1" || $2=="1") && $3=="1" && $4+0>0')
-FOREGROUND_COUNT=$(printf '%s\n' "$FOREGROUND_WAITING" | grep -c . || true)
-
-DESIRED_TINT="off"
-if [ "$FOREGROUND_COUNT" -gt 0 ] && ! is_kitty_frontmost; then
-	DESIRED_TINT="on"
-fi
-mkdir -p "$(dirname "$KITTY_TINT_STATE")"
-if [ "$(cat "$KITTY_TINT_STATE" 2>/dev/null)" != "$DESIRED_TINT" ]; then
-	"$KITTY_TINT" "$DESIRED_TINT"
-	echo "$DESIRED_TINT" >"$KITTY_TINT_STATE"
-fi
 
 echo "---"
 if [ "$COUNT" -gt 0 ]; then
