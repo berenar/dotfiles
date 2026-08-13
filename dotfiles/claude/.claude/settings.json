@@ -125,11 +125,11 @@
     ]
   },
   "enabledPlugins": {
+    "amplitude@claude-plugins-official": true,
     "celebrate-agentic-tools@celebrate-engineering": true,
-    "security-guidance@claude-plugins-official": true,
     "frontend-design@claude-plugins-official": true,
     "playwright@claude-plugins-official": true,
-    "amplitude@claude-plugins-official": true
+    "security-guidance@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
     "celebrate-engineering": {
@@ -139,23 +139,22 @@
       }
     }
   },
-  "outputStyle": "default",
-  "spinnerTipsEnabled": true,
-  "effortLevel": "xhigh",
+  "agentPushNotifEnabled": true,
+  "autoCompactEnabled": true,
+  "autoCompactWindow": 300000,
+  "autoMemoryEnabled": false,
   "autoUpdatesChannel": "latest",
+  "effortLevel": "xhigh",
+  "outputStyle": "default",
+  "remoteControlAtStartup": true,
+  "skipAutoPermissionPrompt": true,
+  "skipDangerousModePermissionPrompt": true,
+  "spinnerTipsEnabled": true,
+  "theme": "dark",
   "tui": "fullscreen",
+  "verbose": true,
   "voice": {
     "enabled": true,
     "mode": "hold"
-  },
-  "autoMemoryEnabled": false,
-  "skipDangerousModePermissionPrompt": true,
-  "theme": "dark",
-  "verbose": true,
-  "autoCompactEnabled": true,
-  "remoteControlAtStartup": true,
-  "agentPushNotifEnabled": true,
-  "skipAutoPermissionPrompt": true,
-  "voiceEnabled": true
-  "autoCompactWindow": 300000
+  }
 }
