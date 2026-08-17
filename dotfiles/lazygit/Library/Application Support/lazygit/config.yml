@@ -4,7 +4,7 @@ os:
   editPreset: "nvim"
 git:
   overrideGpg: true
-  diffContextSize: 20
+  diffContextSize: 10
   pagers:
     - name: side-by-side
       colorArg: always
