@@ -21,10 +21,6 @@ export default {
       browser: "Google Chrome",
     },
     {
-      match: /linear\.app/,
-      browser: "Linear",
-    },
-    {
       match: /(^|\.)slack\.com/,
       browser: "Slack",
     },
