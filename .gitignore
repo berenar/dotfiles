@@ -23,3 +23,6 @@
 /dotfiles/codex/.codex/*
 !/dotfiles/codex/.codex/AGENTS.md
 !/dotfiles/codex/.codex/prompts
+
+# claude.ai synced skills (managed by claude.ai)
+/dotfiles/agents/.agents/skills/synced/
