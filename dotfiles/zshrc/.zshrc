@@ -77,7 +77,7 @@ alias 'cd..'='cd_up'
 alias o="opencode"
 alias a="opencode --continue"
 alias c='echo "Oops! Use claude-mvst or claude-clbrt"'
-alias claude='echo "Oops! Use claude-mvst or claude-clbrt"'
+alias claude="CLAUDE_CONFIG_DIR=~/.claude-mvst /Users/berenar/.local/bin/claude"
 alias claude-mvst="CLAUDE_CONFIG_DIR=~/.claude-mvst /Users/berenar/.local/bin/claude"
 alias claude-clbrt="CLAUDE_CONFIG_DIR=~/.claude-clbrt /Users/berenar/.local/bin/claude"
 alias ccusage-mvst="CLAUDE_CONFIG_DIR=$HOME/.claude-mvst npx ccusage@latest claude"
