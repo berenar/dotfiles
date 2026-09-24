@@ -45,6 +45,15 @@
       "skillFolderHash": "b07f9d7d581c26b0ac9cdea7c3a81ee936c47118",
       "installedAt": "2026-08-19T13:26:25.928Z",
       "updatedAt": "2026-08-19T13:26:25.928Z"
+    },
+    "cost-estimator": {
+      "source": "aws-samples/sample-agent-skills-for-builders",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/aws-samples/sample-agent-skills-for-builders.git",
+      "skillPath": "skills/cost-estimator/SKILL.md",
+      "skillFolderHash": "65d20a20b7a823ff0d65356b8ae2145bb52e3480",
+      "installedAt": "2026-08-27T13:43:22.383Z",
+      "updatedAt": "2026-08-27T13:43:22.383Z"
     }
   },
   "dismissed": {
