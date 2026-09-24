@@ -36,6 +36,15 @@
       "skillFolderHash": "1772480f5ee4a99d31a2b876e2dca737028e70d1",
       "installedAt": "2026-07-08T06:30:56.137Z",
       "updatedAt": "2026-07-13T11:43:28.816Z"
+    },
+    "home-assistant-best-practices": {
+      "source": "homeassistant-ai/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/homeassistant-ai/skills.git",
+      "skillPath": "skills/home-assistant-best-practices/SKILL.md",
+      "skillFolderHash": "b07f9d7d581c26b0ac9cdea7c3a81ee936c47118",
+      "installedAt": "2026-08-19T13:26:25.928Z",
+      "updatedAt": "2026-08-19T13:26:25.928Z"
     }
   },
   "dismissed": {
