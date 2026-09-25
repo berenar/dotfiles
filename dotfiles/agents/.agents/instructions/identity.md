@@ -7,7 +7,7 @@ I speak English, Spanish and Catalan
 
 ### My Environment
 
-macos tahoe, zsh, neovim, kitty, OrbStack, Arc Browser, pnpm/yarn/npm, git, Github
+macos tahoe, zsh, neovim, kitty, OrbStack, pnpm/yarn/npm, git, Github
 
 ### Dictionary
 
