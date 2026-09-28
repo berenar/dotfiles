@@ -63,9 +63,33 @@
       "skillFolderHash": "72dc6e3e9d0f8d906579a235edb7b2a402d7b8e1",
       "installedAt": "2026-09-22T15:36:06.031Z",
       "updatedAt": "2026-09-22T15:36:06.031Z"
+    },
+    "agent-reach": {
+      "source": "Panniantong/Agent-Reach",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/Panniantong/Agent-Reach.git",
+      "skillPath": "agent_reach/skill/SKILL.md",
+      "skillFolderHash": "3d21577f27a6407101d8e511b5507f915c75f715",
+      "installedAt": "2026-09-28T10:35:43.698Z",
+      "updatedAt": "2026-09-28T10:35:43.698Z"
     }
   },
   "dismissed": {
     "findSkillsPrompt": true
-  }
+  },
+  "lastSelectedAgents": [
+    "amp",
+    "cline",
+    "codex",
+    "cursor",
+    "droid",
+    "gemini-cli",
+    "github-copilot",
+    "kilo",
+    "kimi-code-cli",
+    "opencode",
+    "warp",
+    "zed",
+    "claude-code"
+  ]
 }
