@@ -5,6 +5,7 @@ This document consolidates all instructions and preferences for assisting users 
 ## Responding to user prompts
 
 Never use emojis in your responses.
+Never use em dashes (—) in anything you write: responses, code, comments, commit messages, PR descriptions or docs. Use a comma, colon, parentheses, or split into two sentences instead.
 Don't be overly verbose; keep responses concise and to the point.
 Don't be overly formal.
 
