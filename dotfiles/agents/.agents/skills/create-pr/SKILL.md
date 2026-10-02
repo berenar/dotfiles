@@ -34,7 +34,8 @@ PR template (if any):
    - Write like a human: short, specific, and not over-explained.
    - Default to as short as possible. Target 1-3 total filled-in lines or bullets unless the template requires more or the change warrants the bug-fix structure from Writing style.
    - If a template exists, fill required sections tersely, delete placeholder guidance, and write `N/A` only for required sections that do not apply.
-   - If no template exists, use `## Summary` with 1 bullet (2 only if the change genuinely has two distinct parts). Add `## Testing` only when it adds real value.
+   - If no template exists, use `## Summary` with 1 bullet (2 only if the change genuinely has two distinct parts).
+   - Don't mention tests: no tests added or removed, test files, test counts, test results or test helpers. If the template has test checklist items, tick or leave them as the template wrote them, with no extra detail.
    - Avoid file-by-file changelogs, implementation diaries, and generic validation claims.
    - Link the Linear ticket (full URL) if there is one, or if the repo references tickets in its PRs.
 6. Preview the title and body to the user. Wait for explicit confirmation before running `gh pr create`.
@@ -60,8 +61,8 @@ Write for a reviewer who skims and doesn't know the internals of the change.
 - When library or framework internals matter, explain them in one plain sentence ("it remembers the element's parent and keeps checking if it still contains it - the answer stays yes forever"). Never narrate implementation code.
 - Scale the body to the change:
   - Routine change: Summary with 1 bullet, nothing else.
-  - Bug fix, flaky-test fix, or anything a reviewer might doubt: use sections `What was wrong`, `The fix`, `Evidence`, `Verification` - but keep each to 1 line, and drop any section that doesn't add information the reviewer needs.
-- Keep hard facts verbatim, they are not jargon: exact error messages in code blocks, CI run IDs and dates (a table works well), commit hashes, test counts, commands run.
+  - Bug fix, flaky-test fix, or anything a reviewer might doubt: use sections `What was wrong`, `The fix`, `Evidence` - but keep each to 1 line, and drop any section that doesn't add information the reviewer needs.
+- Keep hard facts verbatim, they are not jargon: exact error messages in code blocks, CI run IDs and dates (a table works well), commit hashes.
 - Show minimal before/after code snippets when the fix changes a code pattern.
 - Say what was deliberately left unchanged and why, in one plain sentence.
 - If a root cause was proven (e.g. a deterministic repro), describe the proof in one or two sentences: what was done, what the old code did, what the new code did.
@@ -70,5 +71,6 @@ Write for a reviewer who skims and doesn't know the internals of the change.
 ## Rules
 
 - NEVER add `🤖 Generated with Claude Code` or any Claude/AI attribution to the PR body.
+- NEVER describe tests in the PR body. The diff shows them, and reviewers don't need them summarised.
 - NEVER run `gh pr create` or `git push` without explicit user confirmation.
 - NEVER force-push to a shared branch without explicit user confirmation.
