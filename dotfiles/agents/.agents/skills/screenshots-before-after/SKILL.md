@@ -1,6 +1,6 @@
 ---
 name: screenshots-before-after
-description: Capture before/after screenshots (or recordings) of a branch's UI/UX changes by running the base commit and the branch side by side against the same data, then saving paired shots to ~/Downloads. Use when the user asks to screenshot changes before and after, show a branch's visual diff, capture before/after of a PR, or document UI/UX improvements visually. Works for any stack — frontend, backend/API responses, CLI output, etc.
+description: Capture before/after screenshots (or recordings) of a branch's UI/UX changes by running the base commit and the branch side by side against the same data, then saving paired shots to ~/Downloads. Use when the user asks to screenshot changes before and after, show a branch's visual diff, capture before/after of a PR, or document UI/UX improvements visually. Works for any stack; for a backend project it screenshots the frontend that uses it when one exists, otherwise API responses or CLI output.
 ---
 
 # screenshots-before-after
@@ -27,6 +27,15 @@ juggling.
 2. **Enumerate the changes.** From the commits/diff, list the user-visible changes — one
    before/after pair each. Skip non-visible commits (refactors, internal fixes); note them
    separately instead of capturing them.
+
+   **Backend projects: screenshot the frontend that consumes them.** If the branch is in a
+   backend repo (API, GraphQL, worker), the screenshots should show what the user sees in the
+   frontend app that talks to it, not raw API output. Look for the matching frontend (a sibling
+   repo under the same parent folder, often the backend's name without a `-backend`/`-api`
+   suffix, or one named in the project's CLAUDE.md/AGENTS.md), run it pointed at the `before`
+   and `after` backends, and drive the real flow in the browser. Fall back to API/CLI evidence (a rendered response, curl
+   output) only when no frontend exists, the frontend cannot reach the backend locally, or the
+   change has no UI path. When falling back, say so and why.
 
 3. **Bring up both versions, sharing data.** `after` is usually already running. For `before`,
    check out `base` in a second location (e.g. `git worktree add --detach ../<repo>-before
@@ -59,7 +68,12 @@ juggling.
    If both instances share a single browser/session, dispatch the forks **sequentially** (one
    change at a time); only run them concurrently if each change has its own isolated session.
 
-6. **Update the PR description.** GitHub has no API/CLI to upload images, so this step is
+6. **Open the folder.** Once every capture is in `~/Downloads/<name>/` and verified, run
+   `open ~/Downloads/<name>/` so the user can see the files in Finder right away. If the
+   captures were delegated to a subagent, it opens the folder itself once it's done, before
+   reporting back.
+
+7. **Update the PR description.** GitHub has no API/CLI to upload images, so this step is
    manual: ask the user to open the PR description editor and drag-and-drop the files in order
    — `01-*-before`, `01-*-after`, `02-*-before`, `02-*-after`, ... — then save. Once the user
    confirms it's saved, fetch the resulting body with `gh pr view <number> --json body -q
@@ -95,7 +109,7 @@ juggling.
   response header, the URL) in the caption.
 - Browser automation can only write inside allowed roots — save to a writable path, then move
   files to `~/Downloads/<name>/`.
-- Drag-and-drop order is everything for step 8 — GitHub gives no other way to tell which
+- Drag-and-drop order is everything for step 7 — GitHub gives no other way to tell which
   upload is which, so a mis-ordered drop pairs the wrong before with the wrong after. Double
   check the extracted URL order against the file list before rewriting the body.
 
