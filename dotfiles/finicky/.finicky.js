@@ -21,10 +21,6 @@ export default {
       browser: "Google Chrome",
     },
     {
-      match: /(^|\.)slack\.com/,
-      browser: "Slack",
-    },
-    {
       match: /(^|\.)notion\.so/,
       browser: "Notion",
     },
