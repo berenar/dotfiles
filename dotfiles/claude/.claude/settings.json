@@ -180,8 +180,12 @@
   "skipWorkflowUsageWarning": true,
   "theme": "dark",
   "verbose": true,
+  "preferredNotifChannel": "auto",
   "autoCompactEnabled": true,
+  "switchModelsOnFlag": true,
+  "autoContinueAtUsageLimit": true,
   "remoteControlAtStartup": false,
+  "inputNeededNotifEnabled": true,
   "agentPushNotifEnabled": true,
   "skipAutoPermissionPrompt": true,
   "autoCompactWindow": 300000
