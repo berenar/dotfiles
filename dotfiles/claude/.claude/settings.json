@@ -169,12 +169,14 @@
       "effortLevel": "medium"
     }
   },
+  "askUserQuestionTimeout": "never",
   "autoUpdatesChannel": "latest",
   "tui": "fullscreen",
   "voice": {
     "enabled": true,
     "mode": "hold"
   },
+  "timeFormat": "24-hour",
   "autoMemoryEnabled": false,
   "skipDangerousModePermissionPrompt": true,
   "skipWorkflowUsageWarning": true,
