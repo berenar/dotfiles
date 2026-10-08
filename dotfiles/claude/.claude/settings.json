@@ -11,13 +11,10 @@
       "serverName": "claude.ai Gmail"
     },
     {
-      "serverName": "claude.ai Figma"
-    },
-    {
-      "serverName": "claude.ai Amplitude"
-    },
-    {
       "serverName": "plugin:celebrate-agentic-tools:context7"
+    },
+    {
+      "serverName": "plugin:celebrate-agentic-tools:linear"
     }
   ],
   "hooks": {
@@ -139,22 +136,22 @@
       }
     }
   },
-  "agentPushNotifEnabled": true,
-  "autoCompactEnabled": true,
-  "autoCompactWindow": 300000,
-  "autoMemoryEnabled": false,
-  "autoUpdatesChannel": "latest",
-  "effortLevel": "xhigh",
   "outputStyle": "default",
-  "remoteControlAtStartup": true,
-  "skipAutoPermissionPrompt": true,
-  "skipDangerousModePermissionPrompt": true,
   "spinnerTipsEnabled": true,
-  "theme": "dark",
+  "effortLevel": "xhigh",
+  "autoUpdatesChannel": "latest",
   "tui": "fullscreen",
-  "verbose": true,
   "voice": {
     "enabled": true,
     "mode": "hold"
-  }
+  },
+  "autoMemoryEnabled": false,
+  "skipDangerousModePermissionPrompt": true,
+  "theme": "dark",
+  "verbose": true,
+  "autoCompactEnabled": true,
+  "remoteControlAtStartup": true,
+  "agentPushNotifEnabled": true,
+  "skipAutoPermissionPrompt": true,
+  "autoCompactWindow": 300000
 }
