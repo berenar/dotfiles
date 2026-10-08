@@ -134,6 +134,12 @@
         "source": "github",
         "repo": "kartenmacherei/agent-builder-v2"
       }
+    },
+    "mvst": {
+      "source": {
+        "source": "github",
+        "repo": "mvstgmbh/mvst-agentic"
+      }
     }
   },
   "outputStyle": "default",
