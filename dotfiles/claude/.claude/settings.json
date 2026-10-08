@@ -124,6 +124,7 @@
   "worktree": {
     "baseRef": "fresh"
   },
+  "workflowKeywordTriggerEnabled": false,
   "enabledPlugins": {
     "amplitude@claude-plugins-official": true,
     "celebrate-agentic-tools@celebrate-engineering": true,
@@ -176,6 +177,7 @@
   },
   "autoMemoryEnabled": false,
   "skipDangerousModePermissionPrompt": true,
+  "skipWorkflowUsageWarning": true,
   "theme": "dark",
   "verbose": true,
   "autoCompactEnabled": true,
