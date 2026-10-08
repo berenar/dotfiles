@@ -181,7 +181,7 @@
   "theme": "dark",
   "verbose": true,
   "autoCompactEnabled": true,
-  "remoteControlAtStartup": true,
+  "remoteControlAtStartup": false,
   "agentPushNotifEnabled": true,
   "skipAutoPermissionPrompt": true,
   "autoCompactWindow": 300000
