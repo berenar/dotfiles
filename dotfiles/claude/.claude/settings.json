@@ -121,6 +121,9 @@
       }
     ]
   },
+  "worktree": {
+    "baseRef": "fresh"
+  },
   "enabledPlugins": {
     "amplitude@claude-plugins-official": true,
     "celebrate-agentic-tools@celebrate-engineering": true,
