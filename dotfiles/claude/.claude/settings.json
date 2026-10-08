@@ -196,6 +196,5 @@
         "instructionFiles": "claude-md-and-agents-md"
       }
     }
-  },
-  "autoCompactWindow": 300000
+  }
 }
