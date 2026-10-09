@@ -3,3 +3,4 @@
 @~/.agents/instructions/build-mode.md
 @~/.agents/instructions/coding-preferences.md
 @~/.agents/instructions/tooling-preferences.md
+@~/.agents/instructions/clean-code.md
