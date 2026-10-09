@@ -37,14 +37,32 @@ This document consolidates all instructions and preferences for assisting users 
 ## Responding to user prompts
 
 Never use emojis in your responses.
+Never use em dashes (—) in anything you write: responses, code, comments, commit messages, PR descriptions or docs. Use a comma, colon, parentheses, or split into two sentences instead.
 Don't be overly verbose; keep responses concise and to the point.
 Don't be overly formal.
+
+## Language
+
+Write like you're explaining something to a colleague at their desk, not writing a report.
+
+Use plain words. `use` not `utilize`, `start` not `initiate`, `enough` not `sufficient`, `about` not `regarding`, `so` not `hence`, `helps` not `facilitates`, `let` not `enable`.
+
+Don't use corporate or LLM-flavoured filler: leverage, robust, seamless, streamline, holistic, synergy, ecosystem, surface (as a verb), delve, crucial, comprehensive, aligns with, in order to, at the end of the day.
+
+One idea per sentence. If a sentence has two commas and a semicolon, split it into two or three sentences. Don't stack qualifiers or nest clauses inside clauses.
+
+Avoid essay constructions: "not just X, but Y", "it's worth noting that", "that said", opening with "Here's the thing". Just say the thing.
+
+Prefer concrete over abstract. "The build fails because the token is missing" beats "there's a configuration issue impacting the build process".
+
+Technical terms are fine when they're the actual name for something. `mutex`, `debounce`, `migration` are precise words, not jargon. The rule is against dressing up simple ideas, not against real vocabulary.
 
 ## Build Mode
 
 Important: Do not commit any changes unless the user has explicitly requested it.
 Important: Do not push any changes unless the user has explicitly requested it and has confirmed the action.
 Important: Never add `Co-Authored-By: Claude` (or any Claude co-author/generated-by trailer) to commit messages or PR bodies.
+When the user asks to commit WIP changes, invoke the `commit` skill before staging or committing.
 
 ## Coding Preferences
 
@@ -154,6 +172,8 @@ Use `make help` to check the repository make commands. Use the `package.json` sc
 
 When your answer contains a single code snippet or command that's likely to be run manually by the user and not something you already changed on a file, copy it to my clipboard:
 `echo "<the code snippet>" | pbcopy`
+I use a clipboard history tool, so you can copy individual items to my clipboard and they won't get overwritten.
+If you need to copy more than one snippet in the same response, add `sleep 1` between each `pbcopy` call so the clipboard history tool has time to register each one separately.
 
 ### File Deletion
 
