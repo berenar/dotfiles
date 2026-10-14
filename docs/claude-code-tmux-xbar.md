@@ -53,7 +53,7 @@ synchronously and blocks on `afplay`).
 | `UserPromptSubmit` | `set-claude-running.sh on` | set `@claude_running`; clear `@claude_waiting_unfocused` (you're engaging with this window again) |
 | `Stop` | `set-claude-running.sh off` + `flag-tmux-window.sh` | clear `@claude_running`; raise the waiting alert |
 | `Notification` (`permission_prompt\|idle_prompt\|elicitation_dialog`) | `set-claude-running.sh off` + `flag-tmux-window.sh` (+ `play-sound-if-unfocused.sh`) | same as Stop, plus a sound if kitty isn't frontmost |
-| `SessionStart` (`startup`) | `set-claude-running.sh off` + `reset-tmux-window.sh` | clear stale state and reset the window name to `claude` |
+| `SessionStart` (`startup`) | `set-claude-running.sh off` | clear stale state |
 
 The table lists only the monitoring-relevant scripts. Two more hooks fire on the
 same events but are out of scope for this doc:
@@ -62,15 +62,15 @@ same events but are out of scope for this doc:
   Notification, SessionStart), same cadence as `set-claude-running.sh`. Keeps the
   Mac awake while Claude thinks via a `@claude_caffeinate` window option
   reconciled across sessions.
-- `rename-tmux-window.sh` — `UserPromptSubmit`. Auto-names the window from the
-  prompt (Linear/PR id, or a nested `claude -p --model haiku` summary). It's what
-  sets `CLAUDE_TMUX_RENAME_ACTIVE=1`, the guard the alert scripts skip on so the
-  nested labeller can't raise its own alerts.
+
+No hook names the window. Claude Code generates a session title and sets it as
+the terminal title, which tmux stores in `pane_title`. `automatic-rename-format`
+in `.tmux.conf` uses that title as the window name for Claude panes.
 
 ### `flag-tmux-window.sh` — how the waiting alert is raised
 
 1. Bail out unless this is a real **main-session** hook in a live tmux pane
-   (skips subagents, the nested rename-labeller `CLAUDE_TMUX_RENAME_ACTIVE`, and
+   (skips subagents and
    sessions with pending background agents — see `helpers.sh`).
 2. Read `window_active`, `session_attached`, `pane_tty` for the pane.
 3. If the window **is** the current window of an **attached** session:
@@ -83,10 +83,8 @@ same events but are out of scope for this doc:
 reused across the hooks: `is_main_session_hook` (ignore subagents /
 `/subagents/` transcripts), `has_pending_background_agents` (don't alert while
 background agents are still running), `require_live_tmux_pane` (the shared "real
-main-session activity in a live pane" guard — skips the nested labeller and
-non-tmux contexts), `read_hook_input` (read the hook's stdin JSON),
-`is_kitty_frontmost` (the single kitty-frontmost check), `pin_window_name`
-(rename a window with auto-rename disabled), and `set_window_activity_flag`
+main-session activity in a live pane" guard — skips non-tmux contexts), `read_hook_input` (read the hook's stdin JSON),
+`is_kitty_frontmost` (the single kitty-frontmost check), and `set_window_activity_flag`
 (set/clear a window option, built on `require_live_tmux_pane`).
 
 ## Consumers — the readers
@@ -259,13 +257,11 @@ session (`client-attached`), and refocus kitty (`pane-focus-in`). All rely on
 dotfiles/claude/.claude/
   settings.json                     hook wiring (Stop / Notification / UserPromptSubmit / SessionStart)
   hooks/
-    helpers.sh                      shared guards + utilities (main-session, background-agents, live-pane guard, kitty-frontmost, read-input, pin-window, set flag)
+    helpers.sh                      shared guards + utilities (main-session, background-agents, live-pane guard, kitty-frontmost, read-input, set flag)
     set-claude-running.sh           @claude_running on/off; clears @claude_waiting_unfocused on "on"
     flag-tmux-window.sh             raises the waiting alert (bell or @claude_waiting_unfocused)
-    reset-tmux-window.sh            resets window name to "claude" on SessionStart
     play-sound-if-unfocused.sh      plays a sound on Notification when kitty isn't frontmost (sync, not async)
     caffeinate-while-thinking.sh    keeps the Mac awake while thinking (@claude_caffeinate; out of scope)
-    rename-tmux-window.sh           auto-names the window from the prompt; sets CLAUDE_TMUX_RENAME_ACTIVE (out of scope)
 
 dotfiles/tmux/
   .tmux.conf                        focus-events, alert-clear hooks, keybinds (M/G), status bar

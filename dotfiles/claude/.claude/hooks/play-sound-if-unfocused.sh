@@ -3,7 +3,6 @@ set -euo pipefail
 
 source "$(dirname "${BASH_SOURCE[0]}")/helpers.sh"
 
-[ -n "${CLAUDE_TMUX_RENAME_ACTIVE:-}" ] && exit 0
 sound="${1:-}"
 [ -z "$sound" ] && exit 0
 

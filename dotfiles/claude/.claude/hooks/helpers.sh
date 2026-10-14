@@ -19,11 +19,9 @@ has_pending_background_agents() {
 	[ -n "$count" ] && [ "$count" -ge 1 ]
 }
 
-# Returns 0 only for a real main-session activity event in a live tmux pane:
-# not the nested rename-labeller (CLAUDE_TMUX_RENAME_ACTIVE), and inside tmux
-# with a pane to target. Callers use `require_live_tmux_pane || exit 0`.
+# Returns 0 only inside tmux with a pane to target.
+# Callers use `require_live_tmux_pane || exit 0`.
 require_live_tmux_pane() {
-	[ -z "${CLAUDE_TMUX_RENAME_ACTIVE:-}" ] || return 1
 	[ -n "${TMUX:-}" ] || return 1
 	[ -n "${TMUX_PANE:-}" ] || return 1
 }
@@ -32,14 +30,6 @@ require_live_tmux_pane() {
 read_hook_input() {
 	[ -t 0 ] && return 0
 	cat
-}
-
-# Pins the enclosing window's name (disabling tmux auto-rename first) so a
-# hook-set label isn't immediately overwritten by the running command.
-pin_window_name() {
-	tmux set-window-option -t "$TMUX_PANE" automatic-rename off \; \
-	     set-window-option -t "$TMUX_PANE" allow-rename off \; \
-	     rename-window -t "$TMUX_PANE" "$1" 2>/dev/null || true
 }
 
 # Returns 0 when the terminal emulator (kitty) is the frontmost macOS app.
@@ -52,8 +42,8 @@ is_kitty_frontmost() {
 
 # Sets or clears a per-window tmux flag tracking "Claude is actively working in
 # this window". Returns non-zero (so callers can `|| exit 0`) when the event is
-# not a real main-session activity event for a live tmux pane: outside tmux, the
-# nested labeling claude (CLAUDE_TMUX_RENAME_ACTIVE), or a subagent on "on".
+# not a real main-session activity event for a live tmux pane: outside tmux, or
+# a subagent on "on".
 #   set_window_activity_flag @claude_running on
 #   set_window_activity_flag @claude_running off
 set_window_activity_flag() {
