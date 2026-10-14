@@ -37,14 +37,6 @@ Call `AskUserQuestion` with one question, four options: `medium`, `high`, `xhigh
 Recommend `xhigh` as the balance of rigor and turnaround for an adversarial review. (`low` is
 deliberately not offered — too shallow to produce a useful challenge.)
 
-The `Agent` tool has no direct effort parameter, so translate the chosen tier into an explicit
-instruction embedded in the subagent's prompt (step 6), e.g.:
-
-- `max` → "Reason exhaustively. Consider multiple angles before concluding anything."
-- `xhigh` → "Reason carefully and thoroughly before concluding."
-- `high` → "Think it through properly, but don't over-deliberate."
-- `medium` → "Give a direct, focused pass without excessive deliberation."
-
 ## 5. Compose a neutral brief
 
 Write a self-contained summary of the plan/approach/facts currently under discussion: the goal,
@@ -61,9 +53,9 @@ inherits the parent's full conversation *and* runs on the parent's model regardl
 
 - `subagent_type`: `general-purpose`
 - `model`: the tier the user picked in step 3
+- `effort`: the level the user picked in step 4
 - `description`: short, e.g. "Challenge the migration plan"
-- `prompt`: the neutral brief from step 5, the effort instruction from step 4, and explicit
-  adversarial instructions:
+- `prompt`: the neutral brief from step 5 and explicit adversarial instructions:
   - Find flawed assumptions, weak points, missing edge cases, factual errors, and viable
     alternative approaches.
   - Also note what's genuinely solid — this isn't a demand to find fault where none exists.
