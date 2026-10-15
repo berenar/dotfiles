@@ -1,17 +1,29 @@
 #!/usr/bin/env bash
 
+find_repos() {
+  find ~/Development ~/mvst/repos ~/dotfiles -mindepth 1 -maxdepth 3 -name .git -prune -print 2>/dev/null | sed 's|/\.git$||'
+}
+
+add_session_names() {
+  awk -v OFS='\t' '{ n = split($0, parts, "/"); name = parts[n - 1] "/" parts[n]; gsub(/\./, "_", name); print name, $0 }'
+}
+
+if [[ $1 == --list ]]; then
+  find_repos | add_session_names
+  exit 0
+fi
+
 if [[ $# -eq 1 ]]; then
   selected=$1
 else
-  selected=$(find ~/Development ~/mvst/repos ~/dotfiles -mindepth 1 -maxdepth 3 -name .git -prune -print 2>/dev/null | sed 's|/\.git$||' | fzf)
+  selected=$(find_repos | fzf)
 fi
 
 if [[ -z $selected ]]; then
   exit 0
 fi
 
-parent_name=$(basename "$(dirname "$selected")")
-selected_name=$(echo "$parent_name/$(basename "$selected")" | tr . _)
+selected_name=$(add_session_names <<<"$selected" | cut -f1)
 tmux_running=$(pgrep tmux)
 
 setup_windows() {
