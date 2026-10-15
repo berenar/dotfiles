@@ -83,7 +83,7 @@ selected=$(
       --with-nth 2.. \
       --preview "$0 --preview {1}" \
       --preview-window 'right:65%' \
-      --bind "every(0.1):reload-sync($0 --list)" \
+      --bind "every(1):reload-sync($0 --list)" \
       --bind 'every(0.5):refresh-preview' \
       --bind "left:execute-silent($0 --nav prev {1})+refresh-preview" \
       --bind "right:execute-silent($0 --nav next {1})+refresh-preview"
