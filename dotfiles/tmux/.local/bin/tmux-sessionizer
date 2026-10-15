@@ -3,7 +3,7 @@
 if [[ $# -eq 1 ]]; then
   selected=$1
 else
-  selected=$(find ~/Development ~/mvst/repos ~/dotfiles -maxdepth 2 -type d -exec test -e '{}/.git' \; -print | fzf)
+  selected=$(find ~/Development ~/mvst/repos ~/dotfiles -mindepth 1 -maxdepth 3 -name .git -prune -print 2>/dev/null | sed 's|/\.git$||' | fzf)
 fi
 
 if [[ -z $selected ]]; then
