@@ -75,10 +75,14 @@ sessionizer="$HOME/.local/bin/tmux-sessionizer"
 export TMUX_SWITCHER_REPOS
 TMUX_SWITCHER_REPOS=$("$sessionizer" --list)
 
+# fzf has no option to hide the spinner it shows on each reload, so paint it in the kitty background colour
+hidden_spinner='spinner:#1c2129'
+
 selected=$(
   "$0" --list |
     fzf --reverse \
       --ansi \
+      --color "$hidden_spinner" \
       --delimiter '\t' \
       --with-nth 2.. \
       --preview "$0 --preview {1}" \
