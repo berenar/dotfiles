@@ -43,15 +43,7 @@ fi
 if [[ $1 == --list ]]; then
   reset=$'\e[0m'
   alert=$'\e[38;2;215;135;135m'
-
-  # Amber "claude is thinking" colour, breathing on a 2s cosine cycle. Derived
-  # from wall-clock time so it stays smooth across fzf's periodic reloads
-  # without keeping any state between calls.
-  pulse=$(awk -v t="$(date +%s.%N)" 'BEGIN {
-    f = (1 - cos(3.141592653589793 * t)) / 2
-    printf "%d;%d;%d", 120 + f * 110 + 0.5, 96 + f * 84 + 0.5, 46 + f * 34 + 0.5
-  }')
-  busy=$'\e[38;2;'"$pulse"'m'
+  busy=$'\e[38;2;230;180;80m'
 
   running_ids=" $(tmux list-windows -a -f '#{==:#{@claude_running},1}' -F '#{session_id}' 2>/dev/null | sort -u | tr '\n' ' ')"
 
