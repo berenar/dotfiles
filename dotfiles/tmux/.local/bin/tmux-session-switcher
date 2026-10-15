@@ -20,6 +20,11 @@ if [[ $1 == --nav ]]; then
   exit 0
 fi
 
+if [[ $1 == --preview && $2 == /* ]]; then
+  git -C "$2" log --oneline --color=always -n "$FZF_PREVIEW_LINES"
+  exit 0
+fi
+
 if [[ $1 == --preview ]]; then
   session=$2
   windows=($(tmux list-windows -t "$session" -F '#{window_id}' 2>/dev/null))
@@ -57,11 +62,16 @@ if [[ $1 == --list ]]; then
       [[ $running_ids == *" $id "* ]] && color=$busy
       [[ $alerts == 1 ]] && color=$alert
       if [[ -n $color ]]; then
-        printf '%s %s%s ✻%s\n' "$id" "$color" "$name" "$reset"
+        printf '%s\t%s%s ✻%s\n' "$id" "$color" "$name" "$reset"
       else
-        printf '%s %s\n' "$id" "$name"
+        printf '%s\t%s\n' "$id" "$name"
       fi
     done
+
+  open_sessions=$(tmux list-sessions -F '#{session_name}') awk -F '\t' -v dim=$'\e[38;2;100;110;125m' -v reset="$reset" '
+    BEGIN { split(ENVIRON["open_sessions"], names, "\n"); for (i in names) is_open[names[i]] = 1 }
+    NF && !($1 in is_open) { printf "%s\t%s%s%s\n", $2, dim, $1, reset }
+  ' <<<"$TMUX_SWITCHER_REPOS"
   exit 0
 fi
 
@@ -69,10 +79,15 @@ window=$(tmux display-message -p '#{window_id}')
 tmux set -w -t "$window" window-style 'fg=#4d5660,bg=#10141a'
 trap 'tmux set -w -t "$window" -u window-style' EXIT
 
+sessionizer="$HOME/.local/bin/tmux-sessionizer"
+export TMUX_SWITCHER_REPOS
+TMUX_SWITCHER_REPOS=$("$sessionizer" --list)
+
 selected=$(
   "$0" --list |
     fzf --reverse \
       --ansi \
+      --delimiter '\t' \
       --with-nth 2.. \
       --preview "$0 --preview {1}" \
       --preview-window 'right:65%' \
@@ -84,4 +99,10 @@ selected=$(
 
 [[ -z $selected ]] && exit 0
 
-tmux switch-client -t "${selected%% *}"
+target=${selected%%$'\t'*}
+if [[ $target == /* ]]; then
+  "$sessionizer" "$target"
+  exit 0
+fi
+
+tmux switch-client -t "$target"
