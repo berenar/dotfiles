@@ -8,10 +8,10 @@ git:
   pagers:
     - name: side-by-side
       colorArg: always
-      pager: delta --side-by-side --paging=never --line-numbers-left-format="" --line-numbers-right-format="" --wrap-max-lines=unlimited --line-fill-method=spaces
+      pager: delta --side-by-side --paging=never --line-numbers-left-format="" --line-numbers-right-format="" --wrap-max-lines=3 --line-fill-method=spaces
     - name: unified
       colorArg: always
-      pager: delta --paging=never --line-numbers-left-format="" --line-numbers-right-format="" --wrap-max-lines=unlimited --line-fill-method=spaces
+      pager: delta --paging=never --line-numbers-left-format="" --line-numbers-right-format="" --wrap-max-lines=3 --line-fill-method=spaces
 gui:
   sidePanelWidth: 0.30
   expandFocusedSidePanel: true
