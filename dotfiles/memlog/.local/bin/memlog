@@ -1,0 +1,393 @@
+#!/usr/bin/env python3
+"""memlog: record macOS memory usage every minute into SQLite.
+
+Usage:
+  memlog record              take one sample (launchd runs this every 60s)
+  memlog status              show the agent state, the last sample and the db size
+  memlog summary [HOURS]     top apps and system pressure over the last HOURS (default 24)
+  memlog sql "SELECT ..."    run a read-only query against the db
+  memlog path                print the db path
+"""
+
+import os
+import re
+import sqlite3
+import subprocess
+import sys
+import time
+from dataclasses import dataclass
+from pathlib import Path
+
+DATA_DIR = Path(os.environ.get("MEMLOG_DIR", Path.home() / ".local/share/memlog"))
+DB_PATH = DATA_DIR / "memlog.db"
+RETENTION_DAYS = int(os.environ.get("MEMLOG_RETENTION_DAYS", "14"))
+TOP_PROCESSES_PER_SAMPLE = 50
+TOP_APPS_PER_SAMPLE = 40
+AGENT_LABEL = "com.berenar.memlog"
+SECONDS_PER_DAY = 86400
+UNIT_MULTIPLIERS = {"B": 1, "K": 1024, "M": 1024**2, "G": 1024**3, "T": 1024**4}
+PRESSURE_LEVEL_NAMES = {1: "normal", 2: "warning", 4: "critical"}
+TOP_ROW_PATTERN = re.compile(r"^(\d+)\s+([\d.]+[BKMGT]?)[+-]?\s+([\d.]+[BKMGT]?)[+-]?\s*$")
+APP_BUNDLE_PATTERN = re.compile(r"/([^/]+)\.app/")
+WEBKIT_MARKER = "/WebKit.framework/"
+KERNEL_TASK_PID = 0
+KERNEL_TASK_NAME = "kernel_task"
+
+SCHEMA = """
+CREATE TABLE IF NOT EXISTS samples (
+  id INTEGER PRIMARY KEY,
+  ts INTEGER NOT NULL,
+  boot_ts INTEGER NOT NULL,
+  total_bytes INTEGER NOT NULL,
+  free_bytes INTEGER NOT NULL,
+  active_bytes INTEGER NOT NULL,
+  inactive_bytes INTEGER NOT NULL,
+  wired_bytes INTEGER NOT NULL,
+  speculative_bytes INTEGER NOT NULL,
+  file_backed_bytes INTEGER NOT NULL,
+  anonymous_bytes INTEGER NOT NULL,
+  compressor_bytes INTEGER NOT NULL,
+  compressed_bytes INTEGER NOT NULL,
+  swap_total_bytes INTEGER NOT NULL,
+  swap_used_bytes INTEGER NOT NULL,
+  pressure_level INTEGER NOT NULL,
+  free_pct INTEGER,
+  pageins INTEGER NOT NULL,
+  pageouts INTEGER NOT NULL,
+  swapins INTEGER NOT NULL,
+  swapouts INTEGER NOT NULL,
+  process_count INTEGER NOT NULL
+);
+CREATE INDEX IF NOT EXISTS samples_ts ON samples(ts);
+CREATE TABLE IF NOT EXISTS processes (
+  sample_id INTEGER NOT NULL REFERENCES samples(id) ON DELETE CASCADE,
+  pid INTEGER NOT NULL,
+  ppid INTEGER,
+  app TEXT NOT NULL,
+  name TEXT NOT NULL,
+  footprint_bytes INTEGER NOT NULL,
+  compressed_bytes INTEGER NOT NULL,
+  rss_bytes INTEGER,
+  cpu_pct REAL,
+  command TEXT
+);
+CREATE INDEX IF NOT EXISTS processes_sample ON processes(sample_id);
+CREATE INDEX IF NOT EXISTS processes_app ON processes(app);
+CREATE TABLE IF NOT EXISTS apps (
+  sample_id INTEGER NOT NULL REFERENCES samples(id) ON DELETE CASCADE,
+  app TEXT NOT NULL,
+  footprint_bytes INTEGER NOT NULL,
+  compressed_bytes INTEGER NOT NULL,
+  process_count INTEGER NOT NULL
+);
+CREATE INDEX IF NOT EXISTS apps_sample ON apps(sample_id);
+CREATE INDEX IF NOT EXISTS apps_app ON apps(app);
+"""
+
+
+@dataclass(frozen=True)
+class ProcessSample:
+    pid: int
+    ppid: int | None
+    app: str
+    name: str
+    footprint_bytes: int
+    compressed_bytes: int
+    rss_bytes: int | None
+    cpu_pct: float | None
+    command: str | None
+
+
+@dataclass(frozen=True)
+class PsRow:
+    ppid: int
+    rss_bytes: int
+    cpu_pct: float
+    command: str
+
+
+def run_command(arguments: list[str]) -> str:
+    return subprocess.run(arguments, capture_output=True, text=True, check=True).stdout
+
+
+def parse_size(size_text: str) -> int:
+    unit = size_text[-1]
+    if unit.isdigit():
+        return int(float(size_text))
+    return int(float(size_text[:-1]) * UNIT_MULTIPLIERS[unit])
+
+
+def read_sysctl(name: str) -> str:
+    return run_command(["sysctl", "-n", name]).strip()
+
+
+def read_vm_stat() -> tuple[int, dict[str, int]]:
+    output = run_command(["vm_stat"])
+    page_size = int(re.search(r"page size of (\d+) bytes", output).group(1))
+    counters = {}
+    for line in output.splitlines()[1:]:
+        key, _, value = line.partition(":")
+        counters[key.strip().strip('"')] = int(value.strip().rstrip("."))
+    return page_size, counters
+
+
+def read_swap_usage() -> tuple[int, int]:
+    swap_text = read_sysctl("vm.swapusage")
+    total = re.search(r"total = ([\d.]+[BKMGT])", swap_text).group(1)
+    used = re.search(r"used = ([\d.]+[BKMGT])", swap_text).group(1)
+    return parse_size(total), parse_size(used)
+
+
+def read_free_percentage() -> int | None:
+    match = re.search(r"free percentage: (\d+)%", run_command(["memory_pressure", "-Q"]))
+    if match is None:
+        return None
+    return int(match.group(1))
+
+
+def read_boot_timestamp() -> int:
+    return int(re.search(r"sec = (\d+)", read_sysctl("kern.boottime")).group(1))
+
+
+def read_top_footprints() -> dict[int, tuple[int, int]]:
+    output = run_command(["top", "-l", "1", "-o", "mem", "-stats", "pid,mem,cmprs"])
+    footprints = {}
+    for line in output.splitlines():
+        match = TOP_ROW_PATTERN.match(line)
+        if match is None:
+            continue
+        footprints[int(match.group(1))] = (parse_size(match.group(2)), parse_size(match.group(3)))
+    return footprints
+
+
+def read_ps_rows() -> dict[int, PsRow]:
+    output = run_command(["ps", "-axo", "pid=,ppid=,rss=,%cpu=,comm="])
+    rows = {}
+    for line in output.splitlines():
+        fields = line.split(None, 4)
+        if len(fields) < 5:
+            continue
+        pid, ppid, rss_kib, cpu_pct, command = fields
+        rows[int(pid)] = PsRow(int(ppid), int(rss_kib) * 1024, float(cpu_pct), command)
+    return rows
+
+
+def app_name_for(command: str) -> str:
+    if WEBKIT_MARKER in command:
+        return "WebKit"
+    bundle_match = APP_BUNDLE_PATTERN.search(command)
+    if bundle_match is not None:
+        return bundle_match.group(1)
+    return os.path.basename(command)
+
+
+def collect_processes() -> list[ProcessSample]:
+    ps_rows = read_ps_rows()
+    processes = []
+    for pid, (footprint_bytes, compressed_bytes) in read_top_footprints().items():
+        ps_row = ps_rows.get(pid)
+        if ps_row is None:
+            unknown_name = KERNEL_TASK_NAME if pid == KERNEL_TASK_PID else f"pid {pid}"
+            processes.append(ProcessSample(pid, None, unknown_name, unknown_name, footprint_bytes, compressed_bytes, None, None, None))
+            continue
+        processes.append(
+            ProcessSample(
+                pid=pid,
+                ppid=ps_row.ppid,
+                app=app_name_for(ps_row.command),
+                name=os.path.basename(ps_row.command),
+                footprint_bytes=footprint_bytes,
+                compressed_bytes=compressed_bytes,
+                rss_bytes=ps_row.rss_bytes,
+                cpu_pct=ps_row.cpu_pct,
+                command=ps_row.command,
+            )
+        )
+    return processes
+
+
+def aggregate_apps(processes: list[ProcessSample]) -> list[tuple[str, int, int, int]]:
+    totals: dict[str, list[int]] = {}
+    for process in processes:
+        app_totals = totals.setdefault(process.app, [0, 0, 0])
+        app_totals[0] += process.footprint_bytes
+        app_totals[1] += process.compressed_bytes
+        app_totals[2] += 1
+    ranked = sorted(totals.items(), key=lambda item: item[1][0], reverse=True)
+    return [(app, footprint, compressed, count) for app, (footprint, compressed, count) in ranked]
+
+
+def connect() -> sqlite3.Connection:
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
+    connection = sqlite3.connect(DB_PATH, timeout=30)
+    connection.execute("PRAGMA journal_mode=WAL")
+    connection.execute("PRAGMA foreign_keys=ON")
+    connection.executescript(SCHEMA)
+    return connection
+
+
+def insert_system_sample(connection: sqlite3.Connection, process_count: int) -> int:
+    page_size, vm = read_vm_stat()
+    swap_total, swap_used = read_swap_usage()
+    values = {
+        "ts": int(time.time()),
+        "boot_ts": read_boot_timestamp(),
+        "total_bytes": int(read_sysctl("hw.memsize")),
+        "free_bytes": vm["Pages free"] * page_size,
+        "active_bytes": vm["Pages active"] * page_size,
+        "inactive_bytes": vm["Pages inactive"] * page_size,
+        "wired_bytes": vm["Pages wired down"] * page_size,
+        "speculative_bytes": vm["Pages speculative"] * page_size,
+        "file_backed_bytes": vm["File-backed pages"] * page_size,
+        "anonymous_bytes": vm["Anonymous pages"] * page_size,
+        "compressor_bytes": vm["Pages occupied by compressor"] * page_size,
+        "compressed_bytes": vm["Pages stored in compressor"] * page_size,
+        "swap_total_bytes": swap_total,
+        "swap_used_bytes": swap_used,
+        "pressure_level": int(read_sysctl("kern.memorystatus_vm_pressure_level")),
+        "free_pct": read_free_percentage(),
+        "pageins": vm["Pageins"],
+        "pageouts": vm["Pageouts"],
+        "swapins": vm["Swapins"],
+        "swapouts": vm["Swapouts"],
+        "process_count": process_count,
+    }
+    columns = ", ".join(values)
+    placeholders = ", ".join(f":{column}" for column in values)
+    cursor = connection.execute(f"INSERT INTO samples ({columns}) VALUES ({placeholders})", values)
+    return cursor.lastrowid
+
+
+def prune_old_samples(connection: sqlite3.Connection) -> None:
+    cutoff = int(time.time()) - RETENTION_DAYS * SECONDS_PER_DAY
+    connection.execute("DELETE FROM samples WHERE ts < ?", (cutoff,))
+
+
+def record() -> None:
+    processes = collect_processes()
+    top_processes = sorted(processes, key=lambda process: process.footprint_bytes, reverse=True)[:TOP_PROCESSES_PER_SAMPLE]
+    top_apps = aggregate_apps(processes)[:TOP_APPS_PER_SAMPLE]
+    with connect() as connection:
+        sample_id = insert_system_sample(connection, len(processes))
+        connection.executemany(
+            "INSERT INTO processes VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            [
+                (sample_id, p.pid, p.ppid, p.app, p.name, p.footprint_bytes, p.compressed_bytes, p.rss_bytes, p.cpu_pct, p.command)
+                for p in top_processes
+            ],
+        )
+        connection.executemany(
+            "INSERT INTO apps VALUES (?, ?, ?, ?, ?)",
+            [(sample_id, app, footprint, compressed, count) for app, footprint, compressed, count in top_apps],
+        )
+        prune_old_samples(connection)
+
+
+def format_bytes(byte_count: float) -> str:
+    for unit in ("B", "K", "M", "G"):
+        if abs(byte_count) < 1024:
+            return f"{byte_count:.0f}{unit}" if unit in ("B", "K") else f"{byte_count:.1f}{unit}"
+        byte_count /= 1024
+    return f"{byte_count:.1f}T"
+
+
+def format_timestamp(timestamp: int) -> str:
+    return time.strftime("%Y-%m-%d %H:%M", time.localtime(timestamp))
+
+
+def is_agent_loaded() -> bool:
+    result = subprocess.run(["launchctl", "print", f"gui/{os.getuid()}/{AGENT_LABEL}"], capture_output=True)
+    return result.returncode == 0
+
+
+def status() -> None:
+    print(f"agent:   {AGENT_LABEL} {'loaded' if is_agent_loaded() else 'NOT loaded'}")
+    print(f"db:      {DB_PATH}")
+    if not DB_PATH.exists():
+        print("no samples yet")
+        return
+    print(f"db size: {format_bytes(DB_PATH.stat().st_size)}")
+    with connect() as connection:
+        first_ts, last_ts, sample_count = connection.execute("SELECT MIN(ts), MAX(ts), COUNT(*) FROM samples").fetchone()
+        if sample_count == 0:
+            print("no samples yet")
+            return
+        print(f"samples: {sample_count} from {format_timestamp(first_ts)} to {format_timestamp(last_ts)}")
+        last = connection.execute(
+            "SELECT total_bytes, free_bytes, compressor_bytes, wired_bytes, swap_used_bytes, pressure_level, free_pct FROM samples ORDER BY ts DESC LIMIT 1"
+        ).fetchone()
+    total, free, compressor, wired, swap_used, pressure, free_pct = last
+    print(
+        f"last:    pressure={PRESSURE_LEVEL_NAMES.get(pressure, pressure)} free_pct={free_pct}% "
+        f"free={format_bytes(free)} wired={format_bytes(wired)} compressor={format_bytes(compressor)} "
+        f"swap_used={format_bytes(swap_used)} total={format_bytes(total)}"
+    )
+
+
+def summary(hours: float) -> None:
+    since = int(time.time() - hours * 3600)
+    with connect() as connection:
+        sample_count, avg_swap, max_swap, avg_compressor, warning_count, critical_count = connection.execute(
+            """SELECT COUNT(*), AVG(swap_used_bytes), MAX(swap_used_bytes), AVG(compressor_bytes),
+                      SUM(pressure_level = 2), SUM(pressure_level = 4)
+               FROM samples WHERE ts >= ?""",
+            (since,),
+        ).fetchone()
+        if sample_count == 0:
+            print(f"no samples in the last {hours:g}h")
+            return
+        print(f"last {hours:g}h: {sample_count} samples")
+        print(
+            f"swap used avg={format_bytes(avg_swap)} max={format_bytes(max_swap)}  "
+            f"compressor avg={format_bytes(avg_compressor)}  "
+            f"pressure warning={warning_count} critical={critical_count} samples"
+        )
+        print()
+        print(f"{'app':<40} {'avg':>8} {'peak':>8} {'avg cmprs':>10} {'procs':>6}")
+        rows = connection.execute(
+            """SELECT a.app, SUM(a.footprint_bytes) * 1.0 / ?, MAX(a.footprint_bytes),
+                      SUM(a.compressed_bytes) * 1.0 / ?, MAX(a.process_count)
+               FROM apps a JOIN samples s ON s.id = a.sample_id
+               WHERE s.ts >= ?
+               GROUP BY a.app ORDER BY 2 DESC LIMIT 20""",
+            (sample_count, sample_count, since),
+        ).fetchall()
+    for app, avg_footprint, peak_footprint, avg_compressed, process_count in rows:
+        print(f"{app[:40]:<40} {format_bytes(avg_footprint):>8} {format_bytes(peak_footprint):>8} {format_bytes(avg_compressed):>10} {process_count:>6}")
+
+
+def run_sql(query: str) -> None:
+    connection = sqlite3.connect(f"file:{DB_PATH}?mode=ro", uri=True)
+    cursor = connection.execute(query)
+    if cursor.description is not None:
+        print("\t".join(column[0] for column in cursor.description))
+    for row in cursor:
+        print("\t".join("" if value is None else str(value) for value in row))
+
+
+def main(arguments: list[str]) -> int:
+    if not arguments:
+        print(__doc__)
+        return 1
+    command, *rest = arguments
+    if command == "record":
+        record()
+        return 0
+    if command == "status":
+        status()
+        return 0
+    if command == "summary":
+        summary(float(rest[0]) if rest else 24)
+        return 0
+    if command == "sql" and rest:
+        run_sql(rest[0])
+        return 0
+    if command == "path":
+        print(DB_PATH)
+        return 0
+    print(__doc__)
+    return 1
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1:]))
