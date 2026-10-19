@@ -67,7 +67,7 @@ the home directory layout.
 
 ### Current Packages
 
-agents, claude, codex, finicky, git, kitty, lazydocker, lazygit, memlog, nvim, opencode, ssh, tmux, zshrc
+agents, claude, codex, finicky, git, kitty, lazydocker, lazygit, memlog, nvim, nvim-reaper, opencode, ssh, tmux, zshrc
 
 ### Adding New Dotfiles
 

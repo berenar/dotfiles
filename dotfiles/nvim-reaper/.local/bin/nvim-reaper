@@ -1,0 +1,69 @@
+#!/bin/bash
+
+readonly LAUNCHD_PID=1
+readonly GRACE_SECONDS=5
+readonly LOG_FILE="$HOME/.local/state/nvim-reaper/reaped.log"
+
+orphan_nvim_pids() {
+	ps -axo pid=,ppid=,command= | awk -v launchd="$LAUNCHD_PID" '
+		$2 == launchd && $3 ~ /(^|\/)nvim$/ && / --embed( |$)/ { print $1 }'
+}
+
+working_directory() {
+	lsof -a -p "$1" -d cwd -Fn 2>/dev/null | sed -n 's/^n//p'
+}
+
+log_reap() {
+	local pid=$1
+	local rss_kb
+	rss_kb=$(ps -o rss= -p "$pid" | tr -d ' ')
+	printf '%s pid=%s rss_mb=%s cwd=%s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "$pid" "$((rss_kb / 1024))" "$(working_directory "$pid")" >>"$LOG_FILE"
+}
+
+is_running() {
+	kill -0 "$1" 2>/dev/null
+}
+
+wait_for_exit() {
+	local pid=$1
+	local waited=0
+	while is_running "$pid" && [ "$waited" -lt "$GRACE_SECONDS" ]; do
+		sleep 1
+		waited=$((waited + 1))
+	done
+}
+
+reap() {
+	local pid=$1
+	log_reap "$pid"
+	kill -TERM "$pid" 2>/dev/null || return 0
+	wait_for_exit "$pid"
+	is_running "$pid" || return 0
+	kill -KILL "$pid" 2>/dev/null
+}
+
+list_orphans() {
+	local pid
+	for pid in $(orphan_nvim_pids); do
+		printf '%s %s\n' "$pid" "$(working_directory "$pid")"
+	done
+}
+
+reap_all() {
+	local pid
+	mkdir -p "$(dirname "$LOG_FILE")"
+	for pid in $(orphan_nvim_pids); do
+		reap "$pid" &
+	done
+	wait
+}
+
+case "${1:-}" in
+--list) list_orphans ;;
+--log) cat "$LOG_FILE" 2>/dev/null ;;
+"") reap_all ;;
+*)
+	echo "usage: nvim-reaper [--list|--log]" >&2
+	exit 1
+	;;
+esac
