@@ -20,6 +20,17 @@ if [[ $1 == --nav ]]; then
   exit 0
 fi
 
+if [[ $1 == --kill ]]; then
+  session=$2
+  [[ $session == /* ]] && exit 0
+  [[ $(tmux list-sessions | wc -l) -le 1 ]] && exit 0
+  if [[ $session == "$(tmux display-message -p '#{session_id}')" ]]; then
+    tmux switch-client -l 2>/dev/null || tmux switch-client -n
+  fi
+  tmux kill-session -t "$session"
+  exit 0
+fi
+
 if [[ $1 == --preview && $2 == /* ]]; then
   git -C "$2" log --oneline --color=always -n "$FZF_PREVIEW_LINES"
   exit 0
@@ -90,7 +101,8 @@ selected=$(
       --bind "every(1):reload-sync($0 --list)" \
       --bind 'every(0.5):refresh-preview' \
       --bind "left:execute-silent($0 --nav prev {1})+refresh-preview" \
-      --bind "right:execute-silent($0 --nav next {1})+refresh-preview"
+      --bind "right:execute-silent($0 --nav next {1})+refresh-preview" \
+      --bind "ctrl-x:execute-silent($0 --kill {1})+reload-sync($0 --list)"
 )
 
 [[ -z $selected ]] && exit 0
