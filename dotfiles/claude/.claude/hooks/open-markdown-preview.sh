@@ -10,6 +10,6 @@ FILE_PATH=$(jq -r '.tool_input.file_path // ""' <<< "$INPUT")
 [ -z "$FILE_PATH" ] && exit 0
 [[ "$FILE_PATH" == *.md || "$FILE_PATH" == *.markdown ]] || exit 0
 [ -f "$FILE_PATH" ] || exit 0
-pgrep -f "Markdown Preview.app" >/dev/null 2>&1 || exit 0
+pgrep -x "Markdown Preview" >/dev/null 2>&1 || exit 0
 
 open -a "/System/Volumes/Data/Applications/Markdown Preview.app" "$FILE_PATH"
