@@ -123,13 +123,26 @@
     "frontend-design@claude-plugins-official": true,
     "playwright@claude-plugins-official": false,
     "security-guidance@claude-plugins-official": true,
-    "cc-plugin-telemetry@builtin": false
+    "cc-plugin-telemetry@builtin": false,
+    "image-preview@better-claude": true
   },
   "extraKnownMarketplaces": {
     "celebrate-engineering": {
       "source": {
         "source": "github",
         "repo": "kartenmacherei/agent-builder-v2"
+      }
+    },
+    "claude-image-view": {
+      "source": {
+        "source": "github",
+        "repo": "jarrodwatts/claude-image-view"
+      }
+    },
+    "better-claude": {
+      "source": {
+        "source": "github",
+        "repo": "midudev/better-claude"
       }
     }
   },
@@ -161,6 +174,11 @@
     "cc-plugin-agents-md@builtin": {
       "options": {
         "instructionFiles": "claude-md-and-agents-md"
+      }
+    },
+    "image-preview@better-claude": {
+      "options": {
+        "window": true
       }
     }
   },
