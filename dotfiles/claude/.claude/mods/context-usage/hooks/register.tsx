@@ -3,6 +3,8 @@ import type { Register } from 'claude-code'
 
 const WARNING_PERCENT = 50
 const MODES_SEPARATOR = ' & '
+const ITEMS_SEPARATOR = ' · '
+const CONFIG_DIR_PREFIX = '.claude-'
 
 const usedTokens = atom({ plugin: 'context-usage', key: 'tokens' } as const, null)
 
@@ -16,6 +18,13 @@ const formatTokens = (tokens: number): string => {
   if (unit === undefined) return `${tokens}`
   const scaled = Number((tokens / unit.size).toFixed(1))
   return `${scaled}${unit.suffix}`
+}
+
+const getAccountName = (configDir: string | undefined): string | null => {
+  if (configDir === undefined) return null
+  const directoryName = configDir.replace(/\/+$/, '').split('/').pop() ?? ''
+  if (!directoryName.startsWith(CONFIG_DIR_PREFIX)) return null
+  return directoryName.slice(CONFIG_DIR_PREFIX.length)
 }
 
 export const register: Register = on => {
@@ -41,6 +50,8 @@ export const register: Register = on => {
     if (tokens === null) return next(e)
 
     const { context } = await $.session.usage()
+    const accountName = getAccountName(await $.env.get('CLAUDE_CONFIG_DIR'))
+
     const percent = Math.round((tokens / context.window) * 100)
     const label = `${formatTokens(tokens)}/${formatTokens(context.window)} (${percent}%)`
     const isAboveWarning = percent > WARNING_PERCENT
@@ -49,6 +60,7 @@ export const register: Register = on => {
 
     return (
       <Box>
+        {accountName !== null && <Text color="cyan">{`${accountName}${ITEMS_SEPARATOR}`}</Text>}
         <Text dimColor>{modesPrefix}</Text>
         {isAboveWarning ? <Text color="yellow">{label}</Text> : <Text dimColor>{label}</Text>}
       </Box>
