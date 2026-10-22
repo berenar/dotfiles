@@ -1,10 +1,12 @@
 import { atom, read, update } from 'claude-code'
-import type { Register } from 'claude-code'
+import type { Register, SessionRateLimit } from 'claude-code'
 
 const WARNING_PERCENT = 50
+const RATE_LIMIT_WARNING_PERCENT = 80
 const MODES_SEPARATOR = ' & '
 const ITEMS_SEPARATOR = ' · '
 const CONFIG_DIR_PREFIX = '.claude-'
+const SHOWN_RATE_LIMIT_KIND = 'five_hour'
 const CLOCK_TICK_MS = 60_000
 const MS_PER_MINUTE = 60_000
 const MINUTES_PER_HOUR = 60
@@ -17,6 +19,11 @@ const TOKEN_UNITS = [
   { size: 1_000_000, suffix: 'M' },
   { size: 1_000, suffix: 'k' },
 ] as const
+
+const RATE_LIMIT_LABELS: Record<string, string> = {
+  five_hour: '5h',
+  seven_day: '7d',
+}
 
 const formatTokens = (tokens: number): string => {
   const unit = TOKEN_UNITS.find(({ size }) => tokens >= size)
@@ -42,6 +49,17 @@ const getAccountName = (configDir: string | undefined): string | null => {
   const directoryName = configDir.replace(/\/+$/, '').split('/').pop() ?? ''
   if (!directoryName.startsWith(CONFIG_DIR_PREFIX)) return null
   return directoryName.slice(CONFIG_DIR_PREFIX.length)
+}
+
+const findShownRateLimit = (rateLimits: readonly SessionRateLimit[]): SessionRateLimit | undefined =>
+  rateLimits.find(({ kind }) => kind === SHOWN_RATE_LIMIT_KIND) ?? rateLimits[0]
+
+const formatRateLimit = (rateLimit: SessionRateLimit, now: number): string => {
+  const windowLabel = RATE_LIMIT_LABELS[rateLimit.kind] ?? rateLimit.kind
+  const usage = `${windowLabel} ${Math.round(rateLimit.percentUsed)}%`
+  if (rateLimit.resetsAt === undefined) return usage
+  const timeUntilReset = Date.parse(rateLimit.resetsAt) - now
+  return `${usage}${ITEMS_SEPARATOR}reset ${formatDuration(timeUntilReset)}`
 }
 
 export const register: Register = on => {
@@ -72,13 +90,15 @@ export const register: Register = on => {
     const tokens = await read($, usedTokens)
     if (tokens === null) return next(e)
 
-    const { context, startedAt, cost } = await $.session.usage()
+    const { context, startedAt, rateLimits, cost } = await $.session.usage()
     const now = (await read($, currentTime)) ?? (await $.clock.now())
     const accountName = getAccountName(await $.env.get('CLAUDE_CONFIG_DIR'))
+    const shownRateLimit = findShownRateLimit(rateLimits)
 
     const percent = Math.round((tokens / context.window) * 100)
     const contextLabel = `${formatTokens(tokens)}/${formatTokens(context.window)} (${percent}%)`
-    const isAboveWarning = percent > WARNING_PERCENT
+    const isContextAboveWarning = percent > WARNING_PERCENT
+    const isRateLimitAboveWarning = (shownRateLimit?.percentUsed ?? 0) > RATE_LIMIT_WARNING_PERCENT
     const sessionLabel = [cost === undefined ? null : formatCost(cost.usd), formatDuration(now - startedAt)]
       .filter(item => item !== null)
       .join(' ')
@@ -89,8 +109,15 @@ export const register: Register = on => {
       <Box>
         {accountName !== null && <Text color="cyan">{`${accountName}${ITEMS_SEPARATOR}`}</Text>}
         <Text dimColor>{modesPrefix}</Text>
-        {isAboveWarning ? <Text color="yellow">{contextLabel}</Text> : <Text dimColor>{contextLabel}</Text>}
+        {isContextAboveWarning ? <Text color="yellow">{contextLabel}</Text> : <Text dimColor>{contextLabel}</Text>}
         <Text dimColor>{`${ITEMS_SEPARATOR}${sessionLabel}`}</Text>
+        {shownRateLimit !== undefined && <Text dimColor>{ITEMS_SEPARATOR}</Text>}
+        {shownRateLimit !== undefined &&
+          (isRateLimitAboveWarning ? (
+            <Text color="yellow">{formatRateLimit(shownRateLimit, now)}</Text>
+          ) : (
+            <Text dimColor>{formatRateLimit(shownRateLimit, now)}</Text>
+          ))}
       </Box>
     )
   })

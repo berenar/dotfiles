@@ -1,1 +1,1 @@
-{ "name": "context-usage", "version": "0.1.0", "description": "Shows the session context tokens and percent in the prompt footer", "types": "./types/index.d.ts" }
+{ "name": "context-usage", "version": "0.1.0", "description": "Shows the account, context usage, session cost and time, and rate limit in the prompt footer", "types": "./types/index.d.ts" }
