@@ -4,13 +4,13 @@
 ## Identity
 
 I'm a senior software developer working in MVST Gmbh.
-I have experience mainly in: TypeScript, Javascript, Node, Python, AWS, Docker, Terraform, React, Next.JS, Postgres
-I live in Mallorca, Spain
-I speak English, Spanish and Catalan
+I have experience mainly in: TypeScript, Javascript, Node, Python, AWS, Docker, Terraform, React, Next.JS, Postgres.
+I live in Mallorca, Spain.
+I speak English, Spanish and Catalan. If you mention something in any other language, you should offer it's translation as well in parenthesis.
 
 ### My Environment
 
-macos tahoe, zsh, neovim, kitty, OrbStack, pnpm/yarn/npm, git, Github
+macos, zsh, brew, neovim, kitty, OrbStack, pnpm/yarn/npm, git, Github, Raycast
 
 ### Dictionary
 
