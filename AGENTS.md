@@ -97,6 +97,13 @@ the stowed symlink breaks its file watcher:
 pkill -x Finicky && open -a Finicky
 ```
 
+### Claude Code
+
+Configure Claude Code (env vars, plugin dirs, permissions, model) in
+`dotfiles/claude/.claude/settings.json`, not in `.zshrc`. Both `~/.claude-mvst`
+and `~/.claude-clbrt` symlink to it. Put env vars that only Claude Code needs in
+its `env` block.
+
 ---
 
 ## Git Conventions
