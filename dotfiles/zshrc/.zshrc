@@ -77,7 +77,6 @@ alias 'cd..'='cd_up'
 alias o="opencode"
 alias a="opencode --continue"
 alias c='echo "Oops! Use claude-mvst or claude-clbrt"'
-export CLAUDE_CODE_PLUGIN_DIRS="$HOME/dotfiles/dotfiles/claude/.claude/mods/context-usage"
 alias claude="CLAUDE_CONFIG_DIR=~/.claude-mvst /Users/berenar/.local/bin/claude"
 alias claude-mvst="CLAUDE_CONFIG_DIR=~/.claude-mvst /Users/berenar/.local/bin/claude"
 alias claude-clbrt="CLAUDE_CONFIG_DIR=~/.claude-clbrt /Users/berenar/.local/bin/claude"
