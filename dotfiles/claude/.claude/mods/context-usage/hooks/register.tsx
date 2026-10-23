@@ -60,10 +60,10 @@ const findShownRateLimit = (rateLimits: readonly SessionRateLimit[]): SessionRat
 
 const formatRateLimit = (rateLimit: SessionRateLimit, now: number): string => {
   const windowLabel = RATE_LIMIT_LABELS[rateLimit.kind] ?? rateLimit.kind
-  const usage = `${windowLabel} ${Math.round(rateLimit.percentUsed)}%`
+  const usage = `${Math.round(rateLimit.percentUsed)}% used of ${windowLabel}`
   if (rateLimit.resetsAt === undefined) return usage
   const timeUntilReset = Date.parse(rateLimit.resetsAt) - now
-  return `${usage}${ITEMS_SEPARATOR}reset ${formatDuration(timeUntilReset)}`
+  return `${usage}${ITEMS_SEPARATOR}reset in ${formatDuration(timeUntilReset)}`
 }
 
 export const register: Register = on => {
