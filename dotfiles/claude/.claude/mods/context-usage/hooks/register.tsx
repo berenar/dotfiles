@@ -102,7 +102,7 @@ export const register: Register = on => {
     const shownRateLimit = findShownRateLimit(rateLimits)
 
     const percent = Math.round((tokens / context.window) * 100)
-    const contextLabel = `${formatTokens(tokens)}/${formatTokens(context.window)} (${percent}%)`
+    const contextLabel = `${formatTokens(tokens)}/${formatTokens(context.window)}`
     const isContextAboveWarning = percent > WARNING_PERCENT
     const isRateLimitAboveWarning = (shownRateLimit?.percentUsed ?? 0) > RATE_LIMIT_WARNING_PERCENT
     const sessionLabel = [cost === undefined ? null : formatCost(cost.usd), formatDuration(now - startedAt)]
