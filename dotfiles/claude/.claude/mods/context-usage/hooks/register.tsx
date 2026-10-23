@@ -48,8 +48,6 @@ const formatDuration = (milliseconds: number): string => {
   return `${minutes}m`
 }
 
-const formatCost = (usd: number): string => `$${usd.toFixed(2)}`
-
 const getAccountName = (configDir: string | undefined): string | null => {
   if (configDir === undefined) return null
   const directoryName = configDir.replace(/\/+$/, '').split('/').pop() ?? ''
@@ -96,7 +94,7 @@ export const register: Register = on => {
     const tokens = await read($, usedTokens)
     if (tokens === null) return next(e)
 
-    const { context, startedAt, rateLimits, cost } = await $.session.usage()
+    const { context, rateLimits } = await $.session.usage()
     const now = (await read($, currentTime)) ?? (await $.clock.now())
     const accountName = getAccountName(await $.env.get('CLAUDE_CONFIG_DIR'))
     const shownRateLimit = findShownRateLimit(rateLimits)
@@ -105,9 +103,6 @@ export const register: Register = on => {
     const contextLabel = `${formatTokens(tokens)}/${formatTokens(context.window)}`
     const isContextAboveWarning = percent > WARNING_PERCENT
     const isRateLimitAboveWarning = (shownRateLimit?.percentUsed ?? 0) > RATE_LIMIT_WARNING_PERCENT
-    const sessionLabel = [cost === undefined ? null : formatCost(cost.usd), formatDuration(now - startedAt)]
-      .filter(item => item !== null)
-      .join(' ')
     const modesPrefix = e.props.modes.length > 0 ? `${e.props.modes.join(MODES_SEPARATOR)}${MODES_SEPARATOR}` : ''
     const { Box, Text } = $.ui.resolve(e)
 
@@ -117,7 +112,6 @@ export const register: Register = on => {
         {accountName !== null && <Text dimColor>{ITEMS_SEPARATOR}</Text>}
         <Text dimColor>{modesPrefix}</Text>
         {isContextAboveWarning ? <Text color="yellow">{contextLabel}</Text> : <Text dimColor>{contextLabel}</Text>}
-        <Text dimColor>{`${ITEMS_SEPARATOR}${sessionLabel}`}</Text>
         {shownRateLimit !== undefined && <Text dimColor>{ITEMS_SEPARATOR}</Text>}
         {shownRateLimit !== undefined &&
           (isRateLimitAboveWarning ? (
