@@ -34,7 +34,7 @@ const RATE_LIMIT_LABELS: Record<string, string> = {
 const formatTokens = (tokens: number): string => {
   const unit = TOKEN_UNITS.find(({ size }) => tokens >= size)
   if (unit === undefined) return `${tokens}`
-  const scaled = Number((tokens / unit.size).toFixed(1))
+  const scaled = Math.ceil(tokens / unit.size)
   return `${scaled}${unit.suffix}`
 }
 
