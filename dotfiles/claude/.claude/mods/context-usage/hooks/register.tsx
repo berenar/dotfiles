@@ -20,6 +20,12 @@ const TOKEN_UNITS = [
   { size: 1_000, suffix: 'k' },
 ] as const
 
+const DEFAULT_ACCOUNT_COLOR = 'cyan'
+const ACCOUNT_COLORS: Record<string, string> = {
+  clbrt: '#B083F0',
+  mvst: '#8B5A2B',
+}
+
 const RATE_LIMIT_LABELS: Record<string, string> = {
   five_hour: '5h',
   seven_day: '7d',
@@ -107,7 +113,8 @@ export const register: Register = on => {
 
     return (
       <Box>
-        {accountName !== null && <Text color="cyan">{`${accountName}${ITEMS_SEPARATOR}`}</Text>}
+        {accountName !== null && <Text color={ACCOUNT_COLORS[accountName] ?? DEFAULT_ACCOUNT_COLOR}>{accountName}</Text>}
+        {accountName !== null && <Text dimColor>{ITEMS_SEPARATOR}</Text>}
         <Text dimColor>{modesPrefix}</Text>
         {isContextAboveWarning ? <Text color="yellow">{contextLabel}</Text> : <Text dimColor>{contextLabel}</Text>}
         <Text dimColor>{`${ITEMS_SEPARATOR}${sessionLabel}`}</Text>
