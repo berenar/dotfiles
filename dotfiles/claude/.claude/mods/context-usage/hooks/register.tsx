@@ -6,7 +6,7 @@ const RATE_LIMIT_WARNING_PERCENT = 80
 const MODES_SEPARATOR = ' & '
 const ITEMS_SEPARATOR = ' · '
 const CONFIG_DIR_PREFIX = '.claude-'
-const SHOWN_RATE_LIMIT_KIND = 'five_hour'
+const SHOWN_RATE_LIMIT_KINDS = ['five_hour', 'seven_day'] as const
 const CLOCK_TICK_MS = 60_000
 const MS_PER_MINUTE = 60_000
 const MINUTES_PER_HOUR = 60
@@ -55,8 +55,10 @@ const getAccountName = (configDir: string | undefined): string | null => {
   return directoryName.slice(CONFIG_DIR_PREFIX.length)
 }
 
-const findShownRateLimit = (rateLimits: readonly SessionRateLimit[]): SessionRateLimit | undefined =>
-  rateLimits.find(({ kind }) => kind === SHOWN_RATE_LIMIT_KIND) ?? rateLimits[0]
+const findShownRateLimits = (rateLimits: readonly SessionRateLimit[]): SessionRateLimit[] =>
+  SHOWN_RATE_LIMIT_KINDS.map(shownKind => rateLimits.find(({ kind }) => kind === shownKind)).filter(
+    (rateLimit): rateLimit is SessionRateLimit => rateLimit !== undefined,
+  )
 
 const formatRateLimit = (rateLimit: SessionRateLimit, now: number): string => {
   const windowLabel = RATE_LIMIT_LABELS[rateLimit.kind] ?? rateLimit.kind
@@ -97,12 +99,11 @@ export const register: Register = on => {
     const { context, rateLimits } = await $.session.usage()
     const now = (await read($, currentTime)) ?? (await $.clock.now())
     const accountName = getAccountName(await $.env.get('CLAUDE_CONFIG_DIR'))
-    const shownRateLimit = findShownRateLimit(rateLimits)
+    const shownRateLimits = findShownRateLimits(rateLimits)
 
     const percent = Math.round((tokens / context.window) * 100)
     const contextLabel = `${formatTokens(tokens)}/${formatTokens(context.window)}`
     const isContextAboveWarning = percent > WARNING_PERCENT
-    const isRateLimitAboveWarning = (shownRateLimit?.percentUsed ?? 0) > RATE_LIMIT_WARNING_PERCENT
     const modesPrefix = e.props.modes.length > 0 ? `${e.props.modes.join(MODES_SEPARATOR)}${MODES_SEPARATOR}` : ''
     const { Box, Text } = $.ui.resolve(e)
 
@@ -112,13 +113,16 @@ export const register: Register = on => {
         {accountName !== null && <Text dimColor>{ITEMS_SEPARATOR}</Text>}
         <Text dimColor>{modesPrefix}</Text>
         {isContextAboveWarning ? <Text color="yellow">{contextLabel}</Text> : <Text dimColor>{contextLabel}</Text>}
-        {shownRateLimit !== undefined && <Text dimColor>{ITEMS_SEPARATOR}</Text>}
-        {shownRateLimit !== undefined &&
-          (isRateLimitAboveWarning ? (
-            <Text color="yellow">{formatRateLimit(shownRateLimit, now)}</Text>
-          ) : (
-            <Text dimColor>{formatRateLimit(shownRateLimit, now)}</Text>
-          ))}
+        {shownRateLimits.map(rateLimit => (
+          <Box key={rateLimit.kind}>
+            <Text dimColor>{ITEMS_SEPARATOR}</Text>
+            {rateLimit.percentUsed > RATE_LIMIT_WARNING_PERCENT ? (
+              <Text color="yellow">{formatRateLimit(rateLimit, now)}</Text>
+            ) : (
+              <Text dimColor>{formatRateLimit(rateLimit, now)}</Text>
+            )}
+          </Box>
+        ))}
       </Box>
     )
   })
