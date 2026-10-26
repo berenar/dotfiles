@@ -1,7 +1,6 @@
 ---
 name: create-pr
-description: Create, open, or draft a concise GitHub pull request (PR / MR) with gh pr create, following the repo's PR conventions and PR template.
-allowed-tools: Bash(gh pr:*) Bash(gh repo:*) Bash(git status:*) Bash(git diff:*) Bash(git log:*) Bash(git branch:*) Bash(git push:*) mcp__linear__get_issue
+description: Create a concise draft GitHub pull request (PR / MR), then monitor its CI and fix failures caused by the branch.
 ---
 
 ## Repository context
@@ -38,17 +37,21 @@ PR template (if any):
    - Don't mention tests: no tests added or removed, test files, test counts, test results or test helpers. If the template has test checklist items, tick or leave them as the template wrote them, with no extra detail.
    - Avoid file-by-file changelogs, implementation diaries, and generic validation claims.
    - Link the Linear ticket (full URL) if there is one, or if the repo references tickets in its PRs.
-6. Preview the title and body to the user. Wait for explicit confirmation before running `gh pr create`.
+6. Preview the title and body to the user. Ask for explicit confirmation to create the draft PR, push the branch if needed, and commit and push scoped CI fixes on that PR branch. Only include the CI fix authorization if the user wants automatic repairs. Wait for confirmation before creating or pushing anything.
 7. Pass the body via HEREDOC to preserve formatting:
    ```
-   gh pr create --title "..." --body "$(cat <<'EOF'
+   gh pr create --draft --title "..." --body "$(cat <<'EOF'
    ## Summary
    - ...
    EOF
    )"
    ```
-8. If the branch has no upstream, push with `-u` first (also requires user confirmation).
-9. After the PR is created, open it in the browser with `gh pr view --web` and report the PR URL.
+8. If the branch has no upstream, push with `-u` first under the confirmation from step 6.
+9. After the PR is created, open it in the browser with `gh pr view --web` and record the PR URL.
+10. Watch the checks for the PR's current head commit with `gh pr checks <PR URL> --watch`. If checks have not appeared yet, poll until they do. Stop watching after 30 minutes per head and report checks that remain pending. Distinguish failed, cancelled, skipped, and missing checks; do not treat the absence of checks as a pass.
+11. For failed checks, inspect their links and logs (for GitHub Actions, `gh run view <run-id> --log-failed`). Confirm the failure belongs to the current head and is caused by this branch. Reproduce it locally when practical, fix the cause, and run the relevant local checks. Do not weaken assertions or skip checks just to get green CI. Leave unrelated working-tree changes alone.
+12. If step 6 authorized CI fix commits and pushes, make a scoped commit and push it to the same PR branch, then watch the new head's checks. Repeat for at most three repair pushes. If that authorization was not given, keep the fix local and report what is ready to commit and push.
+13. Stop and report the PR URL, latest head, check results, and remaining failure when a check needs secrets, permissions, an external service, or a change outside this PR's scope; when the cause is unclear; or when the repair or watch limit is reached. Do not merge or mark the draft ready.
 
 ## Writing style
 
@@ -72,5 +75,5 @@ Write for a reviewer who skims and doesn't know the internals of the change.
 
 - NEVER add `🤖 Generated with Claude Code` or any Claude/AI attribution to the PR body.
 - NEVER describe tests in the PR body. The diff shows them, and reviewers don't need them summarised.
-- NEVER run `gh pr create` or `git push` without explicit user confirmation.
+- NEVER run `gh pr create`, `git commit`, or `git push` without explicit user confirmation covering that action. Confirmation for the scoped CI repair loop can be given once in step 6.
 - NEVER force-push to a shared branch without explicit user confirmation.
