@@ -2,7 +2,8 @@
 .windsurf/
 
 # Claude configuration
-.claude/
+**/.claude/*
+!**/.claude/skills/
 
 # Bitbucket logs
 bitbucket.log
