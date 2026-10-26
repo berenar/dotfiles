@@ -11,9 +11,19 @@ const CLOCK_TICK_MS = 60_000
 const MS_PER_MINUTE = 60_000
 const MINUTES_PER_HOUR = 60
 const MINUTES_PER_DAY = 1440
+const EFFORT_SETTING_KEY = 'effortLevel'
+const EFFORT_LEVELS = ['low', 'medium', 'high', 'xhigh', 'max'] as const
+const MODEL_COMMAND = 'model'
+const EFFORT_COMMAND = 'effort'
+
+type EffortLevel = (typeof EFFORT_LEVELS)[number]
+
+const isEffortLevel = (value: unknown): value is EffortLevel =>
+  typeof value === 'string' && EFFORT_LEVELS.some(level => level === value)
 
 const usedTokens = atom({ plugin: 'context-usage', key: 'tokens' } as const, null)
 const currentTime = atom({ plugin: 'context-usage', key: 'now' } as const, null)
+const currentEffort = atom({ plugin: 'context-usage', key: 'effort' } as const, null)
 
 const TOKEN_UNITS = [
   { size: 1_000_000, suffix: 'M' },
@@ -36,6 +46,15 @@ const formatTokens = (tokens: number): string => {
   if (unit === undefined) return `${tokens}`
   const scaled = Math.ceil(tokens / unit.size)
   return `${scaled}${unit.suffix}`
+}
+
+const MODEL_ID_PREFIX = 'claude-'
+
+const formatModel = (model: string): string => model.replace(MODEL_ID_PREFIX, '')
+
+const formatModelLabel = (model: string, effort: string | null): string => {
+  if (effort === null) return formatModel(model)
+  return `${formatModel(model)}-${effort}`
 }
 
 const formatDuration = (milliseconds: number): string => {
@@ -74,6 +93,8 @@ export const register: Register = on => {
     await update($, usedTokens, () => context.tokens ?? null)
     const startTime = await $.clock.now()
     await update($, currentTime, () => startTime)
+    const effortSetting = await $.settings.read({ key: EFFORT_SETTING_KEY })
+    if (isEffortLevel(effortSetting)) await update($, currentEffort, () => effortSetting)
     $.clock.every(CLOCK_TICK_MS, async () => {
       const tickTime = await $.clock.now()
       await update($, currentTime, () => tickTime)
@@ -85,6 +106,22 @@ export const register: Register = on => {
     const { context } = await $.session.usage()
     await update($, usedTokens, () => context.tokens ?? null)
     return next(e)
+  })
+
+  on('turn.step', async function* ($, e, next) {
+    if (e.agentId === undefined) await update($, currentEffort, () => (e.effort === undefined ? null : `${e.effort}`))
+    return yield* next(e)
+  })
+
+  on('command.run', async ($, e, next) => {
+    const result = await next(e)
+    if (e.command !== MODEL_COMMAND && e.command !== EFFORT_COMMAND) return result
+    const requestedEffort = e.args.trim()
+    if (e.command === EFFORT_COMMAND && isEffortLevel(requestedEffort)) {
+      await update($, currentEffort, () => requestedEffort)
+    }
+    $.ui.invalidate('ui.render')
+    return result
   })
 
   on('session.measure', async ($, e, next) => {
@@ -100,6 +137,7 @@ export const register: Register = on => {
     const now = (await read($, currentTime)) ?? (await $.clock.now())
     const accountName = getAccountName(await $.env.get('CLAUDE_CONFIG_DIR'))
     const shownRateLimits = findShownRateLimits(rateLimits)
+    const modelLabel = formatModelLabel(await $.session.model(), await read($, currentEffort))
 
     const percent = Math.round((tokens / context.window) * 100)
     const contextLabel = `${formatTokens(tokens)}/${formatTokens(context.window)}`
@@ -112,6 +150,7 @@ export const register: Register = on => {
         {accountName !== null && <Text color={ACCOUNT_COLORS[accountName] ?? DEFAULT_ACCOUNT_COLOR}>{accountName}</Text>}
         {accountName !== null && <Text dimColor>{ITEMS_SEPARATOR}</Text>}
         <Text dimColor>{modesPrefix}</Text>
+        <Text dimColor>{`${modelLabel}${ITEMS_SEPARATOR}`}</Text>
         {isContextAboveWarning ? <Text color="yellow">{contextLabel}</Text> : <Text dimColor>{contextLabel}</Text>}
         {shownRateLimits.map(rateLimit => (
           <Box key={rateLimit.kind}>
