@@ -56,6 +56,7 @@ PR template (if any):
     pr=<PR URL>
     prev=""
     while true; do
+      [ "$(gh pr view "$pr" --json mergeable -q .mergeable 2>/dev/null)" = CONFLICTING ] && echo "MERGE CONFLICT" && break
       s=$(gh pr checks "$pr" --json name,bucket,link 2>/dev/null)
       s=${s:-[]}
       cur=$(jq -r '.[] | select(.bucket!="pending") | "\(.name): \(.bucket) \(.link)"' <<<"$s" | sort)
@@ -65,6 +66,8 @@ PR template (if any):
       sleep 30
     done
     ```
+
+    If the monitor prints `MERGE CONFLICT`, stop and report it. Most CI workflows do not run while the PR conflicts with its base. Tell the user to resolve it with the `rebase` skill; do not rebase or force-push on your own.
 
     The monitor expires after 30 minutes per head. If it expires before `ALL CHECKS DONE`, report the checks that remain pending or missing. Distinguish failed, cancelled, skipped, and missing checks; do not treat the absence of checks as a pass.
 11. For failed checks, inspect their links and logs (for GitHub Actions, `gh run view <run-id> --log-failed`). Confirm the failure belongs to the current head and is caused by this branch. Reproduce it locally when practical, fix the cause, and run the relevant local checks. Do not weaken assertions or skip checks just to get green CI. Leave unrelated working-tree changes alone.
