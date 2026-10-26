@@ -8,6 +8,10 @@
     "defaultMode": "auto"
   },
   "model": "opus",
+  "attribution": {
+    "commit": "",
+    "pr": ""
+  },
   "deniedMcpServers": [
     {
       "serverName": "claude.ai Gmail"
