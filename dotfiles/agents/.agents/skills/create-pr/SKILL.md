@@ -73,7 +73,6 @@ Write for a reviewer who skims and doesn't know the internals of the change.
 
 ## Rules
 
-- NEVER add `🤖 Generated with Claude Code` or any Claude/AI attribution to the PR body.
 - NEVER describe tests in the PR body. The diff shows them, and reviewers don't need them summarised.
 - NEVER run `gh pr create`, `git commit`, or `git push` without explicit user confirmation covering that action. Confirmation for the scoped CI repair loop can be given once in step 6.
 - NEVER force-push to a shared branch without explicit user confirmation.

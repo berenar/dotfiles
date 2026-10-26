@@ -34,8 +34,7 @@ Staged changes:
    - Skip words like enhance, leverage, robust, comprehensive, streamline, optimize (unless you actually measured it), improve (say what got better instead).
    - Don't pad with `various`, `several`, `some`, `misc`. If a title needs those words, the commit is too broad — split it.
 8. Title max 100 characters. No description body unless the user explicitly asks for one.
-9. **Never** add `Co-authored-by: Claude` or any AI attribution line.
-10. Keep each commit scoped to files/hunks relevant to its change set — don't sweep in unrelated edits.
-11. Preview the full commit plan (numbered list of titles + what's in each) to the user and wait for confirmation before committing. Describe each commit in one plain sentence. If the user pushes back that it's still too clustered, split further rather than defending the grouping.
-12. Stage selectively for each commit and inspect `git diff --staged` before committing.
-13. Never push unless the user explicitly asks.
+9. Keep each commit scoped to files/hunks relevant to its change set — don't sweep in unrelated edits.
+10. Preview the full commit plan (numbered list of titles + what's in each) to the user and wait for confirmation before committing. Describe each commit in one plain sentence. If the user pushes back that it's still too clustered, split further rather than defending the grouping.
+11. Stage selectively for each commit and inspect `git diff --staged` before committing.
+12. Never push unless the user explicitly asks.
