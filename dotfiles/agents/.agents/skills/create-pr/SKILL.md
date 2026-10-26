@@ -48,9 +48,27 @@ PR template (if any):
    ```
 8. If the branch has no upstream, push with `-u` first under the confirmation from step 6.
 9. After the PR is created, open it in the browser with `gh pr view --web` and record the PR URL.
-10. Watch the checks for the PR's current head commit with `gh pr checks <PR URL> --watch`. If checks have not appeared yet, poll until they do. Stop watching after 30 minutes per head and report checks that remain pending. Distinguish failed, cancelled, skipped, and missing checks; do not treat the absence of checks as a pass.
+10. Watch the checks for the PR's current head commit in the background. Never run a blocking watch in the foreground (`gh pr checks --watch`, `sleep` loops): it blocks the session until CI ends.
+    - Claude Code: start the `Monitor` tool with `timeout_ms: 1800000` and the script below. Each output line is a notification. Report the PR URL and end the turn; the notifications wake you up.
+    - Other agents: run the script as a background process if the agent supports it. If not, check `gh pr checks <PR URL>` once per turn.
+
+    ```bash
+    pr=<PR URL>
+    prev=""
+    while true; do
+      s=$(gh pr checks "$pr" --json name,bucket,link 2>/dev/null)
+      s=${s:-[]}
+      cur=$(jq -r '.[] | select(.bucket!="pending") | "\(.name): \(.bucket) \(.link)"' <<<"$s" | sort)
+      comm -13 <(echo "$prev") <(echo "$cur")
+      prev=$cur
+      jq -e 'length > 0 and all(.bucket!="pending")' <<<"$s" >/dev/null && echo "ALL CHECKS DONE" && break
+      sleep 30
+    done
+    ```
+
+    The monitor expires after 30 minutes per head. If it expires before `ALL CHECKS DONE`, report the checks that remain pending or missing. Distinguish failed, cancelled, skipped, and missing checks; do not treat the absence of checks as a pass.
 11. For failed checks, inspect their links and logs (for GitHub Actions, `gh run view <run-id> --log-failed`). Confirm the failure belongs to the current head and is caused by this branch. Reproduce it locally when practical, fix the cause, and run the relevant local checks. Do not weaken assertions or skip checks just to get green CI. Leave unrelated working-tree changes alone.
-12. If step 6 authorized CI fix commits and pushes, make a scoped commit and push it to the same PR branch, then watch the new head's checks. Repeat for at most three repair pushes. If that authorization was not given, keep the fix local and report what is ready to commit and push.
+12. If step 6 authorized CI fix commits and pushes, make a scoped commit and push it to the same PR branch, then watch the new head's checks with a new background monitor, as in step 10. Repeat for at most three repair pushes. If that authorization was not given, keep the fix local and report what is ready to commit and push.
 13. Stop and report the PR URL, latest head, check results, and remaining failure when a check needs secrets, permissions, an external service, or a change outside this PR's scope; when the cause is unclear; or when the repair or watch limit is reached. Do not merge or mark the draft ready.
 
 ## Writing style
