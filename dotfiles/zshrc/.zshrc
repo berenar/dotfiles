@@ -37,7 +37,7 @@ unsetopt share_history
 ################################### TMUX ###########################################
 
 # Start tmux automatically when opening a terminal
-if [[ -o interactive ]] && [[ -z "$TMUX" ]]; then
+if [[ -o interactive ]] && [[ -z "$TMUX" ]] && [[ "$TERM" == "xterm-kitty" ]]; then
   tmux attach || tmux new -s $(basename "$PWD")
 fi
 
