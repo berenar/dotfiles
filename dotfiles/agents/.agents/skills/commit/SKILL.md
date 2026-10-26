@@ -1,6 +1,7 @@
 ---
 name: commit
 description: Commit pending changes by planning, staging, and creating separate atomic commits for unrelated WIP. Invoke automatically when the user asks to commit, stage changes, save work to git, or split WIP into commits.
+model: sonnet
 allowed-tools: Bash(git add:*) Bash(git commit:*) Bash(git status:*) Bash(git diff:*) Bash(git log:*)
 ---
 
