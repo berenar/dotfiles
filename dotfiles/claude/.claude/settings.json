@@ -287,7 +287,7 @@
   "enabledPlugins": {
     "amplitude@claude-plugins-official": true,
     "celebrate-agentic-tools@celebrate-engineering": true,
-    "frontend-design@claude-plugins-official": true,
+    "frontend-design@claude-plugins-official": false,
     "playwright@claude-plugins-official": false,
     "security-guidance@claude-plugins-official": true,
     "cc-plugin-telemetry@builtin": false,
