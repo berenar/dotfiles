@@ -4,14 +4,14 @@
   "env": {
     "CLAUDE_CODE_PLUGIN_DIRS": "~/dotfiles/dotfiles/claude/.claude/mods/context-usage"
   },
-  "permissions": {
-    "defaultMode": "auto"
-  },
-  "model": "opus",
   "attribution": {
     "commit": "",
     "pr": ""
   },
+  "permissions": {
+    "defaultMode": "auto"
+  },
+  "model": "opus",
   "deniedMcpServers": [
     {
       "serverName": "claude.ai Gmail"
