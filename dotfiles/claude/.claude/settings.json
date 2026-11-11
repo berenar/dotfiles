@@ -291,7 +291,8 @@
     "playwright@claude-plugins-official": false,
     "security-guidance@claude-plugins-official": true,
     "cc-plugin-telemetry@builtin": false,
-    "image-preview@better-claude": true
+    "image-preview@better-claude": true,
+    "amazon@danielrosehill": true
   },
   "extraKnownMarketplaces": {
     "celebrate-engineering": {
@@ -310,6 +311,12 @@
       "source": {
         "source": "github",
         "repo": "midudev/better-claude"
+      }
+    },
+    "danielrosehill": {
+      "source": {
+        "source": "github",
+        "repo": "danielrosehill/Claude-Code-Plugins"
       }
     }
   },
